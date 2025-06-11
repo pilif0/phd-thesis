@@ -58,7 +58,7 @@ This is done in the same way that the abstract is set up in `infthesis.cls`.
 ## File Structure
 
 I use the `standalone` package to split the thesis into a file for each chapter (plus files for the abstract, lay summary, acknowledgements and appendix).
-Automatically generated figures are defined in a Haskell Stack project in [`figuremaker`](figuremaker), which uses my [library](https://github.com/pilif0/process-diagrams) for generating process diagrams.
+Automatically generated figures are defined in a Haskell Stack project in [`figuremaker`](figuremaker), which uses my [library](https://github.com/pilif0/process-diagram) for generating process diagrams.
 The building is handled by `make`.
 
 ### Main File

@@ -1,7 +1,7 @@
 # Thesis Figures
 
 This directory handles generating of figures using the public version of the theory and associated code.
-It relies on the [repository](https://github.com/pilif0/process-diagrams) with process diagram implementation.
+It relies on the [repository](https://github.com/pilif0/process-diagram) with process diagram implementation.
 
 All the automatically generated figures for the thesis are made by the `thesis` executable, the only executable in this project.
 It takes as argument the destination directory for the figures, which will in most cases be [`img-gen`](../img-gen) in the root of the repository (but can be something else e.g. for testing purposes).
