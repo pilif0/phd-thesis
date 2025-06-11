@@ -1,0 +1,6 @@
+\isacomm{definition}\ collectStudent\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isatv{s}\isanewline
+\isaindent{\isacomm{definition}\ collectStudent\ }{\isasymRightarrow}\ \isapars{\isatv{s}\ refined{\isachardot}lres,\ abstract{\isachardot}cres,\ String.literal,\ unit}\ process{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{collectStudent}\ \isabv{s}\ {\isacharequal}\isanewline
+\ \ \ \ Primitive\ {\isacharparenleft}Copyable\ abstract.Instructions\ {\isasymodot}\ Res\ {\isacharparenleft}Student\ \isabv{s}{\isacharparenright}{\isacharparenright}\isanewline
+\isaindent{\ \ \ \ Primitive\ }{\isacharparenleft}Res\ {\isacharparenleft}Submission\ \isabv{s}{\isacharparenright}{\isacharparenright}\isanewline
+\isaindent{\ \ \ \ Primitive\ }{\isacharparenleft}\isaString{Collect\ submission\ of\ }\ {\isacharplus}\ name\ \isabv{s}{\isacharparenright}\ {\isacharparenleft}{\isacharparenright}{\isachardoublequoteclose}

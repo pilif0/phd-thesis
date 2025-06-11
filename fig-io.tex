@@ -1,0 +1,22 @@
+\documentclass[class=infthesis]{standalone}
+
+\usepackage{bussproofs}
+\usepackage{amssymb}
+
+\begin{document}
+
+\begin{minipage}{\linewidth}
+  \begin{minipage}{0.48\textwidth}
+    \begin{isabellebody}
+      \input{isa/input}
+    \end{isabellebody}
+  \end{minipage}
+  \vrule\kern2pt
+  \begin{minipage}{0.50\textwidth}
+    \begin{isabellebody}
+      \input{isa/output}
+    \end{isabellebody}
+  \end{minipage}
+\end{minipage}
+
+\end{document}

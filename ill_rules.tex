@@ -1,0 +1,197 @@
+\documentclass[class=infthesis]{standalone}
+
+\usepackage{bussproofs}
+\usepackage{amssymb}
+
+\begin{document}
+
+\begin{minipage}{\linewidth}
+% Structural
+\paragraph*{Structural}~\\
+\hspace*{\fill}
+\begin{minipage}{0.25\textwidth}
+    \begin{prooftree}
+        \AxiomC{}
+        \RightLabel{Identity}
+        \UnaryInfC{$A \vdash A$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.35\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma, A, B, \Delta \vdash C$}
+        \RightLabel{Exchange}
+        \UnaryInfC{$\Gamma, B, A, \Delta \vdash C$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.35\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma \vdash B$}
+        \AxiomC{$B, \Delta \vdash C$}
+        \RightLabel{Cut}
+        \BinaryInfC{$\Gamma, \Delta \vdash C$}
+    \end{prooftree}
+\end{minipage}
+\hspace*{\fill}
+% With
+\paragraph*{With}~\\
+\hspace*{\fill}
+\begin{minipage}{0.35\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma, A \vdash C$}
+        \RightLabel{$\&_{L-1}$}
+        \UnaryInfC{$\Gamma, A\ \&\ B \vdash C$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.35\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma, B \vdash C$}
+        \RightLabel{$\&_{L-2}$}
+        \UnaryInfC{$\Gamma, A\ \&\ B \vdash C$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.25\textwidth}
+    \begin{prooftree}
+        \AxiomC{}
+        \RightLabel{$\top_R$}
+        \UnaryInfC{$\Gamma \vdash \top$}
+    \end{prooftree}
+\end{minipage}
+\hspace*{\fill}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash A$}
+    \AxiomC{$\Gamma \vdash B$}
+    \RightLabel{$\&_R$}
+    \BinaryInfC{$\Gamma \vdash A\ \&\ B$}
+\end{prooftree}
+% Plus
+\paragraph*{Plus}~\\
+\hspace*{\fill}
+\begin{minipage}{0.35\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma \vdash A$}
+        \RightLabel{$\oplus_{R-1}$}
+        \UnaryInfC{$\Gamma \vdash A \oplus B$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.35\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma \vdash B$}
+        \RightLabel{$\oplus_{R-2}$}
+        \UnaryInfC{$\Gamma \vdash A \oplus B$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.25\textwidth}
+    \begin{prooftree}
+        \AxiomC{}
+        \RightLabel{$\mathbf{0}_L$}
+        \UnaryInfC{$\Gamma, \mathbf{0} \vdash C$}
+    \end{prooftree}
+\end{minipage}
+\hspace*{\fill}
+\begin{prooftree}
+    \AxiomC{$\Gamma, A \vdash C$}
+    \AxiomC{$\Gamma, B \vdash C$}
+    \RightLabel{$\oplus_L$}
+    \BinaryInfC{$\Gamma, A \oplus B \vdash C$}
+\end{prooftree}
+% Times
+\paragraph*{Times}~\\
+\hspace*{\fill}
+\begin{minipage}{0.2\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma \vdash A$}
+        \RightLabel{$\mathbf{1}_L$}
+        \UnaryInfC{$\Gamma, \mathbf{1} \vdash A$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.15\textwidth}
+    \begin{prooftree}
+        \AxiomC{}
+        \RightLabel{$\mathbf{1}_R$}
+        \UnaryInfC{$\vdash \mathbf{1}$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.3\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma, A, B \vdash C$}
+        \RightLabel{$\otimes_L$}
+        \UnaryInfC{$\Gamma, A \otimes B \vdash C$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.3\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma \vdash A$}
+        \AxiomC{$\Delta \vdash B$}
+        \RightLabel{$\otimes_R$}
+        \BinaryInfC{$\Gamma, \Delta \vdash A \otimes B$}
+    \end{prooftree}
+\end{minipage}
+\hspace*{\fill}
+% Implication
+\paragraph*{Linear Implication}~\\
+\hspace*{\fill}
+\begin{minipage}{0.45\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma \vdash A$}
+        \AxiomC{$\Delta, B \vdash C$}
+        \RightLabel{$\multimap_L$}
+        \BinaryInfC{$\Gamma, \Delta, A \multimap B \vdash C$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma, A \vdash B$}
+        \RightLabel{$\multimap_R$}
+        \UnaryInfC{$\Gamma \vdash A \multimap B$}
+    \end{prooftree}
+\end{minipage}
+\hspace*{\fill}
+% Exponential
+\paragraph*{Exponential}~\\
+\hspace*{\fill}
+\begin{minipage}{0.4\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma \vdash B$}
+        \RightLabel{Weakening}
+        \UnaryInfC{$\Gamma, !A \vdash B$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.4\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma, !A, !A \vdash B$}
+        \RightLabel{Contraction}
+        \UnaryInfC{$\Gamma, !A \vdash B$}
+    \end{prooftree}
+\end{minipage}
+\hspace*{\fill}\\
+\hspace*{\fill}
+\begin{minipage}{0.4\textwidth}
+    \begin{prooftree}
+        \AxiomC{$\Gamma, A \vdash B$}
+        \RightLabel{Dereliction}
+        \UnaryInfC{$\Gamma, !A \vdash B$}
+    \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.4\textwidth}
+    \begin{prooftree}
+        \AxiomC{$!\Gamma \vdash A$}
+        \RightLabel{Promotion}
+        \UnaryInfC{$!\Gamma \vdash !A$}
+    \end{prooftree}
+\end{minipage}
+\hspace*{\fill}
+\end{minipage}
+
+\end{document}

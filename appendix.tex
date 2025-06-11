@@ -1,0 +1,200 @@
+\documentclass[class=smolathesis,crop=false]{standalone}
+
+\begin{document}
+
+\chapter{Appendix}
+\label{ch:appendix}
+
+\section{ILL Deduction Embedding Functions}
+\label{app:ill-deduct}
+
+The conclusions of deeply embedded ILL deductions (see Section~\ref{sec:linearity/deep}) are represented by values from the \isa{ill-sequent} datatype, capturing the antecedents and consequent:
+\begin{isadef}[Datatype for arbitrary ILL sequents]{isa:ill_sequent}
+  \input{isa/ill_sequent.tex}
+\end{isadef}
+
+We tie those values to the shallowly embedded relation of valid sequents (see Section~\ref{sec:linearity/shallow}) through the \isa{ill-sequent-valid} function:
+\begin{isadef}[Validity predicate on ILL sequents]{isa:ill_sequent_valid}
+  \input{isa/ill_sequent_valid.tex}
+\end{isadef}
+
+We set up a declaration bundle \isa{deep-sequent} which we can use to switch the turnstile notation from the relation to these values:
+\begin{isadef}[Declaration bundle switching turnstile notation]{isa:deep_sequent}
+  \input{isa/deep_sequent.tex}
+\end{isadef}
+
+The full definition for conclusions of deeply embedded ILL deductions is then as follows:
+\begin{isadef}[Conclusions of deeply embedded ILL deductions]{isa:ill_conclusion}
+  \input{isa/ill_conclusion.tex}
+\end{isadef}
+
+Their well-formedness is defined using these conclusions as follows:
+\begin{isadef}[Well-formedness of deeply embedded ILL deductions]{isa:ill_deduct_wf}
+  \input{isa/ill_deduct_wf.tex}
+\end{isadef}
+
+\section{Stitching Port Graph Interfaces}
+\label{app:seqInterfaceEdges}
+
+In Section~\ref{sec:port_graphs/mech/seq} we make use of \isa{seqInterfaceEdges} to define port graph sequencing.
+Our description of that function maps onto the Isabelle definitions as follows:
+\begin{isadef}[Gathering edges going into output ports]{isa:edgesByOverallTo}
+  \input{isa/edgesByOverallTo.tex}
+\end{isadef}
+\begin{isadef}[Gathering edges going from input ports]{isa:edgesByOverallFrom}
+  \input{isa/edgesByOverallFrom.tex}
+\end{isadef}
+\begin{isadef}[Connect all combinations from two lists of places]{isa:allEdges}
+  \input{isa/allEdges.tex}
+\end{isadef}
+\begin{isadef}[Pair up place lists by shared port and connect them]{isa:edgesFromPortMapping}
+  \input{isa/edgesFromPortMapping.tex}
+\end{isadef}
+\begin{isadef}[Connect edges by shared interface ports]{isa:seqInterfaceEdges}
+  \input{isa/seqInterfaceEdges.tex}
+\end{isadef}
+
+\section{Conversion of Port Graphs to ELK JSON}
+\label{app:elk_export}
+
+In Section~\ref{sec:port_graphs/mech/export} we discuss our ability to visualise port graphs with the Eclipse Layout Kernel by converting them into JSON\footnote{\url{https://www.eclipse.org/elk/documentation/tooldevelopers/graphdatastructure/jsonformat.html}}.
+The full definitions of the conversions involved are as follows:
+\begin{isadef}[Datatype representing port sides that ELK supports]{isa:elk_side}
+  \input{isa/elk_side.tex}
+\end{isadef}
+\begin{isadef}[Converting ELK sides to their representation for JSON]{isa:elkSideToString}
+  \input{isa/elkSideToString.tex}
+\end{isadef}
+\begin{isadef}[Default assignment of input and output to ELK sides]{isa:sideInOutToELK}
+  \input{isa/sideInOutToELK.tex}
+\end{isadef}
+\begin{isadef}[Locale for converting port graphs into ELK JSON]{isa:portGraphELK}
+  \input{isa/portGraphELK.tex}
+\end{isadef}
+\begin{isadef}[Converting ground ports into ELK JSON]{isa:groundPortToJSON}
+  \input{isa/groundPortToJSON.tex}
+\end{isadef}
+\noindent(Note that we may need to invert the index, because ELK numbers ports clockwise while we number them from the top down and from left to right.)
+\begin{isadef}[Converting nodes into ELK JSON]{isa:nodeToJSON}
+  \input{isa/nodeToJSON.tex}
+\end{isadef}
+\begin{isadef}[Converting an arbitrary place to its ID]{isa:placeToID}
+    \input{isa/groundPlaceToID.tex}
+  \item
+    \input{isa/openPlaceToID.tex}
+  \item
+    \input{isa/placeToID.tex}
+\end{isadef}
+\begin{isadef}[Converting edges into ELK JSON]{isa:edgeToJSON}
+  \input{isa/edgeToJSON.tex}
+\end{isadef}
+\begin{isadef}[Converting open ports into ELK JSON]{isa:openPortToJSON}
+  \input{isa/openPortToJSON.tex}
+\end{isadef}
+\begin{isadef}[Converting port graphs into ELK JSON]{isa:portGraphToJSON}
+  \input{isa/portGraphToJSON.tex}
+\end{isadef}
+\noindent(Note that we represent open ports with small nodes, because ELK does not support ports not attached to a node.)
+
+\cbstart
+\section{Processes with Port Graphs}
+\label{app:pgDefined}
+
+In Chapter~\ref{ch:port_graphs} we make frequent use of the predicate \isa{pgDefined} to exclude from consideration compositions that make use of non-deterministic or higher-order features, for which we do not define the port graph construction.
+Here we give the predicate in full in Definition~\ref{isa:pgDefined}.
+Note that we do not exclude the repeatable executable resource actions \isa{Repeat}, \isa{Close} and \isa{Once}, since those concern the copyable aspect of those resources.
+
+\begin{isadef}[Predicate for processes that have port graphs]{isa:pgDefined}
+  \input{isa/primrec-pgDefined.tex}
+\end{isadef}
+\cbend
+
+\section{List-Based Process Compositions}
+\label{app:process-list}
+
+To make definitions of larger process compositions more concise, we define functions for composing a list of processes in sequence or in parallel:
+\begin{isadef}[Composing a list of processes in sequence]{isa:seq_process_list}
+  \input{isa/seq_process_list.tex}
+\end{isadef}
+
+\begin{isadef}[Composing a list of processes in parallel]{isa:par_process_list}
+  \input{isa/par_process_list.tex}
+\end{isadef}
+
+\cbstart
+\section{Contingent Plan for Three Socks}
+\label{app:three-socks-contingent}
+
+In Section~\ref{sec:cases/three-socks} we describe a conformant plan for the problem and note the existence of a contingent variant.
+The Haskell code for the composition representing this contingent plan is shown in Listing~\ref{lst:contingent}.
+
+\begin{lstlisting}[label=lst:contingent,caption=Contingent plan for picking three matching socks,basicstyle=\footnotesize\ttfamily,columns=flexible,breaklines=true]
+contingentPlan :: Process LRes () String ()
+contingentPlan = seq_process_list
+  [ Par (Identity (hidden # hidden)) pick
+  , OptDistrIn (hidden # hidden) black white
+  , Opt
+      (seq_process_list
+        [ Swap (hidden # hidden) black
+        , Par (Identity (black # hidden)) pick
+        , OptDistrIn (black # hidden) black white
+        , Opt
+            (seq_process_list
+              [ Par (Identity black) (Swap hidden black)
+              , Par (Identity (black # black)) (Forget hidden)
+              , InjectL (black # black # anything) (white # white # anything)
+              ])
+            (seq_process_list
+              [ Par (Identity black) (Swap hidden white)
+              , Par (Identity (black # white)) pick
+              , OptDistrIn (black # white) black white
+              , Opt
+                  (seq_process_list
+                    [ Par (Identity black) (Swap white black)
+                    , Par (Identity (black # black)) (Forget white)
+                    , InjectL (black # black # anything) (white # white # anything)
+                    ])
+                  (seq_process_list
+                    [ Swap black (white # white)
+                    , Par (Identity (white # white)) (Forget black)
+                    , InjectR (black # black # anything) (white # white # anything)
+                    ])
+              ])
+        ])
+      (seq_process_list
+        [ Swap (hidden # hidden) white
+        , Par (Identity (white # hidden)) pick
+        , OptDistrIn (white # hidden) black white
+        , Opt
+            (seq_process_list
+              [ Par (Identity white) (Swap hidden black)
+              , Par (Identity (white # black)) pick
+              , OptDistrIn (white # black) black white
+              , Opt
+                  (seq_process_list
+                    [ Swap white (black # black)
+                    , Par (Identity (black # black)) (Forget white)
+                    , InjectL (black # black # anything) (white # white # anything)
+                    ])
+                  (seq_process_list
+                    [ Par (Identity white) (Swap black white)
+                    , Par (Identity (white # white)) (Forget black)
+                    , InjectR (black # black # anything) (white # white # anything)
+                    ])
+              ])
+            (seq_process_list
+              [ Par (Identity white) (Swap hidden white)
+              , Par (Identity (white # white)) (Forget hidden)
+              , InjectR (black # black # anything) (white # white # anything)
+              ])
+        ])
+  ]
+\end{lstlisting}
+\cbend
+
+\ifstandalone
+\bibliographystyle{plain}
+\bibliography{references}
+\fi
+
+\end{document}

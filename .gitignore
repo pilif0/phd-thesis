@@ -1,0 +1,12 @@
+# Build and output directories
+build
+output
+
+# Latex svg figures
+svg-inkscape
+
+# Haskell Stack
+.stack-work/
+
+# Dirstamps used in Makefile
+.dirstamp

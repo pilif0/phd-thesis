@@ -1,0 +1,7 @@
+\isacomm{fun}\isamarkupfalse%
+\ duplicateToN\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}nat\ {\isasymRightarrow}\ \isatv{b}\ {\isasymRightarrow}\ {\isacharparenleft}\isatv{a}{\isacharcomma}\ \isatv{b},\ \isatv{l}{\isacharcomma}\ \isatv{m}{\isacharparenright}\ process{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\isanewline
+\ \ \ \ {\isachardoublequoteopen}\isafv{duplicateToN}\ {\isacharparenleft}Suc\ {\isadigit{0}}{\isacharparenright}\ \isabv{x}\ {\isacharequal}\ Identity\ {\isacharparenleft}Copyable\ \isabv{x}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{duplicateToN}\ {\isacharparenleft}Suc\ \isabv{n}{\isacharparenright}\ \isabv{x}\ {\isacharequal}\ Seq\ \isapars{Duplicate\ \isabv{x}}\isanewline
+\isaindent{\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{duplicateToN}\ {\isacharparenleft}Suc\ \isabv{n}{\isacharparenright}\ \isabv{x}\ {\isacharequal}\ Seq\ }\isapars{Par\ \isapars{Identity\ {\isacharparenleft}Copyable\ \isabv{x}{\isacharparenright}}\ \isapars{\isafv{duplicateToN}\ \isabv{n\ r}}}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{duplicateToN}\ {\isadigit{0}}\ \isabv{x}\ {\isacharequal}\ Erase\ \isabv{x}{\isachardoublequoteclose}

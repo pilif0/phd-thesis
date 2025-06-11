@@ -1,0 +1,7 @@
+\isacomm{definition}\ collectionSplit{\isacharunderscore}cond\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isapars{\isatv{s}\ refined{\isachardot}lres,\ abstract{\isachardot}cres}\ resource\isanewline
+\isaindent{\isacomm{definition}\ collectionSplit{\isacharunderscore}cond\ }{\isasymRightarrow}\ \isapars{\isatv{s}\ refined{\isachardot}lres,\ abstract{\isachardot}cres}\ resource\isanewline
+\isaindent{\isacomm{definition}\ collectionSplit{\isacharunderscore}cond\ }{\isasymRightarrow}\ String{\isachardot}literal\ {\isasymRightarrow}\ unit\ {\isasymRightarrow}\ bool{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{collectionSplit{\isacharunderscore}cond}\ \isabv{in\ out\ l\ m}\ {\isacharequal}\ {\isacharparenleft}\isanewline
+\ \ \ \ \isabv{in}\ {\isacharequal}\ Copyable\ abstract.Instructions\ {\isasymodot}\isanewline
+\isaindent{\ \ \ \ \isabv{in}\ {\isacharequal}\ }Parallel\ {\isacharparenleft}map\ {\isacharparenleft}Res\ {\isasymcirc}\ refined{\isachardot}Student{\isacharparenright}\ \isafv{students}{\isacharparenright}\ {\isasymand}\isanewline
+\ \ \ \ \isabv{out}\ {\isacharequal}\ Parallel\ {\isacharparenleft}map\ {\isacharparenleft}Res\ {\isasymcirc}\ refined{\isachardot}Submission{\isacharparenright}\ \isafv{students}{\isacharparenright}{\isacharparenright}

@@ -1,0 +1,7 @@
+\isacomm{definition}\ removeNode\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharcomma}\ \isatv{l}{\isacharparenright}\ node\ {\isasymRightarrow}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharcomma}\ \isatv{l}{\isacharparenright}\ port{\isacharunderscore}graph\isanewline
+\isaindent{\isacomm{definition}\ removeNode\ }{\isasymRightarrow}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharcomma}\ \isatv{l}{\isacharparenright}\ port{\isacharunderscore}graph{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{removeNode}\ \isabv{n\ G}\ {\isacharequal}\isanewline
+\ \ PGraph\isanewline
+\ \ \ \ {\isacharparenleft}filter\ {\isacharparenleft}{\isacharparenleft}{\isasymnoteq}{\isacharparenright}\ \isabv{n}{\isacharparenright}\ {\isacharparenleft}pg{\isacharunderscore}nodes\ \isabv{G}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharparenleft}disconnectFromPlaces\ \isapars{nodePlaces\ \isabv{n}}\ {\isacharparenleft}pg{\isacharunderscore}edges\ \isabv{G}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharparenleft}pg{\isacharunderscore}ports\ \isabv{G}{\isacharparenright}{\isachardoublequoteclose}

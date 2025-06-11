@@ -1,0 +1,507 @@
+\documentclass[class=smolathesis,crop=false]{standalone}
+
+\begin{document}
+
+\chapter{Resources}
+\label{ch:res}
+
+The role of resources in our framework is to describe the inputs and outputs of processes.
+Their basis is \emph{atoms}, which are drawn from two unconstrained type parameters: one for linear resources and another for copyable resources.
+
+Starting from these atoms, resources can be combined in several ways to express more complex situations.
+Parallel combination represents simultaneous presence of several resources.
+Non-deterministic combination represents exactly one of two resources, without specifying which one.
+An executable resource represents a single potential execution of a process, combining its input and output resource, while a \emph{repeatably} executable resource does not limit the number of uses.
+In Chapter~\ref{ch:proc} we use these combinations to capture the inputs and outputs of processes and their compositions.
+
+We formalise resources as a universal algebra~\cite{baader_nipkow-1998-ch03}, through its terms and equations.
+The terms, which we describe in Section~\ref{sec:res/terms}, serve to express any combination of atoms.
+The equations serve to connect different terms for what we consider the same resource, and in Section~\ref{sec:res/quot} we describe their mechanisation as an equivalence relation on terms.
+This yields resources as a quotient of the terms by that equivalence relation.
+
+While the equivalence relation specifies what resources are equal, it in itself is not suitable for showing what resources are distinct.
+In Section~\ref{sec:res/rewr} we discuss a decision procedure for resource term equivalence based on term rewriting~\cite{baader_nipkow-1998}.
+By reducing terms into their normal forms and comparing those, this procedure lets us decide whether or not two resources are equal in a computable way, allowing for generation of executable code involving resources.
+Beyond deciding the equality of resources, in Section~\ref{sec:res/bnf} we also note how the rewriting relation involved in this procedure allows us to take advantage of more automation available in Isabelle/HOL.
+
+In Chapter~\ref{ch:linearity} we make an argument for the linearity of our process composition by relating them to deductions of intuitionistic linear logic (ILL).
+As part of that, we relate resource terms to propositions of ILL and resource term equivalence to proofs in ILL (i.e.\ deductions with no premises).
+
+\paragraph*{Running example.}
+To illustrate some of the concepts in this chapter, we will be using a simple vending machine as a running example.
+This machine can accept cash, dispense one kind of drink at a fixed cost and return change.
+See Chapter~\ref{ch:cases} for more involved examples of resources.
+
+\section{Resource Terms}
+\label{sec:res/terms}
+
+When describing interesting processes we rarely talk about singular objects.
+An action may for example require or produce multiple resources, or its result may be non-deterministic (e.g.\ it can fail).
+Thus our resources combine in various ways to formally express such situations, building from the individual objects of the domain and two special objects.
+
+Our first step in mechanising resources in Isabelle/HOL is to express the possible combinations as terms.
+Given two types of resource atoms, \isa{\isatv{a}} for linear atoms and \isa{\isatv{b}} for copyable atoms, the resource term type \isa{\isapars{\isatv{a},\ \isatv{b}}\ res{\isacharunderscore}term} has four leaf resources and four resource combinations:
+\begin{isadef}[Datatype of resource terms]{isa:res_term}
+  \input{isa/res_term}
+\end{isadef}
+
+We now describe each of the eight resource term constructors and illustrate the kinds of information the type parameters \isa{\isatv{a}} and \isa{\isatv{b}} can represent.
+See Section~\ref{sec:proc/type} for how resources are used in process compositions, giving a further perspective on the meaning of each resource and combination.
+
+The first two kinds of leaves, constructed by \isa{Res} and \isa{Copyable}, essentially inject the resource atoms into the type (linear and copyable atoms respectively).
+This means that every resource atom is itself a resource, which can then be combined into more complicated resources.
+The key difference between the two kinds of atoms is that copyable atoms allow for copying and deleting actions (see Section~\ref{sec:proc/type/res}).
+
+The third leaf, \isa{Empty}, represents as resource the absence of any object.
+It is useful when we want to describe an action with no input or no output.
+And, with the equations introduced in Section~\ref{sec:res/quot}, it acts as a unit for parallel combination of resources.
+
+The fourth and final leaf, \isa{Anything}, represents a resource about which we have no information.
+Any resource, and thus also their combinations, can be turned into this one by ``forgetting'' all information about it (see Section~\ref{sec:proc/type/res}).
+In certain cases this allows us to more concisely express a resource, but at the cost of no longer being able to act on the forgotten resources.
+See Section~\ref{sec:cases/three-socks} for an example of how this resource can be used to more concisely express the output of a process.
+
+The first combination, \isa{Parallel}, represents the simultaneous presence of a whole list of resources as one.
+For instance, \isa{Parallel\ \isalist{Res\ Nail,\ Res\ Hammer,\ Res\ Picture}} could represent what is required to hang a picture on a wall: a nail, a hammer and the picture itself.
+
+The second combination, \isa{NonD}, represents exactly one of two resources without indicating which one.
+The primary use of this combination is for actions with non-deterministic outcomes.
+For instance, \isa{NonD\ \isapars{Res\ Success}\ \isapars{Res\ Error}} for a process that can succeed or fail with an error, or \isa{NonD\ \isapars{Res\ Heads}\ \isapars{Res\ Tails}} for the result of a coin toss.
+
+The third combination, \isa{Executable}, represents a single potential execution of a process and is specified by the process input and output resources.
+This allows us to represent higher-order processes, which are processes that take as input or produce as output other processes.
+For instance, \isa{Executable\ \isapars{Res\ SteelSheet}\ \isapars{Parallel\ \isalist{Res\ SteelTiles,\ Res\ Waste}}} represents the ability to cut a steel sheet into tiles while producing some waste.
+
+The fourth and final combination, \isa{Repeatable}, is the repeatable variant of \isa{Executable}.
+It still represents a potential execution of a process specified by its input and output, but one that can be used repeatedly.
+This allows us to represent higher-order processes when we do not know how many times they will use this resource.
+For instance, the number of its executions might be decided by another resource, such as a manufacturing order containing a list of instructions to perform.
+
+Note that the type parameters \isa{\isatv{a}} and \isa{\isatv{b}} from which resource atoms are drawn are not constrained in any way.
+This means they can be any type we can define in Isabelle/HOL, only requiring the elements to have a notion of equality.
+As a result we can build resources from atoms such as the following:
+\begin{itemize}
+  \item Objects with internal state: \isa{Glass\ \isafv{c\ v}} where \isa{\isafv{c}\ \isasymin\ \isabraces{Water,\ Milk,\ Juice}} and {\isafv{v}~\isasymin~$\mathbb{R}$} is the contained volume;
+  \item Objects at graph-like locations: \isa{\isapars{Bowl,\ Kitchen\ Counter}}, \isa{\isapars{Coat,\ Hall\ Rack}} where \isa{Kitchen\ Counter} and \isa{Hall\ Rack} are vertices of some graph;
+  \item Stacks of objects: \isa{\isapars{Plate,\ \isafv{n}}} where {\isafv{n}~\isasymin~$\mathbb{N}$} is the count.
+\end{itemize}
+
+This allows us to easily add information to the resources.
+As compositions of processes use resources, requiring their equality wherever a connection is made, this information has an effect on what compositions are valid (see Section~\ref{sec:proc/valid}).
+For instance, with resource atoms located in a graph we can ensure that any movement of resources is done between adjacent locations.
+
+\paragraph*{Example.}
+In the case of our running example, the vending machine, there are three kinds of objects we care about: cash, drinks and the machine itself.
+So, in that domain, these form our type of resource atoms with constructors \isa{Cash}, \isa{Drink} and \isa{Machine}.
+
+The constructor \isa{Drink} is sufficient to represent a single drink and does not need a parameter.
+But \isa{Cash} does need a parameter: we represent the amount \isa{\isafv{n}} of some currency as \isa{Cash\ \isafv{n}}.
+Similarly for the vending machine itself, we parameterise the \isa{Machine} constructor with a natural number to represent the amount that the machine currently holds in credit.
+
+Note that for simplicity we assume any amount of currency is one object rather than deal with denominations used in the real world.
+However, this model could be extended in a straightforward way to account for this detail.
+
+The resource construction most relevant in this domain is parallel combination.
+For instance, if we have a vending machine with \isa{\isafv{m}} already in credit and want to buy a drink that costs \isa{\isafv{m}\ \isacharplus\ \isafv{c}}, then we may start in the situation described by the following resource:
+\begin{isabelle}
+\centering
+  Parallel\ \isalist{Res\ \isapars{Cash\ \isafv{c}},\ Res\ \isapars{Machine\ \isafv{m}}}
+\end{isabelle}
+
+\section{Resources as Quotient of Terms}
+\label{sec:res/quot}
+
+Resource terms give many ways of expressing the same resource.
+For instance, Figure~\ref{fig:res_eq} shows syntax trees for five resource terms which express the same resource: the single (linear) atom $A$.
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[scale=1]{img-gen/res_eq_0.svg}\quad
+  \includesvg[scale=1]{img-gen/res_eq_1.svg}\quad
+  \includesvg[scale=1]{img-gen/res_eq_2.svg}
+  \\~\\
+  \includesvg[scale=1]{img-gen/res_eq_3.svg}\quad
+  \includesvg[scale=1]{img-gen/res_eq_4.svg}
+  \caption{Five resource term trees expressing the same resource, the single atom $A$.}
+  \label{fig:res_eq}
+\end{figure}
+
+At present, we pay special attention to the variety of terms that can be produced by the parallel combination of resources.
+This is because parallel combinations arise frequently in our process combinations, and when they do it is often with more than two resources.
+Rendering the alternatives equal, as we set up in this section, significantly simplifies building compositions at the price of a manageable increase to complexity of their mechanisation.
+
+Other resource combinations can also produce a variety of terms, for example \isa{NonD~\isafv{x}~\isafv{x}} could be considered the same as \isa{\isafv{x}}.
+In Chapter~\ref{ch:prob} we demonstrate how such further resource equalities can be added to our framework, a task made easier thanks to the automation available in Isabelle/HOL.
+As such, we consider adding resource equalities to our framework as a recurring part of future work (see Section~\ref{sec:res/conc}).
+
+Note that, although they are not resource equations, further resource transformations can also be achieved through composition operators and resource actions (see Section~\ref{sec:proc/type/comp} and Section~\ref{sec:proc/type/res}).
+
+In our formalisation of resources, we collect all of the possible forms of a resource into one object.
+We start by defining an equivalence relation on resource terms and then form their quotient by that relation.
+This allows us to lift operations on terms to yield operations on resources.
+
+We relate terms that represent the same resource by the relation \isa{\isasymsim}, defined inductively as shown in Definition~\ref{isa:res_term_equiv}.
+The first three introduction rules (lines 3--5) express the core of the equivalence, handling parallel combinations with no children, single child and nested parallel combinations respectively.
+Then the next eight introduction rules (lines 6--13) close the relation on the resource term structure, meaning the result will be a congruence.
+The final two rules (lines 14--15) make the relation symmetric and transitive.
+The fact that it is reflexive, the last condition for it to be an equivalence, can be proven from this definition.
+
+\begin{isadef}[Equivalence of resource terms]{isa:res_term_equiv}
+  \begin{linenumbers*}
+    \input{isa/res_term_equiv}
+  \end{linenumbers*}
+\end{isadef}
+
+Then we can define resources as the quotient of terms by the relation \isa{\isasymsim}, treating each equivalence class as one object.
+This is easily done in Isabelle/HOL:
+\begin{isadef}[Quotient type of resources]{isa:resource}
+  \input{isa/quotient_type-resource}
+\end{isadef}
+
+\cbstart
+For making definitions using the quotient type we use lifting, which takes an expression involving resource terms and \emph{lifts} them to use resources instead.
+In Isabelle/HOL this is automated by the Lifting package introduced by Huffman and Kun\v{c}ar~\cite{huffman_kuncar-2013}.
+
+The main tool that Lifting introduces is \isa{\isacomm{lift{\isacharunderscore}definition}}.
+This keyword takes a new name, the desired (lifted) type and original (unlifted) expression.
+It deduces a formal connection between the original and new types, producing automatically a definition for a new constant with the desired type.
+To complete the lifting, we need to prove a respectfulness condition: that applying the original expression to equivalent arguments produces equivalent results, ensuring that the choice of representatives would not matter.
+With this obligation fulfilled, Isabelle automatically proves a number of facts relating the new constant to the original expression.
+
+For instance, in Definition~\ref{isa:resource_Parallel} we lift the \isa{Parallel} constructor from resource terms to resources.
+The respectfulness obligation in this case is one of the rules defining the relation \isa{\isasymsim}, and so can be proven in a single step.
+\begin{isadef}[Parallel resource]{isa:resource_Parallel}
+  \input{isa/lift_definition-Parallel}
+\end{isadef}
+
+We use the same approach to lift all the resource term constructors to resources, allowing us to directly construct resources without going through terms every time.
+In Section~\ref{sec:res/rewr/representative} we use lifting to define the normal form representative for every resource.
+Other functions of resources we define also follow the pattern of first defining them for resource terms and then lifting that to resources, for instance the \isa{parallel{\isacharunderscore}parts} function in Section~\ref{sec:proc/diag} and the \isa{process{\isacharunderscore}refineRes} function in Section~\ref{sec:proc/transform/res-refine}.
+And in Section~\ref{sec:res/bnf} we use more advanced automation to lift additional structure from resource terms to resources.
+
+The main issue that remains is that of characterising the equivalence in a computable way.
+This is important, because without it we would not be able to generate executable code for anything involving resources.
+We address this in Section~\ref{sec:res/rewr} with a normalisation procedure based on rewriting.
+\cbend
+
+Before addressing that issue, let us define an infix notation for parallel resources which we call the resource product and denote with \isa{\isasymodot}.
+This simplifies statements that involve small numbers of concrete resources being in parallel.
+\begin{isadef}[Resource product]{isa:resource_par}
+  \input{isa/definition-resource_par}
+\end{isadef}
+Thanks to resources being a quotient, this operation is associative and has \isa{Empty} as its left and right units (i.e.\ it forms a monoid).
+\begin{isalemma}[Associativity and unitality of the resource product]{isa:resource_par_assoc_unit}
+  \input{isa/lemma-resource_par_assoc}
+\item
+  \input{isa/lemma-resource_par_unitR}
+\item
+  \input{isa/lemma-resource_par_unitL}
+\end{isalemma}
+
+Note that, once the quotient is made, it does not matter if we initially defined the parallel resource term combination as having arbitrary arity or as strictly binary.
+It only affects the phrasing of the equivalence rules, the normalisation procedure we use to decide that equivalence and the representation of resources in generated code.
+We choose to use lists because they more concisely reflect the monoidal nature of parallel resources and make for a simpler normalisation procedure.
+
+\section{Resource Term Normalisation by Rewriting}
+\label{sec:res/rewr}
+
+The relation \isa{\isasymsim} specified which resource terms represent the same resource, but its rules on their own are not enough to show the negative.
+For instance, even from \isa{Empty~\isasymsim~Anything} we do not arrive at contradiction but at the suggestion that if there was some term \isa{\isafv{y}} such that \isa{Empty\ \isasymsim\ \isafv{y}} and \isa{\isafv{y}\ \isasymsim\ Anything} then the equivalence could hold.
+It is difficult to prove that no such \isa{\isafv{y}} could exist.
+
+To remedy this, we give a computable characterisation of the resource term equivalence \isa{\isasymsim} through a normalisation procedure based on term rewriting.
+For an introduction to term rewriting, see for instance the book by Baader and Nipkow~\cite{baader_nipkow-1998}.
+In our rewriting system we use the following rules:
+\begin{align}
+  \isa{Parallel\ {\isacharbrackleft}{\isacharbrackright}\ }&\isa{\isasymrightarrow\ Empty} \label{isa:res_term_rewr-1}\\
+  \isa{Parallel\ {\isacharbrackleft}\isafv{a}{\isacharbrackright}\ }&\isa{\isasymrightarrow\ \isafv{a}} \label{isa:res_term_rewr-2}\\
+  \isa{Parallel\ {\isacharparenleft}\isafv{x}\ {\isacharat}\ {\isacharbrackleft}Parallel\ \isafv{y}{\isacharbrackright}\ {\isacharat}\ \isafv{z}{\isacharparenright}\ }&\isa{\isasymrightarrow\ Parallel\ {\isacharparenleft}\isafv{x}\ {\isacharat}\ \isafv{y}\ {\isacharat}\ \isafv{z}{\isacharparenright}} \label{isa:res_term_rewr-3}\\
+  \isa{Parallel\ {\isacharparenleft}\isafv{x}\ {\isacharat}\ {\isacharbrackleft}Empty{\isacharbrackright}\ {\isacharat}\ \isafv{y}{\isacharparenright}\ }&\isa{\isasymrightarrow\ Parallel\ {\isacharparenleft}\isafv{x}\ {\isacharat}\ \isafv{y}{\isacharparenright}} \label{isa:res_term_rewr-4}
+\end{align}
+
+The rules (\ref{isa:res_term_rewr-1})--(\ref{isa:res_term_rewr-3}) are obtained directly from the introduction rules of the equivalence \isa{\isasymsim} by picking a specific direction (see the first three rules in Figure~\ref{isa:res_term_equiv}).
+The rule (\ref{isa:res_term_rewr-4}) is obtained from a theorem about the equivalence \isa{\isasymsim}, allowing us to drop any \isa{Empty} resource within a \isa{Parallel} one in a single step.
+
+In the rest of this section we detail the normalisation procedure and how it characterises the equivalence relation.
+We start by defining what it means for a term to be normalised.
+Next we specify the rewriting relation, using single-direction variants of the equivalence rules, and give an upper bound on the number of rewriting steps that may apply to any given term.
+Then we define the rewriting step function to implement the rewriting we specified and show that its repeated application to a term eventually reaches the normal form.
+Finally, we verify that terms having equal normal forms is the same as them being equivalent and define the representative term for a resource to be the normal form in its equivalence class.
+
+\subsection{Normalised Terms}
+\label{sec:res/rewr/normalised}
+
+A resource term is normalised if:
+\begin{itemize}
+  \item It is a leaf node (i.e.\ one of \isa{Empty}, \isa{Anything}, \isa{Res} or \isa{Copyable}), or
+  \item It is a non-parallel internal node (i.e.\ one of \isa{NonD}, \isa{Executable} or \isa{Repeatable}) and all of its children are normalised, or
+  \item It is a parallel internal node (i.e.\ \isa{Parallel}) and all of the following hold:
+    \begin{itemize}
+      \item All of its children are normalised, and
+      \item None of its children are empty or parallel resource terms (i.e.\ one of \isa{Empty} or \isa{Parallel}), and
+      \item It has at least two children.
+    \end{itemize}
+\end{itemize}
+
+We formalise this in Isabelle as the predicate \isa{normalised} through structural recursion on the type of resource terms:
+\begin{isadef}[Normal form predicate for resource terms]{isa:normalised}
+  \input{isa/normalised}
+\end{isadef}
+
+\subsection{Rewriting Relation}
+\label{sec:res/rewr/rel}
+
+We define the rewriting relation, the congruence closure of the rules (\ref{isa:res_term_rewr-1})--(\ref{isa:res_term_rewr-4}), as the inductive relation \isa{res{\isacharunderscore}term{\isacharunderscore}rewrite}:
+
+\begin{isadef}[Rewriting relation on resource terms]{isa:res_term_rewrite}
+  \input{isa/res_term_rewrite}
+\end{isadef}
+
+Note that this relation is reflexive rather than partial, so its normal forms are fixpoints rather than terminal elements.
+The rewriting step function (see Section~\ref{sec:res/rewr/step}) will have to be total, like all functions defined in Isabelle.
+By making the rewriting relation reflexive we can have the rewriting step function graph be a subset of this relation, which is useful for reusing proof.
+
+As further assurance, we show that a resource term satisfies the predicate \isa{normalised} if and only if it is a fixpoint of the relation \isa{res{\isacharunderscore}term{\isacharunderscore}rewrite}.
+So these two definitions agree on what terms are normalised.
+
+\cbstart
+\begin{isalemma}[Normalised terms are fixpoints of rewriting]{isa:normalised_is_rewrite_refl}
+  \input{isa/lemma-normalised_is_rewrite_refl}
+\end{isalemma}
+\cbend
+
+\subsection{Rewriting Bound}
+\label{sec:res/rewr/bound}
+
+The rewriting bound expresses the upper limit on how many rewriting steps may be applied to a particular resource term.
+For this bound we disregard many details of the resource term at hand in order to arrive at a simple definition, which means that even terms in normal form can have a positive rewriting bound --- this is not the \emph{least} upper bound.
+But there being a finite bound is sufficient to show that normalisation by this rewriting terminates.
+
+We define the bound in Definition~\ref{isa:res_term_rewrite_bound} through structural recursion on the type of resource terms with the following major cases:
+\begin{itemize}
+  \item If the term is a leaf (i.e.\ one of \isa{Empty}, \isa{Anything}, \isa{Res} or \isa{Copyable}), then its bound is zero.
+  \item If the term is a non-parallel internal node (i.e.\ one of \isa{NonD}, \isa{Executable} or \isa{Repeatable}), then its bound is the sum of bounds for its children.
+  \item If the term is a parallel internal node (i.e.\ \isa{Parallel}), then its bound is the sum of bounds for its children plus its length (for possibly dealing with unwanted children) plus one (for possibly ending up with too few children).
+\end{itemize}
+
+\cbstart
+\begin{isadef}[Upper bound for number of rewrites]{isa:res_term_rewrite_bound}
+  \input{isa/primrec-res_term_rewrite_bound}
+\end{isadef}
+
+We show two crucial properties of this bound.
+First, for every resource term not already in normal form this bound is positive.
+\begin{isalemma}[Positive bound for all unnormalised terms]{isa:res_term_rewrite_bound_not_normalised}
+  \input{isa/lemma-res_term_rewrite_bound_not_normalised}
+\end{isalemma}
+
+Second, the terms related by rewriting to any term have bound at most as high as it does.
+In other words, rewriting a term does not increase this bound.
+\begin{isalemma}[Rewriting does not increase the bound]{isa:res_term_rewrite_non_increase_bound}
+  \input{isa/lemma-res_term_rewrite_non_increase_bound}
+\end{isalemma}
+\cbend
+
+\subsection{Rewriting Step}
+\label{sec:res/rewr/step}
+
+The rewriting relation in Definition~\ref{isa:res_term_rewrite} specifies all possible rewriting paths.
+When implemented, a specific algorithm must be chosen, which yields a rewriting function.
+Our rewriting function is given in Definition~\ref{isa:step}, followed by a description of the rewriting path it implements.
+
+\begin{isadef}[Rewriting algorithm for resource terms]{isa:step}
+  \input{isa/step}
+\end{isadef}
+
+There are two choices when rewriting: the order in which we rewrite children of internal nodes, and the order in which we apply the rewriting rules.
+For an example of the latter: the term \isa{Parallel\ \isalist{Empty}} could be rewritten directly into \isa{Empty} by rule (\ref{isa:res_term_rewr-2}), or first into \isa{Parallel\ \isalist{}} by rule (\ref{isa:res_term_rewr-4}) and only then into \isa{Empty} by rule (\ref{isa:res_term_rewr-1}).
+Our algorithm in Definition~\ref{isa:step} approaches these choices as follows:
+\begin{itemize}
+  \item For the internal nodes \isa{NonD}, \isa{Executable} and \isa{Repeatable}, always rewrite the first child until it reaches its normal form and only then start rewriting the second child if that one is not also already normalised.
+  \item For the internal node \isa{Parallel} we proceed in phases:
+    \begin{enumerate}[label=\roman*.]
+      \item If any child is not normalised, then rewrite all the children (note that rewriting does not change normalised terms by Lemma~\ref{isa:normalised_is_rewrite_refl}); otherwise
+      \item If there is some nested \isa{Parallel} node in the children, then merge one up; otherwise
+      \item If there is some \isa{Empty} node in the children, then remove one; otherwise
+      \item If there are no children, then return the term \isa{Empty}; otherwise
+      \item If there is exactly one child, then return that term; otherwise
+      \item Do nothing and return the same resource.
+    \end{enumerate}
+\end{itemize}
+
+We show that the graph of \isa{step} is a sub-relation of the rewriting relation.
+Thus normalised resource terms are exactly those for which this function acts as identity and the input resource term is always equivalent to the result.
+\begin{isalemma}[Rewriting relation contains rewriting step]{isa:res_term_rewrite_contains_step}
+  \input{isa/lemma-res_term_rewrite_contains_step}
+\end{isalemma}
+
+With this more specific formulation of rewriting we can prove that, for any term not already normalised, this \isa{step} function strictly decreases its rewriting bound:
+\begin{isalemma}[Rewriting algorithm decreases bound]{isa:res_term_rewrite_bound_step_decrease}
+  \input{isa/lemma-res_term_rewrite_bound_step_decrease}
+\end{isalemma}
+
+\cbstart
+Finally, we show that applying \isa{step} produces a term equivalent to the original.
+Transitivity will then allow us to repeatedly apply this rewriting and still produce a term equivalent to the original.
+The proof proceeds rests on noting that the rewriting relation is a one-directional form of the equivalence and \isa{step} is contained by that relation.
+\begin{isalemma}[Rewriting algorithm produces an equivalent term]{isa:res_term_equiv_step}
+  \input{isa/lemma-res_term_equiv_step}
+\end{isalemma}
+\cbend
+
+\subsection{Normalisation}
+\label{sec:res/rewr/normal}
+
+With this rewriting function the normalisation procedure is quite simple: keep applying \isa{step} as long as the resource term is not normalised.
+We mechanise this as the function \isa{normal{\isacharunderscore}rewr}, and prove that its pattern is complete and consistent, and use the rewriting bound to show that it terminates:
+
+\begin{isadef}[Normalisation procedure for resource terms]{isa:normal_rewr}
+  \input{isa/function-normal_rewr}
+\end{isadef}
+
+\begin{isalemma}[Normalisation procedure terminates]{isa:termination-normal_rewr}
+  \input{isa/termination-normal_rewr}
+\end{isalemma}
+
+\cbstart
+We now prove that any resource term is equivalent to the result of its normalisation, proceeding by induction on the normalisation procedure.
+If the term is already normalised, then the result is the same term and equivalent by reflexivity of \isa{\isasymsim}.
+Otherwise we know by inductive hypothesis that applying \isa{step} to the term gives us something equivalent to the result of normalisation.
+And from Lemma~\ref{isa:res_term_equiv_step} we know that the original term is equivalent to applying \isa{step} to it, so by transitivity of \isa{\isasymsim} we prove the inductive case as well.
+\begin{isalemma}[Every resource is equivalent to its normalisation]{isa:res_term_equiv_normal_rewr}
+  \input{isa/lemma-res_term_equiv_normal_rewr}
+\end{isalemma}
+\cbend
+
+\subsection{Characterising the Equivalence}
+\label{sec:res/rewr/equivalence}
+
+\newcommand\isafor{\textsf{Isa\kern-0.15exF\kern-0.15exo\kern-0.15exR}}
+\newcommand\ceta{\textsf{C\kern-0.15exe\kern-0.45exT\kern-0.45exA}}
+
+In order to characterise the resource term equivalence we need to prove the following statement:
+\begin{isalemma}[Equivalence is equality of normal forms]{isa:res_term_equiv_is_normal_rewr}
+  \input{isa/lemma-res_term_equiv_is_normal_rewr}
+\end{isalemma}
+
+First, the $\Longleftarrow$ direction is simpler.
+We have already shown that every term is equivalent to the result of applying the rewriting step to it.
+Because the normalisation is repeated application of the step, by transitivity of the equivalence every term is equivalent to its normalisation.
+So two terms with equal normal forms can be shown equivalent using transitivity and symmetry of the resource term equivalence.
+\begin{align*}
+  \isafv{x} \sim step\ \isafv{x} \sim step\ \isapars{step\ \isafv{x}} \sim \dots \sim normal&{\mbox{-}}rewr\ \isafv{x}\\
+  &\parallel\\
+  \isafv{y} \sim step\ \isafv{y} \sim step\ \isapars{step\ \isafv{y}}  \sim \dots \sim normal&{\mbox{-}}rewr\ \isafv{y}
+\end{align*}
+
+Second, the $\Longrightarrow$ direction is more complex.
+It relies on showing that equivalent resources are \emph{joinable} by the rewriting function, meaning there is a sequence of rewrite steps from each term to some common (possibly intermediate) form.
+We formalise this statement by casting the rewriting step in the language of the Abstract Rewriting~\cite{Abstract-Rewriting-AFP} theory already mechanised for the \isafor/\ceta\ project~\cite{thiemann_sternagel-2009} and available in the Archive of Formal Proofs.
+\cbstart
+This leaves us with the following statement to prove, where \isa{step{\isacharunderscore}irr} is the graph of \isa{step} without its reflexive part\footnote{The Abstract Rewriting theory defines normal forms as elements that do not rewrite further, instead of our approach where they are elements that rewrite to themselves. The \isa{step{\isacharunderscore}irr} relation bridges this.}:
+\begin{isalemma}[Joinability of equivalent resource term]{isa:res_term_equiv_joinable}
+  \isacomm{lemma}\ res{\isacharunderscore}term{\isacharunderscore}equiv{\isacharunderscore}joinable{\isacharcolon}\isanewline
+  \ \ \isafv{x}\ \isasymsim\ \isafv{y}\ \isasymLongrightarrow\ \isapars{\isafv{x}\isacharcomma\ \isafv{y}}\ \isasymin\ step{\isacharunderscore}irr\isactrlsup{\isasymdown}
+\end{isalemma}
+
+We prove this by induction on the resource term equivalence.
+This means that we have to prove for every rule introducing the equivalence (see Definition~\ref{isa:res_term_equiv}) that there exist rewriting paths bringing the two terms to a common form.
+For the rules that apply to leaf terms the proof is trivial, since the terms are already equal.
+For rules ensuring congruence on resource combinations we use the path formed by fully normalising both children, at which point the terms are equal because, by inductive hypothesis, the equivalent children are joinable and so their normal forms are equal.
+
+The main complexity of this proof is in the rules that simplify parallel combinations of resource terms.
+Here we first repeat the pattern of fully normalising the children, since that is what \isa{step} does first (see Definition~\ref{isa:step}).
+Then we consider how the merging of all nested \isa{Parallel} terms, removal of all \isa{Empty} terms and simplification of the resulting list will proceed in different cases of the rules' parameters.
+We find it helpful in these cases to first prove a number of lemmas relating the simple approach in \isa{step} of merging or removing one term at a time to a more concise formulation of merging or removing all present occurrences in one pass of the list.
+\cbend
+
+With the joinability proven, we start from Lemma~\ref{isa:res_term_equiv_normal_rewr}: every term is equivalent to its normal form.
+So, by transitivity and symmetry, normal forms of equivalent terms are themselves equivalent.
+Then, by the joinability rule we just showed, we have that these normal forms are joinable.
+But, because they are normalised terms, we know that each only rewrites to itself.
+Therefore the form that joins them can only be those normalised terms, and so they must be equal.
+This concludes the proof of Lemma~\ref{isa:res_term_equiv_is_normal_rewr}.
+
+As a result we get a computable characterisation of the resource term equivalence \isa{\isasymsim}.
+We add Lemma~\ref{isa:res_term_equiv_is_normal_rewr} to the code generator, meaning that Isabelle/HOL is no longer blocked from generating code for anything involving resources.
+This characterisation is also important to how we translate resources into linear logic in Section~\ref{sec:linearity/res}.
+
+\subsection{Representative Term}
+\label{sec:res/rewr/representative}
+
+Now that the resource term normalisation is verified, we can use it to define a representative term for every resource.
+While every resource is an equivalence class of terms, there is exactly one normalised term among them.
+We denote the representative of \isa{\isafv{x}} as \isa{of{\isacharunderscore}resource\ \isafv{x}}.
+Having such a representative is useful, for instance, for visualising the resource.
+
+The representative can be constructed by applying the rewriting normalisation procedure to any term in the class.
+As with the resource constructors (see Section~\ref{sec:res/terms}), this definition is facilitated by the Lifting package~\cite{huffman_kuncar-2013}.
+
+Thus, we define \isa{of{\isacharunderscore}resource} to be the normalisation procedure but lifted to have resources as its domain.
+This requires that equivalent terms have equal normal forms, which we proved as part of Lemma~\ref{isa:res_term_equiv_is_normal_rewr} in the previous section.
+\begin{isadef}[Representative term for resources]{isa:of_resource}
+  \input{isa/lift_of_resource}
+\end{isadef}
+
+The resulting function is equivalent to the following, where \isa{Rep{\isacharunderscore}resource\ \isafv{x}} is the equivalence class representing \isa{\isafv{x}} and \isa{\isanotation{SOME}\ \isabv{a}.\ \isafv{P}\ \isabv{a}} chooses an arbitrary element that satisfies the predicate \isa{\isafv{P}}:
+\begin{isabelle}
+\centering
+  of{\isacharunderscore}resource\ \isafv{x}\ \isacharequal\ normal{\isacharunderscore}rewr\ \isapars{\isanotation{SOME}\ \isabv{a}\isachardot\ \isabv{a}\ \isasymin\ Rep{\isacharunderscore}resource\ \isafv{x}}
+\end{isabelle}
+
+\section{Resource Type is a Bounded Natural Functor}
+\label{sec:res/bnf}
+
+When modelling processes in a certain context, the resources are built from available resource atoms.
+It is then useful to have a method for systematically changing the content of a resource (the resource atoms it contains) without changing its shape, translating the resource from one context to another.
+In general, such a method is called a \emph{mapper}~\cite{fuerer_et_al-2020}.
+
+Suppose, for instance, that we were using a specific currency in our vending machine example, say Czech crowns.
+Then we may want to \emph{map} a process from that domain to one using Polish z{\l}oty instead.
+We would do that by taking every resource in the process and systematically applying the currency conversion to all atoms the resource contains.
+The mapper generalises this operation for any function on resource atoms.
+For a further discussion of the resource mapper and its use in transforming processes, see Section~\ref{sec:proc/transform/res-map}.
+
+For resource terms, Isabelle/HOL automatically defines the mapper and proves its properties (e.g.\ that it respects the identity function and commutes with function composition).
+This is because every inductive datatype in Isabelle/HOL is a \emph{bounded natural functor} (BNF), a structure for compositional construction of datatypes in HOL presented by Traytel et al.~\cite{traytel_et_al-2012} and integrated in Isabelle/HOL by Blanchette et al.~\cite{blanchette_et_al-2014}.
+It therefore remains for us to lift this term-level mapper to the quotient and transfer its properties.
+
+Fortunately, lifting the BNF structure from a concrete type to a quotient has been automated by F\"urer et al.~\cite{fuerer_et_al-2020} who reduce this task to two proof obligations concerning the equivalence relation being used and parts of the BNF structure of the concrete type (resource terms in our case).
+Once these obligations are proven, the constants required for the BNF structure of the quotient and their properties are automatically derived.
+
+The first obligation concerns the relator, an extension of the mapper to relations on the content instead of functions.
+It ensures that the generated relator will commute with relation composition.
+While its proof would usually be quite difficult, F\"urer et al.\ describe how this condition can be proven using a confluent rewriting relation whose equivalence closure contains the equivalence relation we used to define the quotient type.
+In our case, the resource term normalisation procedure described in Section~\ref{sec:res/rewr} gives us exactly such a relation.
+
+The second obligation concerns the setter, which gathers the content into a set while discarding the shape.
+It ensures that the generated setter will be a natural transformation, that is applying the setter after mapping a function is the same as using the setter first and then applying that function to every element of its result.
+In our case this condition can be proven using structural induction on resource terms and Isabelle's automated methods.
+
+As a result we get the BNF constants (mapper, relator and setter) and properties, all already integrated with the automated tools within Isabelle.
+
+\section{Conclusion}
+\label{sec:res/conc}
+
+In this chapter we described our mechanisation of resources in Isabelle/HOL.
+We start with a datatype of resource terms and define an equivalence relation on them to express different syntactic forms describing the same resource.
+We then obtain resources as the quotient of their terms by this relation.
+To provide a decision procedure for the equivalence, we mechanise a rewriting system for terms and show that equality of normal forms is the same as equivalence of the terms.
+We use that rewriting system to automatically lift some of the structure from resource terms to resources themselves.
+
+Note that the set of resource term equivalences we use is not exhaustive.
+For instance, in Section~\ref{sec:prob/simple-opt} we add three more.
+As such, we see the identification of further practical equivalences and their integration into the resource algebra as a continual part of future work.
+Fortunately, the automation available in Isabelle removes much of the friction in that process.
+
+We make use of these resources in the next chapter to describe the inputs and outputs of processes.
+The work done internally by the resource algebra, through the term equivalence relation, makes our mechanisation of processes simpler.
+For instance, we automatically get that parallel composition of processes with no inputs also has no input itself.
+And the decision procedure for resource term equivalence, apart from aiding in proofs, allows Isabelle to automatically generate executable code for process compositions, which enables us to use them outside of the proof assistant.
+
+\ifstandalone
+\bibliographystyle{plainurl}
+\bibliography{references}
+\fi
+
+\end{document}

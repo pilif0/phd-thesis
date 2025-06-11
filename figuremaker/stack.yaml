@@ -1,0 +1,16 @@
+resolver: lts-22.43
+
+packages:
+  - figures
+
+extra-deps:
+  - github: pilif0/codegen-ProcessComposition
+    commit: '85599301d7401e382dccc9933b0fc8d6ae8e4643'
+    subdirs:
+    - haskell/isabelle
+    - haskell/factorio
+    - haskell/marking
+  - github: pilif0/process-diagram
+    commit: '64d2209f2002ad8f7a42887da8a78f9be4dabb1f'
+    subdirs:
+    - diagram

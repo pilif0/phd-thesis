@@ -1,0 +1,25 @@
+name: thesis-figures
+version: 0.1.0.0
+github: pilif0/thesis
+license: Apache-2.0
+author: Filip Smola
+category: Library
+
+dependencies:
+  - base >= 4.7 && < 5
+  - process-composition >= 0.1 && < 1
+
+executables:
+  thesis:
+    source-dirs: thesis
+    main: Main.hs
+    dependencies:
+      - process-composition-diagram >= 0.1 && < 1
+      - process-composition-factorio >= 0.1 && < 1
+      - process-composition-marking >= 0.1 && < 1
+      - diagrams-lib >=1.4 && <1.5
+      - diagrams-svg >=1.4 && <1.5
+      - thesis-figures
+
+library:
+  source-dirs: src

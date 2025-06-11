@@ -1,0 +1,4 @@
+\isacomm{lemma}\ pgTrans{\isacharunderscore}no{\isacharunderscore}nodes{\isacharcolon}\isanewline
+\ \ \isaOcomm{assumes}\ {\isachardoublequoteopen}pg{\isacharunderscore}nodes\ \isafv{G}\ {\isacharequal}\ {\isacharbrackleft}{\isacharbrackright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isaOcomm{shows}\ {\isachardoublequoteopen}\isasymnot\ pgTrans\ \isafv{G\ n\ G}{\isacharprime}{\isachardoublequoteclose}\isanewline
+\ \ \isacomm{using}\ assms\ \isacomm{by}\ \isapars{clarsimp\ \quasi{elim}{\isacharbang}{\isacharcolon}\ pgTrans{\isachardot}cases\ \quasi{simp\ add}{\isacharcolon}\ nodeEnabled{\isacharunderscore}def}

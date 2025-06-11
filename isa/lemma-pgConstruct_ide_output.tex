@@ -1,0 +1,7 @@
+\isacomm{lemma}\isamarkupfalse%
+\ pgConstruct{\isacharunderscore}ide{\isacharunderscore}output{\isacharcolon}\isanewline
+\ \ \isaOcomm{assumes}\ {\isachardoublequoteopen}pgDefined\ \isafv{x}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ {\isachardoublequoteopen}valid\ {\isacharparenleft}Seq\ \isafv{x\ x}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ {\isachardoublequoteopen}{\isasymAnd}\isabv{f}{\isachardot}\ {\isasymlbrakk}pgDefined\ \isabv{f}{\isacharsemicolon}\ valid\ {\isacharparenleft}Seq\ \isafv{x}\ \isabv{f}{\isacharparenright}{\isasymrbrakk}\isanewline
+\isaindent{\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ {\isachardoublequoteopen}{\isasymAnd}\isabv{f}{\isachardot}\ }{\isasymLongrightarrow}\ pgConstruct\ {\isacharparenleft}Seq\ \isafv{x}\ \isabv{f}{\isacharparenright}\ {\isasymapprox}\ pgConstruct\ \isabv{f}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isaOcomm{shows}\ {\isachardoublequoteopen}pgConstruct\ \isafv{x}\ {\isasymapprox}\ pgConstruct\ {\isacharparenleft}Identity\ {\isacharparenleft}output\ \isafv{x}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}

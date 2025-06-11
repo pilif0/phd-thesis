@@ -1,0 +1,9 @@
+\isacomm{definition}\isamarkupfalse%
+\ edgeToJSON\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isatv{p}\ list\ {\isasymRightarrow}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharparenright}\ edge\ {\isasymRightarrow}\ {\isacharparenleft}String{\isachardot}literal{\isacharcomma}\ int{\isacharparenright}\ json{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{edgeToJSON}\ \isabv{prefix\ e}\ {\isacharequal}\isanewline
+\ \ OBJECT\ {\isacharbrackleft}\isanewline
+\ \ \ \ {\isacharparenleft}\isaString{id}{\isacharcomma}\ STRING\ {\isacharparenleft}placeToID\ prefix\ {\isacharparenleft}edge{\isacharunderscore}from\ \isabv{e}{\isacharparenright}\ {\isacharplus}\isanewline
+\isaindent{\ \ \ \ {\isacharparenleft}\isaString{id}{\isacharcomma}\ STRING\ {\isacharparenleft}}\isaString{{\isacharminus}}\ {\isacharplus}\isanewline
+\isaindent{\ \ \ \ {\isacharparenleft}\isaString{id}{\isacharcomma}\ STRING\ {\isacharparenleft}}placeToID\ prefix\ {\isacharparenleft}edge{\isacharunderscore}to\ \isabv{e}{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{sources}{\isacharcomma}\ ARRAY\ {\isacharbrackleft}STRING\ {\isacharparenleft}placeToID\ prefix\ {\isacharparenleft}edge{\isacharunderscore}from\ \isabv{e}{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{targets}{\isacharcomma}\ ARRAY\ {\isacharbrackleft}STRING\ {\isacharparenleft}placeToID\ prefix\ {\isacharparenleft}edge{\isacharunderscore}to\ \isabv{e}{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}

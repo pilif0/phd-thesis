@@ -1,0 +1,11 @@
+\isacomm{lemma}\ seqInterfaceEdges{\isacharunderscore}setD{\isacharcolon}\isanewline
+\ \ \ \ \ \ \ \ \isaOcomm{fixes}\ \isafv{x\ y}\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}\isatv{s}\ {\isacharcolon}{\isacharcolon}\ side{\isacharunderscore}in{\isacharunderscore}out{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharcomma}\ \isatv{l}{\isacharparenright}\ port{\isacharunderscore}graph{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{assumes}\ {\isachardoublequoteopen}\isafv{e}\ {\isasymin}\ set\ {\isacharparenleft}seqInterfaceEdges\ \isafv{x\ y}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isaOcomm{obtains}\ \isafv{a\ b}\ \isaOcomm{and}\ \isafv{p}\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharparenright}\ port{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isaOcomm{where}\ {\isachardoublequoteopen}edge{\isacharunderscore}from\ \isafv{e}\ {\isacharequal}\ edge{\isacharunderscore}from\ \isafv{a}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ {\isachardoublequoteopen}\isafv{a}\ {\isasymin}\ set\ {\isacharparenleft}pg{\isacharunderscore}edges\ \isafv{x}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ {\isachardoublequoteopen}edge{\isacharunderscore}to\ \isafv{e}\ {\isacharequal}\ edge{\isacharunderscore}to\ \isafv{b}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ {\isachardoublequoteopen}\isafv{b}\ {\isasymin}\ set\ {\isacharparenleft}pg{\isacharunderscore}edges\ \isafv{y}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ {\isachardoublequoteopen}edge{\isacharunderscore}to\ \isafv{a}\ {\isacharequal}\ OpenPort\ {\isacharparenleft}portSetSide\ Out\ \isafv{p}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ {\isachardoublequoteopen}edge{\isacharunderscore}from\ \isafv{b}\ {\isacharequal}\ OpenPort\ {\isacharparenleft}portSetSide\ In\ \isafv{p}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ {\isachardoublequoteopen}port{\isachardot}side\ \isafv{p}\ {\isacharequal}\ Out{\isachardoublequoteclose}

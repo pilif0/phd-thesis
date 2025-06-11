@@ -1,0 +1,9 @@
+\isacomm{primrec}\ edgesByOpenFrom\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharparenright}\ edge\ list\isanewline
+\isaindent{\isacomm{primrec}\ edgesByOpenFrom\ }{\isasymRightarrow}\ {\isacharparenleft}{\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharparenright}\ port{\isacharcomma}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharparenright}\ edge\ list{\isacharparenright}\ mapping{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\isanewline
+\ \ \ \ {\isachardoublequoteopen}\isafv{edgesByOpenFrom}\ {\isacharbrackleft}{\isacharbrackright}\ {\isacharequal}\ Mapping{\isachardot}empty{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{edgesByOpenFrom}\ {\isacharparenleft}\isabv{e}{\isacharhash}\isabv{es}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ {\isacharparenleft}\ \isanotation{if}\ place{\isacharunderscore}open\ {\isacharparenleft}edge{\isacharunderscore}from\ \isabv{e}{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{then}\ Mapping{\isachardot}map{\isacharunderscore}default\isanewline
+\isaindent{\ \ \ \ \ \ \ \ \isanotation{then}\ Ma}{\isacharparenleft}place{\isacharunderscore}port\ {\isacharparenleft}edge{\isacharunderscore}from\ \isabv{e}{\isacharparenright}{\isacharparenright}\ Nil\ {\isacharparenleft}Cons\ \isabv{e}{\isacharparenright}\ {\isacharparenleft}\isafv{edgesByOpenFrom}\ \isabv{es}{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ \isafv{edgesByOpenFrom}\ \isabv{es}{\isachardoublequoteclose}

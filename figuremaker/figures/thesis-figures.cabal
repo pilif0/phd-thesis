@@ -1,0 +1,48 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           thesis-figures
+version:        0.1.0.0
+category:       Library
+homepage:       https://github.com/pilif0/thesis#readme
+bug-reports:    https://github.com/pilif0/thesis/issues
+author:         Filip Smola
+maintainer:     Filip Smola
+license:        Apache-2.0
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/pilif0/thesis
+
+library
+  exposed-modules:
+      ThreeSocks
+  other-modules:
+      Paths_thesis_figures
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , process-composition >=0.1 && <1
+  default-language: Haskell2010
+
+executable thesis
+  main-is: Main.hs
+  other-modules:
+      Paths_thesis_figures
+  hs-source-dirs:
+      thesis
+  build-depends:
+      base >=4.7 && <5
+    , diagrams-lib ==1.4.*
+    , diagrams-svg ==1.4.*
+    , process-composition >=0.1 && <1
+    , process-composition-diagram >=0.1 && <1
+    , process-composition-factorio >=0.1 && <1
+    , process-composition-marking >=0.1 && <1
+    , thesis-figures
+  default-language: Haskell2010

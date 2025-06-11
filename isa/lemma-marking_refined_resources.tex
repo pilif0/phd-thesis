@@ -1,0 +1,6 @@
+\isacomm{lemma}\ marking{\isacharunderscore}refined{\isacharunderscore}resources{\isacharcolon}\isanewline
+\ \ \isaOcomm{defines}\ \isafv{x}\ \isasymequiv\ process{\isacharunderscore}refineRes\ refinement\ id\ abstract{\isachardot}marking\isanewline
+\ \ \ \ \isaOcomm{shows}\ \isapars{\isafv{x}}{\isacharcolon}\ Copyable\ Instructions\ \isasymodot\ Parallel\ {\isacharparenleft}map\ {\isacharparenleft}Res\ {\isasymcirc}\ Student{\isacharparenright}\ \isafv{students}{\isacharparenright}\isanewline
+\isaindent{\ \ \ \ \isaOcomm{shows}\ \isacharparenleft}\isasymrightarrow\ Res\ MarksReleased\isanewline
+\ \ \ \ \ \ \ \ \isaOcomm{and}\ valid\ \isafv{x}\isanewline
+\ \ \isacomm{by}\ \isapars{simp{\isacharunderscore}all\ \quasi{add{\isacharcolon}}\ abstract{\isachardot}marking{\isacharunderscore}def\ abstract{\isachardot}action{\isacharunderscore}defs\ refine{\isacharunderscore}resource{\isacharunderscore}par}

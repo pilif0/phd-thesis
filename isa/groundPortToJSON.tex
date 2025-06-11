@@ -1,0 +1,16 @@
+\isacomm{definition}\ groundPortToJSON\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isatv{p}\ list\ {\isasymRightarrow}\ nat\ {\isasymRightarrow}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharparenright}\ port\isanewline
+\isaindent{\isacomm{definition}\ groundPortToJSON\ }{\isasymRightarrow}\ {\isacharparenleft}String{\isachardot}literal{\isacharcomma}\ int{\isacharparenright}\ json{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{groundPortToJSON}\ \isabv{prefix\ maxIdx\ p}\ {\isacharequal}\isanewline
+\ \ OBJECT\ {\isacharbrackleft}\isanewline
+\ \ \ \ {\isacharparenleft}\isaString{id}{\isacharcomma}\ STRING\ {\isacharparenleft}\isafv{pathToString}\ \isabv{prefix}\ {\isacharplus}\isanewline
+\isaindent{\ \ \ \ {\isacharparenleft}\isaString{id}{\isacharcomma}\ STRING\ {\isacharparenleft}}elkSideToString\ {\isacharparenleft}\isafv{portSideToELK}\ {\isacharparenleft}port{\isachardot}side\ \isabv{p}{\isacharparenright}{\isacharparenright}\ {\isacharplus}\isanewline
+\isaindent{\ \ \ \ {\isacharparenleft}\isaString{id}{\isacharcomma}\ STRING\ {\isacharparenleft}}String{\isachardot}implode\ {\isacharparenleft}show\ {\isacharparenleft}port{\isachardot}index\ \isabv{p}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{properties}{\isacharcomma}\ OBJECT\ {\isacharbrackleft}\isanewline
+\ \ \ \ \ \ {\isacharparenleft}\isaString{port{\isachardot}side}{\isacharcomma}\ STRING\ {\isacharparenleft}elkSideToString\ {\isacharparenleft}\isafv{portSideToELK}\ {\isacharparenleft}port{\isachardot}side\ \isabv{p}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharcomma}\ {\isacharparenleft}\isaString{port{\isachardot}index}{\isacharcomma}\ NUMBER\ {\isacharparenleft}int\ {\isacharparenleft}\isanewline
+\isaindent{\ \ \ \ {\isacharcomma}\ {\isacharparenleft}S}\isanotation{if}\ \isafv{portSideToELK}\ {\isacharparenleft}port{\isachardot}side\ \isabv{p}{\isacharparenright}\ {\isasymin}\ \isabraces{WEST{\isacharcomma}\ SOUTH}\isanewline
+\isaindent{\ \ \ \ {\isacharcomma}\ {\isacharparenleft}Sif}\isanotation{then}\ \isabv{maxIdx}\ {\isacharminus}\ port{\isachardot}index\ \isabv{p}\isanewline
+\isaindent{\ \ \ \ {\isacharcomma}\ {\isacharparenleft}Sif}\isanotation{else}\ port{\isachardot}index\ \isabv{p}{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharbrackright}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{width}{\isacharcomma}\ NUMBER\ {\isadigit{1}}{\isadigit{0}}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{height}{\isacharcomma}\ NUMBER\ {\isadigit{1}}{\isadigit{0}}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}

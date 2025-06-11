@@ -1,0 +1,1402 @@
+@TechReport{bierman-1994,
+  author = {Bierman, Gavin M.},
+  title = {{On intuitionistic linear logic}},
+  year = 1994,
+  month = aug,
+  institution = {University of Cambridge, Computer Laboratory},
+  doi = {10.48456/tr-346},
+  number = {UCAM-CL-TR-346}
+}
+
+@article{girard-1987,
+  title={Linear logic},
+  author={Girard, Jean-Yves},
+  journal={Theoretical computer science},
+  volume={50},
+  number={1},
+  pages={1--101},
+  year={1987},
+  publisher={Elsevier},
+  doi="10.1016/0304-3975(87)90045-4"
+}
+
+@inproceedings{kalvala_depaiva-1995,
+  title={Mechanizing linear logic in {Isabelle}},
+  author={Kalvala, Sara and de Paiva, Valeria},
+  booktitle={In 10th International Congress of Logic, Philosophy and Methodology of Science},
+  volume={24},
+  year={1995},
+  organization={Citeseer}
+}
+
+@article{abramsky-1994,
+  title = "Proofs as processes",
+  journal = "Theoretical Computer Science",
+  volume = "135",
+  number = "1",
+  pages = "5--9",
+  year = "1994",
+  issn = "0304-3975",
+  doi = "https://doi.org/10.1016/0304-3975(94)00103-0",
+  author = "Abramsky, Samson"
+}
+
+@article{bellin_scott-1994,
+  title = "On the $\pi$-calculus and linear logic",
+  journal = "Theoretical Computer Science",
+  volume = "135",
+  number = "1",
+  pages = "11--65",
+  year = "1994",
+  issn = "0304-3975",
+  doi = "10.1016/0304-3975(94)00104-9",
+  author = "Bellin, Gianluigi and Scott, Philip J.",
+  abstract = "We detail Abramsky's “proofs-as-processes” paradigm for interpreting classical linear logic (CLL) (Girard, 1987) into a “synchronous” version of the π-calculus recently proposed by Milner (1992, 1993). The translation is given at the abstract level of proof structures. We give a detailed treatment of information flow in proof-nets and show how to mirror various evaluation strategies for proof normalization. We also give soundness and completeness results for the process-calculus translations of various fragments of CLL. The paper also gives a self-contained introduction to some of the deeper proof-theory of CLL, and its process interpretation."
+}
+
+@InProceedings{milner-1993,
+    author="Milner, Robin",
+    editor="Bauer, Friedrich L.
+    and Brauer, Wilfried
+    and Schwichtenberg, Helmut",
+    title="The Polyadic $\pi$-Calculus: a Tutorial",
+    booktitle="Logic and Algebra of Specification",
+    year="1993",
+    publisher="Springer Berlin Heidelberg",
+    address="Berlin, Heidelberg",
+    pages="203--246",
+    abstract="The $\pi$-calculus is a model of concurrent computation based upon the notion of naming. It is first presented in its simplest and original form, with the help of several illustrative applications. Then it is generalized from monadic to polyadic form. Semantics is done in terms of both a reduction system and a version of labelled transitions called commitment; the known algebraic axiomatization of strong bisimilarity is given in the new setting, and so also is a characterization in modal logic. Some theorems about the replication operator are proved.",
+    isbn="978-3-642-58041-3",
+    doi="10.1007/978-3-642-58041-3_6"
+}
+
+@InProceedings{papapa_fleuriot-2017,
+    author="Papapanagiotou, Petros and Fleuriot, Jacques",
+    editor="de Moura, Leonardo",
+    title="Workflow{FM}: A Logic-Based Framework for Formal Process Specification and Composition",
+    booktitle="Automated Deduction -- CADE 26",
+    year="2017",
+    publisher="Springer International Publishing",
+    address="Cham",
+    pages="357--370",
+    abstract="We present a logic-based system for process specification and composition named Workflow{FM}. It relies on an embedding of Classical Linear Logic and the so-called proofs-as-processes paradigm within the proof assistant HOL Light. This enables the specification of abstract processes as logical sequents and their composition via formal proof. The result is systematically translated to an executable workflow with formally verified consistency, rigorous resource accounting, and deadlock freedom. The 3-tiered server/client architecture of Workflow{FM} allows multiple concurrent users to interact with the system through a purely diagrammatic interface, while the proof is performed automatically on the server.",
+    isbn="978-3-319-63046-5",
+    doi="10.1007/978-3-319-63046-5_22"
+}
+
+@InProceedings{harrison-2009,
+    author="Harrison, John",
+    editor="Berghofer, Stefan
+    and Nipkow, Tobias
+    and Urban, Christian
+    and Wenzel, Makarius",
+    title="{HOL Light}: An Overview",
+    booktitle="Theorem Proving in Higher Order Logics",
+    year="2009",
+    publisher="Springer Berlin Heidelberg",
+    address="Berlin, Heidelberg",
+    pages="60--66",
+    abstract="HOL Light is an interactive proof assistant for classical higher-order logic, intended as a clean and simplified version of Mike Gordon's original HOL system. Theorem provers in this family use a version of ML as both the implementation and interaction language; in HOL Light's case this is Objective CAML (OCaml). Thanks to its adherence to the so-called `LCF approach', the system can be extended with new inference rules without compromising soundness. While retaining this reliability and programmability from earlier HOL systems, HOL Light is distinguished by its clean and simple design and extremely small logical kernel. Despite this, it provides powerful proof tools and has been applied to some non-trivial tasks in the formalization of mathematics and industrial formal verification.",
+    isbn="978-3-642-03359-9",
+    doi="10.1007/978-3-642-03359-9_4"
+}
+
+@InProceedings{papapa_fleuriot-2015,
+    author="Papapanagiotou, Petros
+    and Fleuriot, Jacques",
+    editor="Fournier, Fabiana
+    and Mendling, Jan",
+    title="Modelling and Implementation of Correct by Construction Healthcare Workflows",
+    booktitle="Business Process Management Workshops",
+    year="2015",
+    publisher="Springer International Publishing",
+    address="Cham",
+    pages="28--39",
+    abstract="We present a rigorous methodology for the modelling and implementation of correct by construction healthcare workflows. It relies on the theoretical concept of proofs-as-processes that draws a connection between logical proofs and process workflows. Based on this, our methodology offers an increased level of trust through mathematical guarantees of correctness for the constructed workflows, including type correctness, systematic resource management, and deadlock and livelock freedom. Workflows are modelled as compositions of abstract processes and can be deployed as executable code automatically. We demonstrate the benefits of our approach through a prototype system involving workflows for assignment and delegation of clinical services while tracking responsibility and accountability explicitly.",
+    isbn="978-3-319-15895-2",
+    doi="10.1007/978-3-319-15895-2_3"
+}
+
+@article{manataki_et_al-2017,
+    author={Areti {Manataki} and Jacques {Fleuriot} and Petros {Papapanagiotou}},
+    journal={IEEE Journal of Biomedical and Health Informatics},
+    title={A Workflow-Driven Formal Methods Approach to the Generation of Structured Checklists for Intrahospital Patient Transfers},
+    year={2017},
+    volume={21},
+    number={4},
+    pages={1156-1162},
+    doi={10.1109/JBHI.2016.2579881}
+}
+
+@inproceedings{papapa_et_al-2021,
+    title = "A Real-world Case Study of Process and Data Driven Predictive Analytics for Manufacturing Workflows",
+    abstract = "We present a novel application of business process modelling and simulation of manufacturing workflows. Using formal methods, we produce correct-by-construction executable models that can be simulated in an interleaved way. The simulation draws advanced analytics from live IoT monitoring as well as an ERP system to provide predictive business intelligence. We describe our process and resource modelling efforts in the context of a collaborative project with two manufacturing partners. We evaluate our results based on the improvement of the scheduling accuracy for real production flows.",
+    author = "Petros Papapanagiotou and James Vaughan and Filip Smola and Fleuriot, {Jacques D.}",
+    year = "2021",
+    month = jan,
+    day = "5",
+    doi = "10.24251/HICSS.2021.122",
+    language = "English",
+    isbn = "978-0-9981331-4-0",
+    pages = "1001 -- 1010",
+    booktitle = "Proceedings of the 54th Hawaii International Conference on System Sciences 2021",
+    note = "54th Hawaii International Conference on System Sciences, HICSS-54 ; Conference date: 05-01-2021 Through 08-01-2021",
+}
+
+@article{paulson-1993,
+  doi = {10.48550/ARXIV.CS/9301106},
+  url = {https://arxiv.org/abs/cs/9301106},
+  author = {Paulson, Lawrence C.},
+  keywords = {Logic in Computer Science (cs.LO), FOS: Computer and information sciences, FOS: Computer and information sciences, F.3.1; F.4.1},
+  title = {Isabelle: The Next 700 Theorem Provers},
+  publisher = {arXiv},
+  year = {1993},
+  copyright = {Assumed arXiv.org perpetual, non-exclusive license to distribute this article for submissions made before January 2004}
+}
+
+@book{paulson-1994,
+  author = {Paulson, Lawrence C.},
+  address = {Berlin, Heidelberg},
+  booktitle = {Isabelle A Generic Theorem Prover},
+  edition = {1st ed. 1994.},
+  isbn = {3-540-48586-4},
+  keywords = {Mathematical logic},
+  language = {eng},
+  abstract = {As a generic theorem prover, Isabelle supports a variety of logics. Distinctive features include Isabelle's representation of logics within a meta-logic and the use of higher-order unification to combine inference rules. Isabelle can be applied to reasoning in pure mathematics or verification of computer systems. This volume constitutes the Isabelle documentation. It begins by outlining theoretical aspects and then demonstrates the use in practice. Virtually all Isabelle functions are described, with advice on correct usage and numerous examples. Isabelle's built-in logics are also described in detail. There is a comprehensive bebliography and index. The book addresses prospective users of Isabelle as well as researchers in logic and automated reasoning.},
+  publisher = {Springer Berlin Heidelberg},
+  series = {Lecture Notes in Computer Science, 828},
+  title = {Isabelle A Generic Theorem Prover},
+  year = {1994},
+}
+
+@InProceedings{wenzel-1999,
+  author="Wenzel, Markus",
+  editor="Bertot, Yves
+  and Dowek, Gilles
+  and Th{\'e}ry, Laurent
+  and Hirschowitz, Andr{\'e}
+  and Paulin, Christine",
+  title="Isar --- A Generic Interpretative Approach to Readable Formal Proof Documents",
+  booktitle="Theorem Proving in Higher Order Logics",
+  year="1999",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="167--183",
+  abstract="We present a generic approach to readable formal proof documents, called Intelligible semi-automated reasoning (Isar). It addresses the major problem of existing interactive theorem proving systems that there is no appropriate notion of proof available that is suitable for human communication, or even just maintenance. Isar's main aspect is its formal language for natural deduction proofs, which sets out to bridge the semantic gap between internal notions of proof given by state-of-the-art interactive theorem proving systems and an appropriate level of abstraction for user-level work. The Isar language is both human readable and machine-checkable, by virtue of the Isar/VM interpreter.",
+  isbn="978-3-540-48256-7",
+  doi="10.1007/3-540-48256-3_12"
+}
+
+@inproceedings{dixon_et_al-2009,
+  title = "Verified Planning by Deductive Synthesis in Intuitionistic Linear Logic",
+  abstract = "We describe a new formalisation in Isabelle/HOL of Intuitionistic Linear Logic and consider the support this provides for constructing plans by proving the achievability of given planning goals. The plans so found are provably correct, by construction. This representation of plans in linear logic provides a concise account of planning with sensing actions, allows the creation and deletion of objects, and solves the frame problem in an elegant way. Within this setting, we show how planning algorithms are implemented as search strategies within a theorem proving system. This allows us to provide a ﬂexible methodology for developing search strategies that is independent of soundness issues. This feature is illustrated in two ways. Firstly, following ideas from logic programming, we show how a signiﬁcant symmetry in search, caused by context splitting, can be pruned by using a derived inference rule. Secondly, we show how domain speciﬁc constraints on synthesis are supported and how they can be used to ﬁnd contingent or conformant plans. We illustrate the approach with example planning scenarios.",
+  author = "Dixon, Lucas and Smaill, Alan and Bundy, Alan",
+  year = "2009",
+  language = "English",
+  booktitle = "Workshop on Verification and Validation of Planning and Scheduling Systems: ICALP 2009",
+  url="http://hdl.handle.net/1842/4773"
+}
+
+@InProceedings{kungas_matskin-2004,
+  author="K{\"u}ngas, Peep
+    and Matskin, Mihhail",
+  editor="Leite, Jo{\~a}o
+    and Omicini, Andrea
+    and Sterling, Leon
+    and Torroni, Paolo",
+  title="Linear Logic, Partial Deduction and Cooperative Problem Solving",
+  booktitle="Declarative Agent Languages and Technologies",
+  year="2004",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="263--279",
+  abstract="In this paper we present a model of cooperative problem solving (CPS). Linear Logic (LL) is used for encoding agents' states, goals and capabilities. LL theorem proving is applied by each agent to determine whether the particular agent is capable of solving the problem alone. If no individual solution can be constructed, then the agent may start negotiation with other agents in order to find a cooperative solution. Partial deduction in LL is used to derive a possible deal. Finally proofs are generated and plans are extracted from the proofs. The extracted plans determine agents' responsibilities in cooperative solutions.",
+  isbn="978-3-540-25932-9",
+  doi="10.1007/978-3-540-25932-9_14"
+}
+
+@InProceedings{blanchette_et_al-2011,
+  author="Blanchette, Jasmin C.
+  and Bulwahn, Lukas
+  and Nipkow, Tobias",
+  editor="Tinelli, Cesare
+  and Sofronie-Stokkermans, Viorica",
+  title="Automatic Proof and Disproof in {Isabelle/HOL}",
+  booktitle="Frontiers of Combining Systems",
+  year="2011",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="12--27",
+  abstract="Isabelle/HOL is a popular interactive theorem prover based on higher-order logic. It owes its success to its ease of use and powerful automation. Much of the automation is performed by external tools: The metaprover Sledgehammer relies on resolution provers and SMT solvers for its proof search, the counterexample generator Quickcheck uses the ML compiler as a fast evaluator for ground formulas, and its rival Nitpick is based on the model finder Kodkod, which performs a reduction to SAT. Together with the Isar structured proof format and a new asynchronous user interface, these tools have radically transformed the Isabelle user experience. This paper provides an overview of the main automatic proof and disproof tools.",
+  isbn="978-3-642-24364-6",
+  doi="10.1007/978-3-642-24364-6_2"
+}
+
+@manual{isabelle-codegen,
+  author        = {Florian Haftmann},
+  title         = {Code generation from {Isabelle} theories},
+  institution   = {Department of Informatics, Technical University of Munich},
+  note          = {\url{https://isabelle.in.tum.de/doc/codegen.pdf}}
+}
+
+@book{milner_et_al-1990,
+    author = {Milner, Robin and Toft, Mads and Harper, Robert},
+    address = {Cambridge, Mass.},
+    booktitle = {The definition of Standard ML},
+    isbn = {0262132559},
+    keywords = {Programming languages (Electronic computers)},
+    language = {eng},
+    lccn = {89027973},
+    publisher = {MIT Press},
+    title = {The definition of Standard ML},
+    year = {1990},
+}
+
+@manual{OCaml,
+  author =  {Xavier Leroy and others},
+  title =   {The Objective Caml system -- Documentation and user's manual},
+  note =    {\url{http://caml.inria.fr/pub/docs/manual-ocaml/}}
+}
+
+@manual{Go,
+  author =  {Go Team},
+  title =   {The {Go} Programming Language Specification},
+  note =    {\url{https://go.dev/ref/spec}}
+}
+
+@InProceedings{stubinger_hupel-2025,
+  author="St{\"u}binger, Terru
+  and Hupel, Lars",
+  editor="Platzer, Andre
+  and Rozier, Kristin Yvonne
+  and Pradella, Matteo
+  and Rossi, Matteo",
+  title="Extending {Isabelle/HOL's} Code Generator with Support for the {Go} Programming Language",
+  booktitle="Formal Methods",
+  year="2025",
+  publisher="Springer Nature Switzerland",
+  address="Cham",
+  pages="3--19",
+  abstract="The Isabelle proof assistant includes a small functional language, which allows users to write and reason about programs. So far, these programs could be extracted into a number of functional languages: Standard ML, OCaml, Scala, and Haskell. This work adds support for Go as a fifth target language for the Code Generator. Unlike the previous targets, Go is not a functional language and encourages code in an imperative style, thus many of the features of Isabelle's language (particularly data types, pattern matching, and type classes) have to be emulated using imperative language constructs in Go. The developed Code Generation is provided as an add-on library that can be simply imported into existing theories.",
+  isbn="978-3-031-71177-0",
+  doi="10.1007/978-3-031-71177-0_1"
+}
+
+@article{jones_et_al-2003,
+  author =  {Simon {Peyton Jones}},
+  title =   {The {Haskell} 98 Language and Libraries: The Revised Report},
+  journal = {Journal of Functional Programming},
+  volume =  13,
+  number =  1,
+  pages =   {0--255},
+  month =   {Jan},
+  year =    2003,
+  note =    {\url{http://www.haskell.org/definition/}}
+}
+
+@article{odersky_et_al-2004,
+  title = {An Overview of the {Scala} Programming Language},
+  author = {Odersky, Martin and Altherr, Philippe and Cremet, Vincent  and Emir, Burak and Maneth, Sebastian and Micheloud,  Stéphane and Mihaylov, Nikolay and Schinz, Michel and  Stenman, Erik and Zenger, Matthias},
+  year = {2004},
+  abstract = {Scala fuses object-oriented and functional programming in  a statically typed programming language. It is aimed at the  construction of components and component systems. This  paper gives an overview of the Scala language for readers  who are familar with programming methods and programming  language design.},
+  url = {http://infoscience.epfl.ch/record/52656},
+}
+
+@article{Abstract-Rewriting-AFP,
+  author  = {Christian Sternagel and René Thiemann},
+  title   = {Abstract Rewriting},
+  journal = {Archive of Formal Proofs},
+  month   = {June},
+  year    = 2010,
+  note    = {\url{http://isa-afp.org/entries/Abstract-Rewriting.html},
+            Formal proof development},
+  ISSN    = {2150-914x},
+}
+
+@InProceedings{fuerer_et_al-2020,
+  author="F{\"u}rer, Basil
+    and Lochbihler, Andreas
+    and Schneider, Joshua
+    and Traytel, Dmitriy",
+  editor="Peltier, Nicolas
+    and Sofronie-Stokkermans, Viorica",
+  title="Quotients of Bounded Natural Functors",
+  booktitle="Automated Reasoning",
+  year="2020",
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="58--78",
+  abstract="The functorial structure of type constructors is the foundation for many definition and proof principles in higher-order logic (HOL). For example, inductive and coinductive datatypes can be built modularly from bounded natural functors (BNFs), a class of well-behaved type constructors. Composition, fixpoints, and---under certain conditions---subtypes are known to preserve the BNF structure. In this paper, we tackle the preservation question for quotients, the last important principle for introducing new types in HOL. We identify sufficient conditions under which a quotient inherits the BNF structure from its underlying type. We extend the Isabelle proof assistant with a command that automates the registration of a quotient type as a BNF by lifting the underlying type's BNF structure. We demonstrate the command's usefulness through several case studies.",
+  isbn="978-3-030-51054-1",
+  doi="10.1007/978-3-030-51054-1_4"
+}
+
+@inproceedings{traytel_et_al-2012,
+  title={Foundational, compositional (co) datatypes for higher-order logic: Category theory applied to theorem proving},
+  author={Traytel, Dmitry and Popescu, Andrei and Blanchette, Jasmin C.},
+  booktitle={2012 27th Annual IEEE Symposium on Logic in Computer Science},
+  pages={596--605},
+  year={2012},
+  organization={IEEE},
+  doi="10.1109/LICS.2012.75"
+}
+
+@InProceedings{blanchette_et_al-2014,
+  author="Blanchette, Jasmin C.
+  and H{\"o}lzl, Johannes
+  and Lochbihler, Andreas
+  and Panny, Lorenz
+  and Popescu, Andrei
+  and Traytel, Dmitriy",
+  editor="Klein, Gerwin
+  and Gamboa, Ruben",
+  title="Truly Modular (Co)datatypes for {Isabelle/HOL}",
+  booktitle="Interactive Theorem Proving",
+  year="2014",
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="93--110",
+  abstract="We extended Isabelle/HOL with a pair of definitional commands for datatypes and codatatypes. They support mutual and nested (co)recursion through well-behaved type constructors, including mixed recursion--corecursion, and are complemented by syntaxes for introducing primitively (co)recursive functions and by a general proof method for reasoning coinductively. As a case study, we ported Isabelle's Coinductive library to use the new commands, eliminating the need for tedious ad hoc constructions.",
+  isbn="978-3-319-08970-6",
+  doi="10.1007/978-3-319-08970-6_7"
+}
+
+@InProceedings{dawson_gore-2010,
+  author="Dawson, Jeremy E.
+  and Gor{\'e}, Rajeev",
+  editor="Ferm{\"u}ller, Christian G.
+  and Voronkov, Andrei",
+  title="Generic Methods for Formalising Sequent Calculi Applied to Provability Logic",
+  booktitle="Logic for Programming, Artificial Intelligence, and Reasoning",
+  year="2010",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="263--277",
+  abstract="We describe generic methods for reasoning about multiset-based sequent calculi which allow us to combine shallow and deep embeddings as desired. Our methods are modular, permit explicit structural rules, and are widely applicable to many sequent systems, even to other styles of calculi like natural deduction and term rewriting systems. We describe new axiomatic type classes which enable simplification of multiset or sequent expressions using existing algebraic manipulation facilities. We demonstrate the benefits of our combined approach by formalising in Isabelle/HOL a variant of a recent, non-trivial, pen-and-paper proof of cut-admissibility for the provability logic GL, where we abstract a large part of the proof in a way which is immediately applicable to other calculi. Our work also provides a machine-checked proof to settle the controversy surrounding the proof of cut-admissibility for GL.",
+  isbn="978-3-642-16242-8",
+  doi="10.1007/978-3-642-16242-8_19"
+}
+
+@article{xavier_et_al-2018,
+  title = {Mechanizing Focused Linear Logic in Coq},
+  journal = {Electronic Notes in Theoretical Computer Science},
+  volume = {338},
+  pages = {219-236},
+  year = {2018},
+  note = {The 12th Workshop on Logical and Semantic Frameworks, with Applications (LSFA 2017)},
+  issn = {1571-0661},
+  doi = {https://doi.org/10.1016/j.entcs.2018.10.014},
+  author = {Bruno Xavier and Carlos Olarte and Giselle Reis and Vivek Nigam},
+  keywords = {linear logic, focusing, Coq},
+  abstract = {Linear logic has been used as a foundation (and inspiration) for the development of programming languages, logical frameworks and models for concurrency. Linear logic's cut-elimination and the completeness of focusing are two of its fundamental properties that have been exploited in such applications. Cut-elimination guarantees that linear logic is consistent and has the so-called sub-formula property. Focusing is a discipline for proof search that was introduced to reduce the search space, but has proved to have more value, as it allows one to specify the shapes of proofs available. This paper formalizes first-order linear logic in Coq and mechanizes the proof of cut-elimination and the completeness of focusing. Moreover, the implemented logic is used to encode an object logic, such as in a linear logical framework, and prove adequacy.}
+}
+
+@inproceedings{power_webster-1999,
+       booktitle = {12th International Conference on Theorem Proving in Higher Order Logics},
+           title = {Working with Linear Logic in Coq},
+          author = {James F. Power and Caroline Webster},
+            year = {1999},
+           pages = {1--16},
+            note = {This is the Work-in-progress version of the paper.},
+        keywords = {Linear Logic; Coq; higher-order logic; Towers of Hanoi problem;},
+             url = {https://mural.maynoothuniversity.ie/6461/},
+        abstract = {In this paper we describe the encoding of linear logic in the Coq system, a proof assistant for higher-order logic. This process involved encoding a suitable consequence relation, the relevant operators, and some auxiliary theorems and tactics. The encoding allows us to state and prove theorems in linear logic, and we demonstrate its use through two examples: a simple blocks world scenario, and the Towers of Hanoi problem.}
+}
+
+@article{hodas_miller-1994,
+  title = {Logic Programming in a Fragment of Intuitionistic Linear Logic},
+  journal = {Information and Computation},
+  volume = {110},
+  number = {2},
+  pages = {327-365},
+  year = {1994},
+  issn = {0890-5401},
+  doi = {https://doi.org/10.1006/inco.1994.1036},
+  author = {Hodas, Joshua S. and Miller, Dale},
+  abstract = {When logic programming is based on the proof theory of intuitionistic logic, it is natural to allow implications in goals and in the bodies of clauses. Attempting to prove a goal of the form D ⊃ G from the context (set of formulas) Γ leads to an attempt to prove the goal G in the extended context Γ ∪ {D}. Thus contexts, represented as the left-hand side of intuitionistic sequents, grow as stacks during the bottom-up search for a cut-free proof. While such an intuitionistic notion of context provides for elegant specifications of many computations, contexts can be made more expressive and flexible if they are based on linear logic. After presenting two equivalent formulations of a fragment of linear logic, we show that the fragment has a goal-directed interpretation, thereby partially justifying calling it a logic program-ming language. Logic programs based on the intuitionistic theory of hereditary Harrop formulas can be modularly embedded into this linear logic setting. Programming examples taken from theorem proving, natural language parsing, and data base programming are presented: each example requires a linear, rather than intuitionistic, notion of context to be modeled adequately. An interpreter for this logic programming language must address the problem of splitting contexts; that is, in the attempt to prove a multiplicative conjunction (tensor), say G1 ⊗ G2, from the context Δ the latter must be split into disjoint contexts Δ1 and Δ2 for which G1 follows from Δ1 and G2 follows from Δ2. Since there is an exponential number of such splits, it is important to delay the choice of a split as much as possible. A mechanism for the lazy splitting of contexts is presented based on viewing proof search as a process that takes a context, consumes part of it, and returns the rest (to be consumed elsewhere). In addition, we use collections of Kripke interpretations indexed by a commutative monoid to provide models for this logic programming language and show that logic programs admit canonical models.}
+}
+
+@INPROCEEDINGS{miller-1994,
+  author={Miller, Dale},
+  booktitle={Proceedings Ninth Annual IEEE Symposium on Logic in Computer Science},
+  title={A multiple-conclusion meta-logic},
+  year={1994},
+  volume={},
+  number={},
+  pages={272-281},
+  doi={10.1109/LICS.1994.316062}
+}
+
+@InProceedings{caires_pfenning-2010,
+  author="Caires, Lu{\'i}s
+  and Pfenning, Frank",
+  editor="Gastin, Paul
+  and Laroussinie, Fran{\c{c}}ois",
+  title="Session Types as Intuitionistic Linear Propositions",
+  booktitle="CONCUR 2010 - Concurrency Theory",
+  year="2010",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="222--236",
+  abstract="Several type disciplines for $\pi$-calculi have been proposed in which linearity plays a key role, even if their precise relationship with pure linear logic is still not well understood. In this paper, we introduce a type system for the $\pi$-calculus that exactly corresponds to the standard sequent calculus proof system for dual intuitionistic linear logic. Our type system is based on a new interpretation of linear propositions as session types, and provides the first purely logical account of all (both shared and linear) features of session types. We show that our type discipline is useful from a programming perspective, and ensures session fidelity, absence of deadlocks, and a tight operational correspondence between $\pi$-calculus reductions and cut elimination steps.",
+  isbn="978-3-642-15375-4",
+  doi="10.1007/978-3-642-15375-4_16"
+}
+
+@techreport{barber-1996,
+  author      = {Barber, Andrew Graham},
+  title       = {Dual intuitionistic linear logic},
+  institution = {University of Edinburgh},
+  year        = {1996},
+  number      = {ECS-LFCS-96-347},
+  url = "https://www.lfcs.inf.ed.ac.uk/reports/96/ECS-LFCS-96-347/"
+}
+
+@InProceedings{honda-1993,
+  author="Honda, Kohei",
+  editor="Best, Eike",
+  title="Types for dyadic interaction",
+  booktitle="CONCUR'93",
+  year="1993",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="509--523",
+  abstract="We formulate a typed formalism for concurrency where types denote freely composable structure of dyadic interaction in the symmetric scheme. The resulting calculus is a typed reconstruction of name passing process calculi. Systems with both the explicit and implicit typing disciplines, where types form a simple hierarchy of types, are presented, which are proved to be in accordance with each other. A typed variant of bisimilarity is formulated and it is shown that typed $\beta$-equality has a clean embedding in the bisimilarity. Name reference structure induced by the simple hierarchy of types is studied, which fully characterises the typable terms in the set of untyped terms. It turns out that the name reference structure results in the deadlock-free property for a subset of terms with a certain regular structure, showing behavioural significance of the simple type discipline.",
+  isbn="978-3-540-47968-0",
+  doi="10.1007/3-540-57208-2_35"
+}
+
+@inproceedings{wadler-2012,
+  author = {Wadler, Philip},
+  title = {Propositions as Sessions},
+  year = {2012},
+  isbn = {9781450310543},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/2364527.2364568},
+  abstract = {Continuing a line of work by Abramsky (1994), by Bellin and Scott (1994), and by Caires and Pfenning (2010), among others, this paper presents CP, a calculus in which propositions of classical linear logic correspond to session types. Continuing a line of work by Honda (1993), by Honda, Kubo, and Vasconcelos (1998), and by Gay and Vasconcelos (2010), among others, this paper presents GV, a linear functional language with session types, and presents a translation from GV into CP. The translation formalises for the first time a connection between a standard presentation of session types and linear logic, and shows how a modification to the standard presentation yield a language free from deadlock, where deadlock freedom follows from the correspondence to linear logic.},
+  booktitle = {Proceedings of the 17th ACM SIGPLAN International Conference on Functional Programming},
+  pages = {273–286},
+  numpages = {14},
+  keywords = {lambda calculus, linear logic, pi calculus},
+  location = {Copenhagen, Denmark},
+  series = {ICFP '12}
+}
+
+@inproceedings{sheard_jones-2002,
+  author = {Sheard, Tim and Peyton Jones, Simon},
+  title = {Template meta-programming for Haskell},
+  booktitle = {Proceedings of the 2002 Haskell Workshop, Pittsburgh},
+  year = {2002},
+  month = {October},
+  abstract = {We propose a new extension to the purely functional programming language Haskell that supports compile-time meta-programming. The purpose of the system is to support the algorithmic construction of programs at compile-time.
+
+  The ability to generate code at compile time allows the programmer to implement such features as polytypic programs, macro-like expansion, user directed optimization (such as inlining), and the generation of supporting data structures and functions from existing data structures and functions.
+
+  Our design is being implemented in the Glasgow Haskell Compiler, ghc.
+
+   },
+  url = {https://www.microsoft.com/en-us/research/publication/template-meta-programming-for-haskell/},
+  pages = {1-16},
+  edition = {Proceedings of the 2002 Haskell Workshop, Pittsburgh},
+}
+
+@InProceedings{huffman_kuncar-2013,
+  author="Huffman, Brian
+    and Kun{\v{c}}ar, Ond{\v{r}}ej",
+  editor="Gonthier, Georges
+    and Norrish, Michael",
+  title="Lifting and {Transfer}: A Modular Design for Quotients in {Isabelle/HOL}",
+  booktitle="Certified Programs and Proofs",
+  year="2013",
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="131--146",
+  abstract="Quotients, subtypes, and other forms of type abstraction are ubiquitous in formal reasoning with higher-order logic. Typically, users want to build a library of operations and theorems about an abstract type, but they want to write definitions and proofs in terms of a more concrete representation type, or ``raw'' type. Earlier work on the Isabelle Quotient package has yielded great progress in automation, but it still has many technical limitations.",
+  isbn="978-3-319-03545-1",
+  doi="10.1007/978-3-319-03545-1_9"
+}
+
+@article{wadler-2015,
+  author = {Wadler, Philip},
+  title = {Propositions as Types},
+  year = {2015},
+  issue_date = {December 2015},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {58},
+  number = {12},
+  issn = {0001-0782},
+  doi = {10.1145/2699407},
+  abstract = {Connecting mathematical logic and computation, it ensures that some aspects of programming are absolute.},
+  journal = {Commun. ACM},
+  pages = {75–84},
+  numpages = {10}
+}
+
+@InCollection{mccarthy_hayes-1969,
+  author = "John McCarthy and Patrick J. Hayes",
+  title = "Some Philosophical Problems from the Standpoint of
+  Artificial Intelligence",
+  booktitle = "Machine Intelligence 4",
+  editor = "B. Meltzer and D. Michie",
+  pages = "463--502",
+  publisher = "Edinburgh University Press",
+  address = "Edinburgh",
+  year = "1969",
+  note = "reprinted in McC90",
+}
+
+@inproceedings{reid_et_al-2021,
+  author = {Reid, Kenneth N. and Miralavy, Iliya and Kelly, Stephen and Banzhaf, Wolfgang and Gondro, Cedric},
+  title = {The Factory Must Grow: Automation in {Factorio}},
+  year = {2021},
+  isbn = {9781450383516},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/3449726.3459463},
+  abstract = {The video game Factorio has a myriad of gameplay scenarios which are analogous to real-world problems, and is a useful simulator for developing solutions for them. In this paper we define the logistic transport belt problem, we provide an interface to allow optimizers in any programming language to interact with Factorio, and we provide an initial benchmark. Results are presented for three different meta-heuristic techniques to optimize solutions to this novel problem.},
+  booktitle = {Proceedings of the Genetic and Evolutionary Computation Conference Companion},
+  pages = {243–244},
+  numpages = {2},
+  keywords = {video games, meta-heuristics, operational research},
+  location = {Lille, France},
+  series = {GECCO '21}
+}
+
+@inproceedings{boardman_krejci-2021,
+  author = "Boardman, Bonnie S. and Krejci, Caroline C.",
+  title = "Simulation of Production and Inventory Control using the Computer Game {Factorio}",
+  booktitle = "ASEE 2021 Gulf-Southwest Annual Conference",
+  year = "2021",
+  doi="10.18260/1-2--36402"
+}
+
+@book{cohn-1965,
+  year = {1965},
+  booktitle = {Universal algebra},
+  keywords = {Algebra, Universal},
+  language = {eng},
+  lccn = {65011701},
+  publisher = {Harper \& Row},
+  title = {Universal algebra},
+  author = {Cohn, Paul Moritz},
+  address = {New York},
+}
+
+@book{russell_norvig-2013,
+  year = {2013},
+  booktitle = {Artificial Intelligence},
+  publisher = {Pearson Education UK},
+  title = {Artificial Intelligence: A Modern Approach},
+  author = {Russell, Stuart and Norvig, Peter},
+}
+
+@article{lua,
+  author = {Ierusalimschy, Roberto and de Figueiredo, Luiz Henrique and Filho, Waldemar Celes},
+  title = {Lua—An Extensible Extension Language},
+  journal = {Software: Practice and Experience},
+  volume = {26},
+  number = {6},
+  pages = {635-652},
+  keywords = {extension languages, end-user programming, programming languages},
+  doi = {https://doi.org/10.1002/(SICI)1097-024X(199606)26:6<635::AID-SPE26>3.0.CO;2-P},
+  abstract = {Abstract This paper describes Lua, a language for extending applications. Lua combines procedural features with powerful data description facilities, by using a simple, yet powerful, mechanism of tables . This mechanism implements the concepts of records, arrays and recursive data types (pointers), and adds some object-oriented facilities, such as methods with dynamic dispatching. Lua presents a mechanism of fallbacks that allows programmers to extend the semantics of the language in some unconventional ways. As a noteworthy example, fallbacks allow the user to add different kinds of inheritance to the language. Currently, Lua is being extensively used in production for several tasks, including user configuration, general-purpose data-entry, description of user interfaces, storage of structured graphical metafiles, and generic attribute configuration for finite element meshes.},
+  year = {1996}
+}
+
+@InProceedings{thiemann_sternagel-2009,
+  author="Thiemann, Ren{\'e}
+  and Sternagel, Christian",
+  editor="Berghofer, Stefan
+  and Nipkow, Tobias
+  and Urban, Christian
+  and Wenzel, Makarius",
+  title="Certification of Termination Proofs Using {CeTA}",
+  booktitle="Theorem Proving in Higher Order Logics",
+  year="2009",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="452--468",
+  abstract="There are many automatic tools to prove termination of term rewrite systems, nowadays. Most of these tools use a combination of many complex termination criteria. Hence generated proofs may be of tremendous size, which makes it very tedious (if not impossible) for humans to check those proofs for correctness.",
+  isbn="978-3-642-03359-9",
+  doi="10.1007/978-3-642-03359-9_31"
+}
+
+@article{ohearn_pym-1999,
+  title={The Logic of Bunched Implications},
+  volume={5},
+  DOI={10.2307/421090},
+  number={2},
+  journal={Bulletin of Symbolic Logic},
+  publisher={Cambridge University Press},
+  author={O'Hearn, Peter W. and Pym, David J.},
+  year={1999},
+  pages={215–244}
+}
+
+@book{DMSM,
+  title = "A Discipline of Mathematical Systems Modelling",
+  author = "Matthew Collinson and Brian Monahan and David Pym",
+  year = "2012",
+  month = aug,
+  day = "23",
+  language = "English",
+  isbn = "978-1-904987-50-5",
+  series = "Systems thinking and systems engineering",
+  publisher = "College Publications",
+  address = "London",
+}
+
+@misc{gheorgiu_pym-2022,
+  doi = {10.48550/ARXIV.2210.05348},
+  url = {https://arxiv.org/abs/2210.05348},
+  author = {Gheorghiu, Alexander V. and Pym, David J.},
+  keywords = {Logic in Computer Science (cs.LO), Logic (math.LO), FOS: Computer and information sciences, FOS: Computer and information sciences, FOS: Mathematics, FOS: Mathematics},
+  title = {Semantical Analysis of the Logic of Bunched Implications},
+  publisher = {arXiv},
+  year = {2022},
+  copyright = {Creative Commons Attribution 4.0 International}
+}
+
+@phdthesis{holzl-2013,
+  author = {H{\"o}lzl, Johannes},
+  title = {Construction and Stochastic Applications of Measure Spaces in Higher-Order Logic},
+  year = {2013},
+  school = {Technische Universität München},
+  pages = {120},
+  language = {en},
+  abstract = {The goal of this work is the verification of probabilistic systems in the interactive theorem prover Isabelle/HOL. This requires the formalization of probability theory. We construct probability spaces with infinitely many independent random variables and the stochastic process of a Markov chain. We use these probability spaces to verify the correctness of probabilistic model checking and to verify properties of the ZeroConf protocol and the Crowds protocol.},
+  keywords = {Interactive Theorem Proving, Probability Theory, Markov Chains},
+  note = {},
+  url = {https://mediatum.ub.tum.de/1116512},
+}
+
+@InProceedings{holzl_heller-2011,
+  author="H{\"o}lzl, Johannes and Heller, Armin",
+  editor="van Eekelen, Marko and Geuvers, Herman and Schmaltz, Julien and Wiedijk, Freek",
+  title="Three Chapters of Measure Theory in {Isabelle/HOL}",
+  booktitle="Interactive Theorem Proving",
+  year="2011",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="135--151",
+  abstract="Currently published HOL formalizations of measure theory concentrate on the Lebesgue integral and they are restricted to real-valued measures. We lift this restriction by introducing the extended real numbers. We define the Borel $\sigma$-algebra for an arbitrary type forming a topological space. Then, we introduce measure spaces with extended real numbers as measure values. After defining the Lebesgue integral and verifying its linearity and monotone convergence property, we prove the Radon-Nikod{\'y}m theorem (which shows the maturity of our framework). Moreover, we formalize product measures and prove Fubini's theorem. We define the Lebesgue measure using the gauge integral available in Isabelle's multivariate analysis. Finally, we relate both integrals and equate the integral on Euclidean spaces with iterated integrals. This work covers most of the first three chapters of Bauer's measure theory textbook.",
+  isbn="978-3-642-22863-6",
+  doi="10.1007/978-3-642-22863-6_12"
+}
+
+@article{avigad_holzl_serafin-2017,
+  title="A Formally Verified Proof of the Central Limit Theorem",
+  author="Avigad, Jeremy and H{\"o}lzl, Johannes and Serafin, Luke",
+  volume={59},
+  journal="Journal of Automated Reasoning",
+  year={2017},
+  pages={389-423},
+  doi="10.1007/s10817-017-9404-x"
+}
+
+@InProceedings{holzl_lochbihler_traytel-2015,
+  author="H{\"o}lzl, Johannes
+  and Lochbihler, Andreas
+  and Traytel, Dmitriy",
+  editor="Urban, Christian
+  and Zhang, Xingyuan",
+  title="A Formalized Hierarchy of Probabilistic System Types",
+  booktitle="Interactive Theorem Proving",
+  year="2015",
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="203--220",
+  abstract="Numerous models of probabilistic systems are studied in the literature. Coalgebra has been used to classify them into system types and compare their expressiveness. In this work, we formalize the resulting hierarchy of probabilistic system types in Isabelle/HOL by modeling the semantics of the different systems as codatatypes. This approach yields simple and concise proofs, as bisimilarity coincides with equality for codatatypes. On the way, we develop libraries of bounded sets and discrete probability distributions and integrate them with the facility for (co)datatype definitions.",
+  isbn="978-3-319-22102-1",
+  doi="10.1007/978-3-319-22102-1_13"
+}
+
+@article{holzl-2017,
+  title="Markov Chains and Markov Decision Processes in {Isabelle/HOL}",
+  author="H{\"o}lzl, Johannes",
+  volume={59},
+  journal="Journal of Automated Reasoning",
+  year={2017},
+  pages={345-387},
+  doi="10.1007/s10817-016-9401-5"
+}
+
+@InProceedings{eberl_holzl_nipkow-2015,
+  author="Eberl, Manuel
+  and H{\"o}lzl, Johannes
+  and Nipkow, Tobias",
+  editor="Vitek, Jan",
+  title="A Verified Compiler for Probability Density Functions",
+  booktitle="Programming Languages and Systems",
+  year="2015",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="80--104",
+  abstract="Bhat et al. developed an inductive compiler that computes density functions for probability spaces described by programs in a probabilistic functional language. We implement such a compiler for a modified version of this language within the theorem prover Isabelle and give a formal proof of its soundness w. r. t. the semantics of the source and target language. Together with Isabelle's code generation for inductive predicates, this yields a fully verified, executable density compiler. The proof is done in two steps: First, an abstract compiler working with abstract functions modelled directly in the theorem prover's logic is defined and proved sound. Then, this compiler is refined to a concrete version that returns a target-language expression.",
+  isbn="978-3-662-46669-8",
+  doi="10.1007/978-3-662-46669-8_4"
+}
+
+@article{murata-1989,
+  author={Murata, Tadao},
+  journal={Proceedings of the IEEE},
+  title={Petri nets: Properties, analysis and applications},
+  year={1989},
+  volume={77},
+  number={4},
+  pages={541-580},
+  doi={10.1109/5.24143}
+}
+
+@book{hillston-1996,
+  title     = "A Compositional Approach to Performance Modelling",
+  author    = "Hillston, Jane",
+  year      = 1996,
+  publisher = "Cambridge University Press"
+}
+
+@book{maclane-1998,
+  title = "Categories for the Working Mathematician",
+  author = "Mac Lane, Saunders",
+  year = 1998,
+  publisher = "Springer New York, NY",
+  doi = "10.1007/978-1-4757-4721-8"
+}
+
+@InProceedings{horne-2019,
+  author =	{Horne, Ross},
+  title =	{{The Sub-Additives: A Proof Theory for Probabilistic Choice extending Linear Logic}},
+  booktitle =	{4th International Conference on Formal Structures for Computation and Deduction (FSCD 2019)},
+  pages =	{23:1--23:16},
+  series =	{Leibniz International Proceedings in Informatics (LIPIcs)},
+  ISBN =	{978-3-95977-107-8},
+  ISSN =	{1868-8969},
+  year =	{2019},
+  volume =	{131},
+  editor =	{Geuvers, Herman},
+  publisher =	{Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+  address =	{Dagstuhl, Germany},
+  URN =		{urn:nbn:de:0030-drops-105300},
+  doi =		{10.4230/LIPIcs.FSCD.2019.23},
+  annote =	{Keywords: calculus of structures, probabilistic choice, probabilistic refinement}
+}
+
+@InProceedings{segala-2006,
+  author="Segala, Roberto",
+  editor="Baier, Christel
+  and Hermanns, Holger",
+  title="Probability and Nondeterminism in Operational Models of Concurrency",
+  booktitle="CONCUR 2006 -- Concurrency Theory",
+  year="2006",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="64--78",
+  abstract="We give a brief overview of operational models for concurrent systems that exhibit probabilistic behavior, focussing on the interplay between probability and nondeterminism. Our survey is carried out from the perspective of probabilistic automata, a model originally developed for the analysis of randomized distributed algorithms.",
+  isbn="978-3-540-37377-3",
+  doi="10.1007/11817949_5"
+}
+
+@book{nipkow_wenzel_paulson-2002,
+  title     = "Isabelle/HOL",
+  subtitle  = "A Proof Assistant for Higher-Order Logic",
+  author    = "Nipkow, Tobias and Wenzel, Markus and Paulson, Lawrence C.",
+  year      = 2002,
+  publisher = "Springer Berlin, Heidelberg",
+  doi       = "10.1007/3-540-45949-9"
+}
+
+@book{baader_nipkow-1998,
+  title={Term Rewriting and All That},
+  publisher={Cambridge University Press},
+  author={Baader, Franz and Nipkow, Tobias},
+  year={1998},
+  doi = "10.1017/CBO9781139172752"
+}
+
+@inbook{baader_nipkow-1998-ch03,
+  title={Universal Algebra},
+  chapter={3},
+  booktitle={Term Rewriting and All That},
+  publisher={Cambridge University Press},
+  author={Baader, Franz and Nipkow, Tobias},
+  year={1998},
+  pages={34–57},
+  doi = "10.1017/CBO9781139172752.004 "
+}
+
+@article{smola_fleuriot-2024,
+  title="Linear Resources in {Isabelle/HOL}",
+  author="Smola, Filip and Fleuriot, Jacques D.",
+  volume={68},
+  journal="Journal of Automated Reasoning",
+  year={2024},
+  doi="10.1007/s10817-024-09698-2"
+}
+
+@inproceedings{ryan_yorgey-2015,
+  author = {Yates, Ryan and Yorgey, Brent A.},
+  title = {Diagrams: a functional {EDSL} for vector graphics},
+  year = {2015},
+  isbn = {9781450338066},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/2808083.2808085},
+  abstract = {diagrams is a domain-specific language for creating vector graphics. We will give a short diagrams tutorial/demo, particularly highlighting the power of a functional, embedded domain-specific language.},
+  booktitle = {Proceedings of the 3rd ACM SIGPLAN International Workshop on Functional Art, Music, Modelling and Design},
+  pages = {4–5},
+  numpages = {2},
+  keywords = {EDSL, Haskell, diagrams, vector},
+  location = {Vancouver, BC, Canada},
+  series = {FARM 2015}
+}
+
+@article{breiner_et_al-2019,
+  title = {Categorical models for process planning},
+  journal = {Computers in Industry},
+  volume = {112},
+  pages = {103124},
+  year = {2019},
+  issn = {0166-3615},
+  doi = {10.1016/j.compind.2019.103124},
+  author = {Breiner, Spencer and Jones, Albert and Subrahmanian, Eswaran},
+  keywords = {Process plan, Category theory, String diagram, Mathematical modeling},
+  abstract = {Process plans provide a structure for 1) identifying the tasks involved in a given process, 2) the resources needed to accomplish them, and 3) a variety of relationships and constraints between these. This information guides important operational decisions across various organizational levels, from the factory floor to the global supply chain. Efficient use of this information requires a concrete analytical model that can be easily represented in digital form. In this paper we present a modeling framework for process plans based on a branch of mathematics called category theory (CT). Specifically, string diagrams provide an intuitive yet precise graphical syntax for describing symmetric monoidal categories (SMCs), mathematical structures which support serial and parallel composition. Ideal for process representation, these structures also support a powerful mathematical toolkit. Here we use these tools to analyze the relationship between different levels of abstraction in process planning hierarchy. We also model some spatiotemporal aspects of planning, dynamic decision-making inside the process hierarchy and the updating procedure in the event of errors or extensions in the production line.}
+}
+
+@article{MonoidalCategory-AFP,
+  author  = {Eugene W. Stark},
+  title   = {Monoidal Categories},
+  journal = {Archive of Formal Proofs},
+  month   = {May},
+  year    = {2017},
+  note    = {\url{https://isa-afp.org/entries/MonoidalCategory.html},
+             Formal proof development},
+  ISSN    = {2150-914x},
+}
+
+@book{fong_spivak-2019,
+  title={An Invitation to Applied Category Theory: Seven Sketches in Compositionality},
+  publisher={Cambridge University Press},
+  author={Fong, Brendan and Spivak, David I.},
+  year={2019}
+}
+
+@inproceedings{bonchi_et_al-2015,
+  author = {Bonchi, Filippo and Sobocinski, Pawel and Zanasi, Fabio},
+  title = {Full Abstraction for Signal Flow Graphs},
+  year = {2015},
+  isbn = {9781450333009},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/2676726.2676993},
+  abstract = {Network theory uses the string diagrammatic language of monoidal categories to study graphical structures formally, eschewing specialised translations into intermediate formalisms. Recently, there has been a concerted research focus on developing a network theoretic approach to signal flow graphs, which are classical structures in control theory, signal processing and a cornerstone in the study of feedback. In this approach, signal flow graphs are given a relational denotational semantics in terms of formal power series.Thus far, the operational behaviour of such signal flow graphs has only been discussed at an intuitive level. In this paper we equip them with a structural operational semantics. As is typically the case, the purely operational picture is too concrete -- two graphs that are denotationally equal may exhibit different operational behaviour. We classify the ways in which this can occur and show that any graph can be realised -- rewritten, using the graphical theory, into an executable form where the operational behavior and the denotation coincides.},
+  booktitle = {Proceedings of the 42nd Annual ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+  pages = {515–526},
+  numpages = {12},
+  keywords = {structural operational semantics, string diagrams, signal flow graphs, props, full abstraction},
+  location = {Mumbai, India},
+  series = {POPL '15}
+}
+
+@InProceedings{coecke_duncan-2008,
+  author="Coecke, Bob
+  and Duncan, Ross",
+  editor="Aceto, Luca
+  and Damg{\aa}rd, Ivan
+  and Goldberg, Leslie Ann
+  and Halld{\'o}rsson, Magn{\'u}s M.
+  and Ing{\'o}lfsd{\'o}ttir, Anna
+  and Walukiewicz, Igor",
+  title="Interacting Quantum Observables",
+  booktitle="Automata, Languages and Programming",
+  year="2008",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="298--310",
+  abstract="We formalise the constructive content of an essential feature of quantum mechanics: the interaction of complementary quantum observables, and information flow mediated by them. Using a general categorical formulation, we show that pairs of mutually unbiased quantum observables form bialgebra-like structures. We also provide an abstract account on the quantum data encoded in complex phases, and prove a normal form theorem for it. Together these enable us to describe all observables of finite dimensional Hilbert space quantum mechanics. The resulting equations suffice to perform computations with elementary quantum gates, translate between distinct quantum computational models, establish the equivalence of entangled quantum states, and simulate quantum algorithms such as the quantum Fourier transform. All these computations moreover happen within an intuitive diagrammatic calculus.",
+  isbn="978-3-540-70583-3",
+  doi="10.1007/978-3-540-70583-3_25"
+}
+
+@InProceedings{kissinger_zamdzhiev-2015,
+  author="Kissinger, Aleks
+  and Zamdzhiev, Vladimir",
+  editor="Felty, Amy P.
+  and Middeldorp, Aart",
+  title="Quantomatic: A Proof Assistant for Diagrammatic Reasoning",
+  booktitle="Automated Deduction - CADE-25",
+  year="2015",
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="326--336",
+  abstract="Monoidal algebraic structures consist of operations that can have multiple outputs as well as multiple inputs, which have applications in many areas including categorical algebra, programming language semantics, representation theory, algebraic quantum information, and quantum groups. String diagrams provide a convenient graphical syntax for reasoning formally about such structures, while avoiding many of the technical challenges of a term-based approach. Quantomatic is a tool that supports the (semi-)automatic construction of equational proofs using string diagrams. We briefly outline the theoretical basis of Quantomatic's rewriting engine, then give an overview of the core features and architecture and give a simple example project that computes normal forms for commutative bialgebras.",
+  isbn="978-3-319-21401-6",
+  doi="10.1007/978-3-319-21401-6_22"
+}
+
+@article{andrei_et_al-2011,
+   title={{PORGY}: Strategy-Driven Interactive Transformation of Graphs},
+   volume={48},
+   ISSN={2075-2180},
+   DOI={10.4204/eptcs.48.7},
+   journal={Electronic Proceedings in Theoretical Computer Science},
+   publisher={Open Publishing Association},
+   author={Andrei, Oana and Fernández, Maribel and Kirchner, Hélène and Melançon, Guy and Namet, Olivier and Pinaud, Bruno},
+   year={2011},
+   month=feb, pages={54–68} }
+
+@article{vallet_et_al-2015,
+   title={A Visual Analytics Approach to Compare Propagation Models in Social Networks},
+   volume={181},
+   ISSN={2075-2180},
+   DOI={10.4204/eptcs.181.5},
+   journal={Electronic Proceedings in Theoretical Computer Science},
+   publisher={Open Publishing Association},
+   author={Vallet, Jason and Kirchner, Hélène and Pinaud, Bruno and Melançon, Guy},
+   year={2015},
+   month=apr, pages={65–79} }
+
+@InProceedings{breitner_2016,
+  author="Breitner, Joachim",
+  editor="Blanchette, Jasmin C.
+  and Merz, Stephan",
+  title="Visual Theorem Proving with the Incredible Proof Machine",
+  booktitle="Interactive Theorem Proving",
+  year="2016",
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="123--139",
+  abstract="The Incredible Proof Machine is an easy and fun to use program to conduct formal proofs. It employs a novel, intuitive proof representation based on port graphs, which is akin to, but even more natural than, natural deduction. In particular, we describe a way to determine the scope of local assumptions and variables implicitly. Our practical classroom experience backs these claims.",
+  isbn="978-3-319-43144-4",
+  doi="10.1007/978-3-319-43144-4_8"
+}
+
+@article{Incredible_Proof_Machine-AFP,
+  author  = {Joachim Breitner and Denis Lohner},
+  title   = {The meta theory of the Incredible Proof Machine},
+  journal = {Archive of Formal Proofs},
+  month   = {May},
+  year    = {2016},
+  note    = {\url{https://isa-afp.org/entries/Incredible_Proof_Machine.html},
+             Formal proof development},
+  ISSN    = {2150-914x},
+}
+
+@Inbook{dunn-1986,
+  author="Dunn, J. Michael",
+  editor="Gabbay, D.
+  and Guenthner, F.",
+  title="Relevance Logic and Entailment",
+  bookTitle="Handbook of Philosophical Logic: Volume III: Alternatives in Classical Logic",
+  year="1986",
+  publisher="Springer Netherlands",
+  address="Dordrecht",
+  pages="117--224",
+  abstract="Note carefully that the title of this piece is not `A Survey of Relevance Logic'. Such a project would be impossible given the development of the field and even the space limitations of this Handbook. For example Anderson and Belnap's [1975] book Entailment: The Logic of Relevance and Necessity, volume 1 runs over 500 pages, and is their summary of just `half' of the work done by them and their co-workers up to about the early 70s.1",
+  isbn="978-94-009-5203-4",
+  doi="10.1007/978-94-009-5203-4_3",
+}
+
+@article{Pi_Calculus-AFP,
+  author  = {Jesper Bengtson},
+  title   = {The pi-calculus in nominal logic},
+  journal = {Archive of Formal Proofs},
+  month   = {May},
+  year    = {2012},
+  note    = {\url{https://isa-afp.org/entries/Pi_Calculus.html},
+             Formal proof development},
+  ISSN    = {2150-914x},
+}
+
+@misc{domros_et_al-2023,
+      title={The {Eclipse Layout Kernel}},
+      author={Sören Domrös and Reinhard von Hanxleden and Miro Spönemann and Ulf Rüegg and Christoph D. Schulze},
+      year={2023},
+      archivePrefix={arXiv},
+      primaryClass={cs.DS},
+      doi="10.48550/arXiv.2311.00533"
+}
+
+@article{Nano_JSON-AFP,
+  author  = {Achim D. Brucker},
+  title   = {Nano JSON: Working with JSON formatted data in Isabelle/HOL and Isabelle/ML},
+  journal = {Archive of Formal Proofs},
+  month   = {July},
+  year    = {2022},
+  note    = {\url{https://isa-afp.org/entries/Nano_JSON.html},
+             Formal proof development},
+  ISSN    = {2150-914x},
+}
+
+@article{hoare_staden-2014,
+  title = {The laws of programming unify process calculi},
+  journal = {Science of Computer Programming},
+  volume = {85},
+  pages = {102-114},
+  year = {2014},
+  note = {Special Issue on Mathematics of Program Construction 2012},
+  issn = {0167-6423},
+  doi = {10.1016/j.scico.2013.08.012},
+  author = {Tony Hoare and Stephan {van Staden}},
+  keywords = {Algebra of programming, Hoare logic, Process calculi, Operational semantics, Event model},
+  abstract = {We survey the well-known algebraic laws of sequential programming, and propose some less familiar laws for concurrent programming. On the basis of these laws, we derive the rules of a number of classical programming and process calculi, for example, those due to Hoare, Milner, and Kahn. The algebraic laws are simpler than each of the calculi derived from it, and they are stronger than all the calculi put together. Conversely, most of the laws are derivable from one or more of the calculi. This suggests that the laws are useful as a presentation of program semantics, and correspond to a widely held common understanding of the meaning of programs. For further evidence, Appendix A describes a realistic and generic model of program behaviour, which has been proved to satisfy the laws.}
+}
+
+@phdthesis{andrei_2008,
+  TITLE = {{A Rewriting Calculus for Graphs: Applications to Biology and Autonomous Systems}},
+  AUTHOR = {Andrei, Oana},
+  URL = {https://theses.hal.science/tel-00337558},
+  SCHOOL = {{Institut National Polytechnique de Lorraine - INPL}},
+  YEAR = {2008},
+  MONTH = Nov,
+  KEYWORDS = {rewriting calculus ; graph rewriting ; strategic rewriting ; biochemical networks ; autonomous systems ; calcul de r{\'e}{\'e}criture ; r{\'e}{\'e}criture de graphes ; strat{\'e}gies de r{\'e}{\'e}criture ; r{\'e}seaux biochimiques ; syst{\`e}mes autonomes},
+  TYPE = {Theses},
+  PDF = {https://theses.hal.science/tel-00337558v2/file/thesis-OanaAndrei.pdf},
+  HAL_ID = {tel-00337558},
+  HAL_VERSION = {v2},
+}
+
+
+@article{fernandez_et_al-2019,
+  TITLE = {{Strategic Port Graph Rewriting: an Interactive Modelling Framework}},
+  AUTHOR = {Fern{\'a}ndez, Maribel and Kirchner, H{\'e}l{\`e}ne and Pinaud, Bruno},
+  JOURNAL = {{Mathematical Structures in Computer Science}},
+  PUBLISHER = {{Cambridge University Press (CUP)}},
+  VOLUME = {29},
+  NUMBER = {5},
+  PAGES = {615--662},
+  YEAR = {2019},
+  MONTH = May,
+  DOI = {10.1017/S0960129518000270},
+  KEYWORDS = {strategic rewrite programs ; strategy ; rewriting ; Labelled Graphs ; port graphs},
+  PDF = {https://inria.hal.science/hal-01251871v3/file/main-long-report.pdf},
+  HAL_ID = {hal-01251871},
+  HAL_VERSION = {v3},
+}
+
+@article{ene_et_al-2018,
+   title={Attributed Hierarchical Port Graphs and Applications},
+   volume={265},
+   ISSN={2075-2180},
+   DOI={10.4204/eptcs.265.2},
+   journal={Electronic Proceedings in Theoretical Computer Science},
+   publisher={Open Publishing Association},
+   author={Ene, Nneka Chinelo and Fernández, Maribel and Pinaud, Bruno},
+   year={2018},
+   month=feb, pages={2–19} }
+
+@InProceedings{wenzel-1997,
+  author="Wenzel, Markus",
+  editor="Gunter, Elsa L.
+  and Felty, Amy",
+  title="Type classes and overloading in higher-order logic",
+  booktitle="Theorem Proving in Higher Order Logics",
+  year="1997",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="307--322",
+  abstract="Type classes and overloading are shown to be independent concepts that can both be added to simple higher-order logics in the tradition of Church and Gordon, without demanding more logical expressiveness. In particular, model-theoretic issues are not affected. Our metalogical results may serve as a foundation of systems like Isabelle/Pure that offer the user Haskell-style order-sorted polymorphism as an extended syntactic feature. The latter can be used to describe simple abstract theories with a single carrier type and a fixed signature of operations.",
+  isbn="978-3-540-69526-4",
+  doi="10.1007/BFb0028402"
+}
+
+@article{Go-AFP,
+  author  = {Terru Stübinger and Lars Hupel},
+  title   = {Go Code Generation for Isabelle},
+  journal = {Archive of Formal Proofs},
+  month   = {January},
+  year    = {2024},
+  note    = {\url{https://isa-afp.org/entries/Go.html},
+             Formal proof development},
+  ISSN    = {2150-914x},
+}
+
+@article{scott-1993,
+  title = {A type-theoretical alternative to {ISWIM}, {CUCH}, {OWHY}},
+  journal = {Theoretical Computer Science},
+  volume = {121},
+  number = {1},
+  pages = {411-440},
+  year = {1993},
+  issn = {0304-3975},
+  doi = {10.1016/0304-3975(93)90095-B},
+  author = {Scott, Dana S.},
+  abstract = {The paper (first written in 1969 and circulated privately) concerns the definition, axiomatization, and applications of the hereditarily monotone and continuous functionals generated from the integers and the Booleans (plus “undefined” elements). The system is formulated as a typed system of combinators (or as a typed λ-calculus) with a recursion operator (the least fixed-point operator), and its proof rules are contrasted to a certain extent with those of the untyped λ-calculus. For publication (1993), a new preface has been added, and many bibliographical references and comments in footnotes have been appended.}
+}
+
+@inproceedings{milner-1976,
+  title = "Models of {LCF}",
+  author = "Milner, Robin",
+  year = "1976",
+  language = "English",
+  volume = "82",
+  pages = "49--63",
+  booktitle = "Mathematical Centre Tracts",
+  publisher = "Mathematisch Centrum",
+}
+
+@book{gordon_melham-1993,
+  author = {Gordon, Michael J. C. and Melham, Thomas F.},
+  title = {Introduction to {HOL}: a theorem proving environment for higher order logic},
+  year = {1993},
+  isbn = {0521441897},
+  publisher = {Cambridge University Press},
+  address = {USA}
+}
+
+@techreport{coquand_huet-1986,
+  TITLE = {{The calculus of constructions}},
+  AUTHOR = {Coquand, Thierry and Huet, G{\'e}rard},
+  URL = {https://inria.hal.science/inria-00076024},
+  NUMBER = {RR-0530},
+  INSTITUTION = {{INRIA}},
+  YEAR = {1986},
+  MONTH = May,
+  PDF = {https://inria.hal.science/inria-00076024v1/file/RR-0530.pdf},
+  HAL_ID = {inria-00076024},
+  HAL_VERSION = {v1},
+}
+
+@software{coq-2024,
+  author       = {The {Coq} Development Team},
+  title        = {The {Coq} Proof Assistant},
+  month        = sep,
+  year         = 2024,
+  publisher    = {Zenodo},
+  version      = {8.20},
+  doi          = {10.5281/zenodo.14542673},
+}
+
+@InProceedings{demoura_ullrich-2021,
+  author="Moura, Leonardo de
+  and Ullrich, Sebastian",
+  editor="Platzer, Andr{\'e}
+  and Sutcliffe, Geoff",
+  title="The {Lean} 4 Theorem Prover and Programming Language",
+  booktitle="Automated Deduction -- CADE 28",
+  year="2021",
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="625--635",
+  abstract="Lean 4 is a reimplementation of the Lean interactive theorem prover (ITP) in Lean itself. It addresses many shortcomings of the previous versions and contains many new features. Lean 4 is fully extensible: users can modify and extend the parser, elaborator, tactics, decision procedures, pretty printer, and code generator. The new system has a hygienic macro system custom-built for ITPs. It contains a new typeclass resolution procedure based on tabled resolution, addressing significant performance problems reported by the growing user base. Lean 4 is also an efficient functional programming language based on a novel programming paradigm called functional but in-place. Efficient code generation is crucial for Lean users because many write custom proof automation procedures in Lean itself.",
+  isbn="978-3-030-79876-5",
+  doi="10.1007/978-3-030-79876-5_37",
+}
+
+@article{bernardy_et_al-2018,
+  author = {Bernardy, Jean-Philippe and Boespflug, Mathieu and Newton, Ryan R. and Peyton Jones, Simon and Spiwack, Arnaud},
+  title = {Linear Haskell: practical linearity in a higher-order polymorphic language},
+  year = {2018},
+  issue_date = {January 2018},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {2},
+  number = {POPL},
+  doi = {10.1145/3158093},
+  abstract = {Linear type systems have a long and storied history, but not a clear path forward to integrate with existing languages such as OCaml or Haskell. In this paper, we study a linear type system designed with two crucial properties in mind: backwards-compatibility and code reuse across linear and non-linear users of a library. Only then can the benefits of linear types permeate conventional functional programming. Rather than bifurcate types into linear and non-linear counterparts, we instead attach linearity to function arrows. Linear functions can receive inputs from linearly-bound values, but can also operate over unrestricted, regular values. To demonstrate the efficacy of our linear type system - both how easy it can be integrated in an existing language implementation and how streamlined it makes it to write programs with linear types - we implemented our type system in ghc, the leading Haskell compiler, and demonstrate two kinds of applications of linear types: mutable data with pure interfaces; and enforcing protocols in I/O-performing functions.},
+  journal = {Proc. ACM Program. Lang.},
+  month = dec,
+  articleno = {5},
+  numpages = {29},
+  keywords = {GHC, Haskell, laziness, linear logic, linear types, polymorphism, typestate}
+}
+
+@article{radanne_et_al-2020,
+  author = {Radanne, Gabriel and Saffrich, Hannes and Thiemann, Peter},
+  title = {Kindly bent to free us},
+  year = {2020},
+  issue_date = {August 2020},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {4},
+  number = {ICFP},
+  doi = {10.1145/3408985},
+  abstract = {Systems programming often requires the manipulation of resources like file handles, network connections, or dynamically allocated memory. Programmers need to follow certain protocols to handle these resources correctly. Violating these protocols causes bugs ranging from type mismatches over data races to use-after-free errors and memory leaks. These bugs often lead to security vulnerabilities. While statically typed programming languages guarantee type soundness and memory safety by design, most of them do not address issues arising from improper handling of resources. An important step towards handling resources is the adoption of linear and affine types that enforce single-threaded resource usage. However, the few languages supporting such types require heavy type annotations. We present Affe, an extension of ML that manages linearity and affinity properties using kinds and constrained types. In addition Affe supports the exclusive and shared borrowing of affine resources, inspired by features of Rust. Moreover, Affe retains the defining features of the ML family: it is an impure, strict, functional expression language with complete principal type inference and type abstraction. does not require any linearity annotations in expressions and supports common functional programming idioms.},
+  journal = {Proc. ACM Program. Lang.},
+  month = aug,
+  articleno = {103},
+  numpages = {29},
+  keywords = {Type inference, Ownership, Linear types, Functional programming}
+}
+
+@inproceedings{atkey-2018,
+  author = {Atkey, Robert},
+  title = {Syntax and Semantics of Quantitative Type Theory},
+  year = {2018},
+  isbn = {9781450355834},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/3209108.3209189},
+  abstract = {We present Quantitative Type Theory, a Type Theory that records usage information for each variable in a judgement, based on a previous system by McBride. The usage information is used to give a realizability semantics using a variant of Linear Combinatory Algebras, refining the usual realizability semantics of Type Theory by accurately tracking resource behaviour. We define the semantics in terms of Quantitative Categories with Families, a novel extension of Categories with Families for modelling resource sensitive type theories.},
+  booktitle = {Proceedings of the 33rd Annual ACM/IEEE Symposium on Logic in Computer Science},
+  pages = {56–65},
+  numpages = {10},
+  keywords = {Type Theory, Linear Logic},
+  location = {Oxford, United Kingdom},
+  series = {LICS '18}
+}
+
+@incollection{lindley_garrett-2017,
+  series = {River Publishers Series in Automation Control and Robotics},
+  title = {Lightweight Functional Session Types},
+  year = {2017},
+  abstract = {Row types provide an account of extensibility that combines well with parametric
+  polymorphism and type inference. We discuss the integration of row types and
+  session types in a concurrent functional programming language, and how row types
+  can be used to describe extensibility in session-typed communication.
+  This chapter discusses the integration of row types and session types in a concurrent functional programming language, and how row types can be used to describe extensibility in session-typed communication. It presents some examples illustrating F with Session Types (Fst) and its extensions. The chapter provides gives a formal account of Fst, a linear variant of System F, incorporating polymorphism, row-typing, subkinding, and session types. It explores extensions of Fst with recursion, recursive types, and access points, and demonstrates the expressivity of access points with encodings of state cells, nondeterministic choice, and recursion. The chapter describes a practical implementation of Fst in Links, a functional language for web programming, and discusses our adaptation of the existing Links syntax and type inference mechanisms to support linearity and session types. The underlying difficulty arises from attempting to define duality in a setting in which the duality operator may not be applied to atomic type variables.},
+  author = {Lindley, Sam and Morris, J. Garrett},
+  editor = {Gay, Simon and Ravara, António},
+  address = {Denmark},
+  booktitle = {Behavioural Types},
+  copyright = {The Editor(s) (if applicable) and The Author(s)  2017.},
+  edition = {1},
+  isbn = {9788793519824},
+  keywords = {Computer science ; Technology},
+  language = {eng},
+  pages = {265-286},
+  publisher = {Routledge},
+  doi = {10.13052/rp-9788793519817},
+}
+
+@inproceedings{lindley_garrett-2016,
+  author = {Lindley, Sam and Morris, J. Garrett},
+  title = {Embedding session types in {Haskell}},
+  year = {2016},
+  isbn = {9781450344340},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/2976002.2976018},
+  abstract = {We present a novel embedding of session-typed concurrency in Haskell. We extend an existing HOAS embedding of linear λ-calculus with a set of core session-typed primitives, using indexed type families to express the constraints of the session typing discipline. We give two interpretations of our embedding, one in terms of GHC’s built-in concurrency and another in terms of purely functional continuations. Our safety guarantees, including deadlock freedom, are assured statically and introduce no additional runtime overhead.},
+  booktitle = {Proceedings of the 9th International Symposium on Haskell},
+  pages = {133–145},
+  numpages = {13},
+  keywords = {session types, linear types, embedded languages},
+  location = {Nara, Japan},
+  series = {Haskell 2016}
+}
+
+@inproceedings{pucella_tov-2008,
+  author = {Pucella, Riccardo and Tov, Jesse A.},
+  title = {Haskell session types with (almost) no class},
+  year = {2008},
+  isbn = {9781605580647},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/1411286.1411290},
+  abstract = {We describe an implementation of session types in Haskell. Session types statically enforce that client-server communication proceeds according to protocols. They have been added to several concurrent calculi, but few implementations of session types are available.Our embedding takes advantage of Haskell where appropriate, but we rely on no exotic features. Thus our approach translates with minimal modification to other polymorphic, typed languages such as ML and Java. Our implementation works with existing Haskell concurrency mechanisms, handles multiple communication channels and recursive session types, and infers protocols automatically.While our implementation uses unsafe operations in Haskell, it does not violate Haskell's safety guarantees. We formalize this claim in a concurrent calculus with unsafe communication primitives over which we layer our implementation of session types, and we prove that the session types layer is safe. In particular, it enforces that channel-based communication follows consistent protocols.},
+  booktitle = {Proceedings of the First ACM SIGPLAN Symposium on Haskell},
+  pages = {25–36},
+  numpages = {12},
+  keywords = {type classes, session types, phantom types, haskell, functional programming, embedded type systems, concurrency},
+  location = {Victoria, BC, Canada},
+  series = {Haskell '08}
+}
+
+@article{imai_et_al-2011,
+   title={Session Type Inference in {Haskell}},
+   volume={69},
+   ISSN={2075-2180},
+   DOI={10.4204/eptcs.69.6},
+   journal={Electronic Proceedings in Theoretical Computer Science},
+   publisher={Open Publishing Association},
+   author={Imai, Keigo and Yuen, Shoji and Agusa, Kiyoshi},
+   year={2011},
+   month=oct,
+   pages={74–91}
+}
+
+@inproceedings{orchard_yoshida-2016,
+  author = {Orchard, Dominic and Yoshida, Nobuko},
+  title = {Effects as sessions, sessions as effects},
+  year = {2016},
+  isbn = {9781450335492},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/2837614.2837634},
+  abstract = {Effect and session type systems are two expressive behavioural type systems. The former is usually developed in the context of the lambda-calculus and its variants, the latter for the pi-calculus. In this paper we explore their relative expressive power. Firstly, we give an embedding from PCF, augmented with a parameterised effect system, into a session-typed pi-calculus (session calculus), showing that session types are powerful enough to express effects. Secondly, we give a reverse embedding, from the session calculus back into PCF, by instantiating PCF with concurrency primitives and its effect system with a session-like effect algebra; effect systems are powerful enough to express sessions. The embedding of session types into an effect system is leveraged to give a new implementation of session types in Haskell, via an effect system encoding. The correctness of this implementation follows from the second embedding result. We also discuss various extensions to our embeddings.},
+  booktitle = {Proceedings of the 43rd Annual ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+  pages = {568–581},
+  numpages = {14},
+  keywords = {Concurrent Haskell, PCF, effect systems, encoding, session types, type systems},
+  location = {St. Petersburg, FL, USA},
+  series = {POPL '16}
+}
+
+
+@inproceedings{scalas_yoshida-2016,
+  title = "Lightweight session programming in {Scala}",
+  abstract = "Designing, developing and maintaining concurrent applications is an error-prone and time-consuming task; most difficulties arise because compilers are usually unable to check whether the inputs/outputs performed by a program at runtime will adhere to a given protocol specification. To address this problem, we propose lightweight session programming in Scala: we leverage the native features of the Scala type system and standard library, to introduce (1) a representation of session types as Scala types, and (2) a library, called lchannels, with a convenient API for session-based programming, supporting local and distributed communication. We generalise the idea of Continuation-Passing Style Protocols (CPSPs), studying their formal relationship with session types. We illustrate how session programming can be carried over in Scala: how to formalise a communication protocol, and represent it using Scala classes and lchannels, letting the compiler help spotting protocol violations. We attest the practicality of our approach with a complex use case, and evaluate the performance of lchannels with a series of benchmarks.",
+  keywords = "Concurrency, Scala, Session types",
+  author = "Scalas, Alceste and Yoshida, Nobuko",
+  year = "2016",
+  month = jul,
+  day = "22",
+  doi = "10.4230/LIPIcs.ECOOP.2016.21",
+  language = "English",
+  volume = "56",
+  series = "30th European Conference on Object-Oriented Programming (ECOOP 2016)",
+  publisher = "Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik",
+  pages = "21:1--21:28",
+  editor = "Lerner, {Benjamin S.} and Shriram Krishnamurthi",
+  booktitle = "30th European Conference on Object-Oriented Programming, ECOOP 2016",
+}
+
+@inproceedings{jespersen_et_al-2015,
+  author = {Jespersen, Thomas B. L. and Munksgaard, Philip and Larsen, Ken F.},
+  title = {Session types for {Rust}},
+  year = {2015},
+  isbn = {9781450338103},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/2808098.2808100},
+  abstract = {We present a library for specifying session types implemented in Rust, and discuss practical use cases through examples and demonstrate how session types may be used in a large-scale application. Specifically we adapt parts of the ad-hoc communication patterns in the Servo browser engine to use session typed channels. Session types provide a protocol abstraction, expanding on traditional typed communication channels, to ensure that communication takes place according to a specified protocol. Thus, the library allows us to provide compile-time guarantees of adherence to a specific protocol without incurring significant run-time penalties.},
+  booktitle = {Proceedings of the 11th ACM SIGPLAN Workshop on Generic Programming},
+  pages = {13–22},
+  numpages = {10},
+  keywords = {Rust, Session types, concurrency, generic types},
+  location = {Vancouver, BC, Canada},
+  series = {WGP 2015}
+}
+
+@incollection{melgratti_padovani-2017,
+  series = {River Publishers Series in Automation Control and Robotics},
+  title = {An {OCaml} Implementation of Binary Sessions},
+  year = {2017},
+  author = {Melgratti, Hern\'{a}n and Padovani, Luca},
+  editor = {Gay, Simon and Ravara, António},
+  address = {Denmark},
+  booktitle = {Behavioural Types},
+  copyright = {The Editor(s) (if applicable) and The Author(s)  2017.},
+  edition = {1},
+  isbn = {9788793519824},
+  keywords = {Computer science ; Technology},
+  language = {eng},
+  pages = {243-264},
+  publisher = {Routledge},
+  doi = {10.13052/rp-9788793519817},
+}
+
+@article{ILL-AFP,
+  author  = {Filip Smola and Jacques D. Fleuriot},
+  title   = {Deep Embedding of Intuitionistic Linear Logic},
+  journal = {Archive of Formal Proofs},
+  month   = {November},
+  year    = {2024},
+  note    = {\url{https://isa-afp.org/entries/ILL.html},
+             Formal proof development},
+  ISSN    = {2150-914x},
+}
+
+@article{ProcessComposition-AFP,
+  author  = {Filip Smola and Jacques D. Fleuriot},
+  title   = {Linear Resources and Process Compositions},
+  journal = {Archive of Formal Proofs},
+  month   = {November},
+  year    = {2024},
+  note    = {\url{https://isa-afp.org/entries/ProcessComposition.html},
+             Formal proof development},
+  ISSN    = {2150-914x},
+}

@@ -1,0 +1,6 @@
+\isacomm{lemma}\isanewline
+\ \ \isaOcomm{assumes}\ {\isachardoublequoteopen}pgDefined\ \isafv{x}{\isachardoublequoteclose}\ \isaOcomm{and}\ {\isachardoublequoteopen}pgDefined\ \isafv{y}{\isachardoublequoteclose}\ \isaOcomm{and}\ {\isachardoublequoteopen}pgDefined\ \isafv{z}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isaOcomm{shows}\ pgConstruct{\isacharunderscore}Par{\isacharunderscore}assoc{\isacharcolon}\isanewline
+\isaindent{\ \ \ \ \ \ \isaOcomm{shows}\ }{\isachardoublequoteopen}pgConstruct\ {\isacharparenleft}Par\ {\isacharparenleft}Par\ \isafv{x\ y}{\isacharparenright}\ \isafv{z}{\isacharparenright}\ {\isasymapprox}\ pgConstruct\ {\isacharparenleft}Par\ \isafv{x}\ {\isacharparenleft}Par\ \isafv{y\ z}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ pgConstruct{\isacharunderscore}Seq{\isacharunderscore}assoc{\isacharcolon}\isanewline
+\isaindent{\ \ \ \ \ \ \ \ \ \ \isaOcomm{and}\ }{\isachardoublequoteopen}pgConstruct\ {\isacharparenleft}Seq\ {\isacharparenleft}Seq\ \isafv{x\ y}{\isacharparenright}\ \isafv{z}{\isacharparenright}\ {\isasymapprox}\ pgConstruct\ {\isacharparenleft}Seq\ \isafv{x}\ {\isacharparenleft}Seq\ \isafv{y\ z}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}

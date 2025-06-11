@@ -1,0 +1,12 @@
+\isacomm{fun}\ perform\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}recipe\ {\isasymRightarrow}\ nat\ {\isasymRightarrow}\ loc\ {\isasymRightarrow}\ loc\isanewline
+\isaindent{\isacomm{fun}\ perform\ {\isacharcolon}{\isacharcolon}\ }{\isasymRightarrow}\ {\isacharparenleft}flow\ {\isacharplus}\ mach{\isacharunderscore}block{\isacharcomma}\ \isatv{c},\isanewline
+\isaindent{\isacomm{fun}\ perform\ {\isacharcolon}{\isacharcolon}\ {\isasymRightarrow}\ {\isacharparenleft}fl}String{\isachardot}literal{\isacharcomma}\ flow{\isacharunderscore}meta\ {\isacharplus}\ manu{\isacharunderscore}meta{\isacharparenright}\ process{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{perform}\ {\isacharparenleft}Recipe\ \isabv{ins\ outs\ time\ m\ name}{\isacharparenright}\ \isabv{n\ l1\ l2}\ {\isacharequal}\isanewline
+\ \ Primitive\isanewline
+\ \ \ \ {\isacharparenleft}\ Parallel\ {\isacharparenleft}map\ {\isacharparenleft}Res\ {\isasymcirc}\ Inl\ {\isasymcirc}\ stacksPerTimeAtSpeed\ \isabv{time}\ \isabv{l1}\ \isabv{n}\ {\isacharparenleft}machineSpeed\ \isabv{m}{\isacharparenright}{\isacharparenright}\isanewline
+\isaindent{\ \ \ \ {\isacharparenleft}\ Parallel\ {\isacharparenleft}map\ }\isabv{ins}{\isacharparenright}\ {\isasymodot}\isanewline
+\ \ \ \ \isaindent{\isacharparenleft}\ Res\ {\isacharparenleft}Inr\ {\isacharparenleft}MachBlock\ \isabv{m\ n\ l1\ l2}{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharparenleft}\ Parallel\ {\isacharparenleft}map\ {\isacharparenleft}Res\ {\isasymcirc}\ Inl\ {\isasymcirc}\ stacksPerTimeAtSpeed\ \isabv{time\ l2\ n}\ {\isacharparenleft}machineSpeed\ \isabv{m}{\isacharparenright}{\isacharparenright}\isanewline
+\isaindent{\ \ \ \ {\isacharparenleft}\ Parallel\ {\isacharparenleft}map\ }\isabv{outs}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ \isabv{name}\isanewline
+\ \ \ \ {\isacharparenleft}\ Inr\ {\isacharparenleft}Perform\ {\isacharparenleft}Recipe\ \isabv{ins\ outs\ time\ m\ name}{\isacharparenright}\ \isabv{n\ l1\ l2}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}

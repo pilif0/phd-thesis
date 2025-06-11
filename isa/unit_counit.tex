@@ -1,0 +1,7 @@
+\isacomm{definition}\isamarkupfalse%
+\ unit\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}item\ {\isasymRightarrow}\ loc\ {\isasymRightarrow}\ \isapars{flow,\ \isatv{c},\ String.literal,\ flow{\isacharunderscore}meta}\ process{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{unit}\ \isabv{i\ l}\ {\isacharequal}\ Primitive\ Empty\ {\isacharparenleft}\isabv{i}{\isacharbrackleft}{\isadigit{0}}{\isacharbrackright}\ \isanotation{at}\ \isabv{l}{\isacharparenright}\ \isaString{Create\ zero\ flow}\ {\isacharparenleft}Unit\ \isabv{i\ l}{\isacharparenright}{\isachardoublequoteclose}
+\item
+\isacomm{definition}\isamarkupfalse%
+\ counit\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}item\ {\isasymRightarrow}\ loc\ {\isasymRightarrow}\ \isapars{flow,\ \isatv{c},\ String.literal,\ flow{\isacharunderscore}meta}\ process{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{counit}\ \isabv{i\ l}\ {\isacharequal}\ Primitive\ {\isacharparenleft}\isabv{i}{\isacharbrackleft}{\isadigit{0}}{\isacharbrackright}\ \isanotation{at}\ \isabv{l}{\isacharparenright}\ Empty\ \isaString{Discard\ zero\ flow}\ {\isacharparenleft}Counit\ \isabv{i\ l}{\isacharparenright}{\isachardoublequoteclose}

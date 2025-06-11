@@ -1,0 +1,29 @@
+\isacomm{primrec}\isamarkupfalse%
+\ {\isachardoublequoteopen}output{\isachardoublequoteclose}\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}\isatv{a}{\isacharcomma}\ \isatv{b}{\isacharcomma}\ \isatv{l}{\isacharcomma}\ \isatv{m}{\isacharparenright}\ process\ {\isasymRightarrow}\isanewline
+\isaindent{\isacomm{primrec}\ {\isachardoublequoteopen}output{\isachardoublequoteclose}\ {\isacharcolon}{\isacharcolon}\ }\isapars{\isatv{a},\ \isatv{b}}\ resource{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\isanewline
+\ \ \ \ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Primitive\ \isabv{ins}\ \isabv{outs}\ \isabv{l}\ \isabv{m}{\isacharparenright}\ {\isacharequal}\ \isabv{outs}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Seq\ \isabv{p}\ \isabv{q}{\isacharparenright}\ {\isacharequal}\ \isafv{output}\ \isabv{q}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Par\ \isabv{p}\ \isabv{q}{\isacharparenright}\ {\isacharequal}\ \isafv{output}\ \isabv{p}\ {\isasymodot}\ \isafv{output}\ \isabv{q}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Opt\ \isabv{p}\ \isabv{q}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ \isafv{output}\ \isabv{p}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Represent\ \isabv{p}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ Repeatable\ {\isacharparenleft}input\ \isabv{p}{\isacharparenright}\ {\isacharparenleft}\isafv{output}\ \isabv{p}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Identity\ \isabv{a}{\isacharparenright}\ {\isacharequal}\ \isabv{a}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Swap\ \isabv{a}\ \isabv{b}{\isacharparenright}\ {\isacharequal}\ \isabv{b}\ {\isasymodot}\ \isabv{a}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}InjectL\ \isabv{a}\ \isabv{b}{\isacharparenright}\ {\isacharequal}\ NonD\ \isabv{a}\ \isabv{b}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}InjectR\ \isabv{a}\ \isabv{b}{\isacharparenright}\ {\isacharequal}\ NonD\ \isabv{a}\ \isabv{b}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}OptDistrIn\ \isabv{a}\ \isabv{b}\ \isabv{c}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ NonD\ {\isacharparenleft}\isabv{a}\ {\isasymodot}\ \isabv{b}{\isacharparenright}\ {\isacharparenleft}\isabv{a}\ {\isasymodot}\ \isabv{c}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}OptDistrOut\ \isabv{a}\ \isabv{b}\ \isabv{c}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ \isabv{a}\ {\isasymodot}\ {\isacharparenleft}NonD\ \isabv{b}\ \isabv{c}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Duplicate\ \isabv{a}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ Copyable\ \isabv{a}\ {\isasymodot}\ Copyable\ \isabv{a}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Erase\ \isabv{a}{\isacharparenright}\ {\isacharequal}\ Empty{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Apply\ \isabv{a}\ \isabv{b}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ \isabv{b}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Repeat\ \isabv{a}\ \isabv{b}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ Repeatable\ \isabv{a}\ \isabv{b}\ \isasymodot\ Repeatable\ \isabv{a}\ \isabv{b}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Close\ \isabv{a}\ \isabv{b}{\isacharparenright}\ {\isacharequal}\ Empty{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Once\ \isabv{a}\ \isabv{b}{\isacharparenright}\ {\isacharequal}\ Executable\ \isabv{a}\ \isabv{b}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{output}\ {\isacharparenleft}Forget\ \isabv{a}{\isacharparenright}\ {\isacharequal}\ Anything{\isachardoublequoteclose}

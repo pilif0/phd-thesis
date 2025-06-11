@@ -1,0 +1,6 @@
+\isacomm{definition}\isamarkupfalse%
+\ openPlaceToID\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharparenright}\ port\ {\isasymRightarrow}\ String{\isachardot}literal{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{openPlaceToID}\ \isabv{port}\ {\isacharequal}\isanewline
+\ \ \isaString{Open}\ {\isacharplus}\isanewline
+\ \ elkSideToString\ {\isacharparenleft}\isafv{portSideToELK}\ {\isacharparenleft}port{\isachardot}side\ \isabv{port}{\isacharparenright}{\isacharparenright}\ {\isacharplus}\isanewline
+\ \ String{\isachardot}implode\ {\isacharparenleft}show\ {\isacharparenleft}port{\isachardot}index\ \isabv{port}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}

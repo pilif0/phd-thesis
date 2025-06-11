@@ -1,0 +1,21 @@
+\isacomm{definition}\ nodeToJSON\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isatv{p}\ list\ {\isasymRightarrow}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharcomma}\ \isatv{l}{\isacharparenright}\ node\ {\isasymRightarrow}\ {\isacharparenleft}String{\isachardot}literal{\isacharcomma}\ int{\isacharparenright}\ json{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{nodeToJSON}\ \isabv{prefix\ n}\ {\isacharequal}\isanewline
+\ \ OBJECT\ {\isacharbrackleft}\isanewline
+\ \ \ \ {\isacharparenleft}\isaString{id}{\isacharcomma}\ STRING\ {\isacharparenleft}\isafv{pathToString}\ {\isacharparenleft}\isabv{prefix}\ {\isacharat}\ node{\isacharunderscore}name\ \isabv{n}{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{width}{\isacharcomma}\ NUMBER\ {\isadigit{6}}{\isadigit{0}}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{height}{\isacharcomma}\ NUMBER\ {\isadigit{6}}{\isadigit{0}}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{properties}{\isacharcomma}\ OBJECT\ {\isacharbrackleft}\isanewline
+\ \ \ \ \ \ {\isacharparenleft}\isaString{portConstraints}{\isacharcomma}\ STRING\ \isaString{FIXED{\isacharunderscore}ORDER}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharcomma}\ {\isacharparenleft}\isaString{nodeLabels{\isachardot}placement}{\isacharcomma}\isanewline
+\isaindent{\ \ \ \ {\isacharcomma}\ {\isacharparenleft}S}STRING\ \isaString{{\isacharbrackleft}H\_CENTER{\isacharcomma}\ V\_CENTER{\isacharcomma}\ INSIDE{\isacharbrackright}}{\isacharparenright}{\isacharbrackright}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{labels}{\isacharcomma}\ ARRAY\ {\isacharbrackleft}OBJECT\ {\isacharbrackleft}\isanewline
+\ \ \ \ \ \ {\isacharparenleft}\isaString{text}{\isacharcomma}\ STRING\ {\isacharparenleft}\isafv{labelToString}\ {\isacharparenleft}node{\isacharunderscore}label\ \isabv{n}{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharcomma}\ {\isacharparenleft}\isaString{id}{\isacharcomma}\ STRING\ {\isacharparenleft}\isafv{pathToString}\ {\isacharparenleft}\isabv{prefix}\ {\isacharat}\ node{\isacharunderscore}name\ \isabv{n}{\isacharparenright}\ {\isacharplus}\ \isaString{\_label}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharcomma}\ {\isacharparenleft}\isaString{width}{\isacharcomma}\ NUMBER\ {\isadigit{2}}{\isadigit{0}}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharcomma}\ {\isacharparenleft}\isaString{height}{\isacharcomma}\ NUMBER\ {\isadigit{2}}{\isadigit{0}}{\isacharparenright}{\isacharbrackright}{\isacharbrackright}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{ports}{\isacharcomma}\ ARRAY\isanewline
+\isaindent{\ \ {\isacharcomma}\ {\isacharparenleft}S}{\isacharparenleft}map\ {\isacharparenleft}{\isasymlambda}\isabv{p}{\isachardot}\ groundPortToJSON\isanewline
+\isaindent{\ \ {\isacharcomma}\ {\isacharparenleft}S{\isacharparenleft}map\ {\isacharparenleft}{\isasymlambda}\isabv{p}{\isachardot}\ g}{\isacharparenleft}\isabv{prefix}\ {\isacharat}\ node{\isacharunderscore}name\ \isabv{n}{\isacharparenright}\isanewline
+\isaindent{\ \ {\isacharcomma}\ {\isacharparenleft}S{\isacharparenleft}map\ {\isacharparenleft}{\isasymlambda}\isabv{p}{\isachardot}\ g}{\isacharparenleft}length\ {\isacharparenleft}filter\ {\isacharparenleft}{\isasymlambda}\isabv{x}{\isachardot}\ port{\isachardot}side\ \isabv{x}\ {\isacharequal}\ port{\isachardot}side\ \isabv{p}{\isacharparenright}\ {\isacharparenleft}node{\isacharunderscore}ports\ \isabv{n}{\isacharparenright}{\isacharparenright}\ {\isacharminus}\ {\isadigit{1}}{\isacharparenright}\isanewline
+\isaindent{\ \ {\isacharcomma}\ {\isacharparenleft}S{\isacharparenleft}map\ {\isacharparenleft}{\isasymlambda}\isabv{p}{\isachardot}\ g}\isabv{p}{\isacharparenright}\isanewline
+\isaindent{\ \ {\isacharcomma}\ {\isacharparenleft}S{\isacharparenleft}map\ }{\isacharparenleft}node{\isacharunderscore}ports\ \isabv{n}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}

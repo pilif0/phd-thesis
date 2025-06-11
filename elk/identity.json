@@ -1,0 +1,97 @@
+{
+ "id":"Root",
+ "layoutOptions":{
+  "algorithm":"layered"
+ },
+ "children":[
+  {
+   "id":"OverallWEST0",
+   "resource":"Res A",
+   "properties":{
+    "port.side":"WEST",
+    "port.index":2
+   },
+   "width":10,
+   "height":10
+  },
+  {
+   "id":"OverallWEST1",
+   "resource":"Res B",
+   "properties":{
+    "port.side":"WEST",
+    "port.index":1
+   },
+   "width":10,
+   "height":10
+  },
+  {
+   "id":"OverallWEST2",
+   "resource":"Res C",
+   "properties":{
+    "port.side":"WEST",
+    "port.index":0
+   },
+   "width":10,
+   "height":10
+  },
+  {
+   "id":"OverallEAST0",
+   "resource":"Res A",
+   "properties":{
+    "port.side":"EAST",
+    "port.index":0
+   },
+   "width":10,
+   "height":10
+  },
+  {
+   "id":"OverallEAST1",
+   "resource":"Res B",
+   "properties":{
+    "port.side":"EAST",
+    "port.index":1
+   },
+   "width":10,
+   "height":10
+  },
+  {
+   "id":"OverallEAST2",
+   "resource":"Res C",
+   "properties":{
+    "port.side":"EAST",
+    "port.index":2
+   },
+   "width":10,
+   "height":10
+  }
+ ],
+ "edges":[
+  {
+   "id":"OverallWEST0-OverallEAST0",
+   "sources":[
+    "OverallWEST0"
+   ],
+   "targets":[
+    "OverallEAST0"
+   ]
+  },
+  {
+   "id":"OverallWEST1-OverallEAST1",
+   "sources":[
+    "OverallWEST1"
+   ],
+   "targets":[
+    "OverallEAST1"
+   ]
+  },
+  {
+   "id":"OverallWEST2-OverallEAST2",
+   "sources":[
+    "OverallWEST2"
+   ],
+   "targets":[
+    "OverallEAST2"
+   ]
+  }
+ ]
+}

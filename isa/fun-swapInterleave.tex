@@ -1,0 +1,8 @@
+\isacomm{fun}\ swapInterleave\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isapars{\isatv{a},\ \isatv{b}}\ resource\ list\ {\isasymRightarrow}\ \isapars{\isatv{a},\ \isatv{b}}\ resource\ list\isanewline
+\isaindent{\isacomm{fun}\ swapInterleave\ }{\isasymRightarrow}\ {\isacharparenleft}\isatv{a}{\isacharcomma}\ \isatv{b},\ \isatv{l}{\isacharcomma}\ \isatv{m}{\isacharparenright}\ process{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\isanewline
+\ \ \ \ {\isachardoublequoteopen}\isafv{swapInterleave}\ {\isacharparenleft}\isabv{x}\ {\isacharhash}\ \isabv{xs}{\isacharparenright}\ {\isacharparenleft}\isabv{y}\ {\isacharhash}\ \isabv{ys}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ Seq\ \isapars{Par\ \isapars{Par\ \isapars{Identity\ \isabv{x}}\ \isapars{Swap\ {\isacharparenleft}Parallel\ \isabv{xs}{\isacharparenright}\ \isabv{y}}}\ \isapars{Identity\ {\isacharparenleft}Parallel\ \isabv{ys}{\isacharparenright}}}\isanewline
+\isaindent{\ \ \ \ \ \ Seq\ }\isapars{Par\ \isapars{Identity\ {\isacharparenleft}\isabv{x}\ {\isasymodot}\ \isabv{y}{\isacharparenright}}\ \isapars{\isafv{swapInterleave}\ \isabv{xs}\ \isabv{ys}}}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{swapInterleave}\ {\isacharbrackleft}{\isacharbrackright}\ \isabv{ys}\ {\isacharequal}\ Identity\ {\isacharparenleft}Parallel\ \isabv{ys}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{swapInterleave}\ \isabv{xs}\ {\isacharbrackleft}{\isacharbrackright}\ {\isacharequal}\ Identity\ {\isacharparenleft}Parallel\ \isabv{xs}{\isacharparenright}{\isachardoublequoteclose}

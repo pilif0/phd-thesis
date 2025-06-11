@@ -1,0 +1,19 @@
+{
+ "id":"Root",
+ "layoutOptions":{
+  "algorithm":"layered"
+ },
+ "children":[
+  {
+   "id":"OverallWEST0",
+   "resource":"Copyable Data",
+   "properties":{
+    "port.side":"WEST",
+    "port.index":0
+   },
+   "width":10,
+   "height":10
+  }
+ ],
+ "edges":[]
+}

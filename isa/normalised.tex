@@ -1,0 +1,13 @@
+\isacomm{primrec}\isamarkupfalse%
+\ normalised\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isapars{\isatv{a},\ \isatv{b}}\ res{\isacharunderscore}term\ {\isasymRightarrow}\ bool{\isachardoublequoteclose}\ \isaOcomm{where}\isanewline
+\ \ \ \ {\isachardoublequoteopen}\isafv{normalised}\ Empty\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{normalised}\ Anything\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{normalised}\ {\isacharparenleft}Res\ \isabv{x}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{normalised}\ {\isacharparenleft}Copyable\ \isabv{x}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{normalised}\ {\isacharparenleft}Parallel\ \isabv{xs}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ {\isacharparenleft}\ list{\isacharunderscore}all\ \isafv{normalised}\ \isabv{xs}\ {\isasymand}\isanewline
+\ \ \ \ \ \ list{\isacharunderscore}all\ {\isacharparenleft}{\isasymlambda}\isabv{x}{\isachardot}\ {\isasymnot}\ is{\isacharunderscore}Empty\ \isabv{x}{\isacharparenright}\ \isabv{xs}\ {\isasymand}\ list{\isacharunderscore}all\ {\isacharparenleft}{\isasymlambda}\isabv{x}{\isachardot}\ {\isasymnot}\ is{\isacharunderscore}Parallel\ \isabv{x}{\isacharparenright}\ \isabv{xs}\ {\isasymand}\isanewline
+\ \ \ \ \ \ {\isadigit{1}}\ {\isacharless}\ length\ \isabv{xs}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{normalised}\ {\isacharparenleft}NonD\ \isabv{x\ y}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}\isafv{normalised}\ \isabv{x}\ {\isasymand}\ \isafv{normalised}\ \isabv{y}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{normalised}\ {\isacharparenleft}Executable\ \isabv{x\ y}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}\isafv{normalised}\ \isabv{x}\ {\isasymand}\ \isafv{normalised}\ \isabv{y}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{normalised}\ {\isacharparenleft}Repeatable\ \isabv{x\ y}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}\isafv{normalised}\ \isabv{x}\ {\isasymand}\ \isafv{normalised}\ \isabv{y}{\isacharparenright}{\isachardoublequoteclose}

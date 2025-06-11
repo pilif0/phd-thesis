@@ -1,0 +1,7 @@
+\isacomm{lemma}\ pgConstruct{\isacharunderscore}nodes{\isacharcolon}\isanewline
+\ \ \isaOcomm{assumes}\ {\isachardoublequoteopen}pgDefined\ \isafv{x}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isaOcomm{shows}\ pg{\isacharunderscore}nodes\ {\isacharparenleft}pgConstruct\ \isafv{x}{\isacharparenright}\ {\isacharequal}\isanewline
+\isaindent{\ \ \ \ \ \ \isaOcomm{shows}\ }map\ {\isacharparenleft}{\isasymlambda}{\isacharparenleft}\isabv{n}{\isacharcomma}\ \isabv{ins}{\isacharcomma}\ \isabv{outs}{\isacharcomma}\ \isabv{l}{\isacharcomma}\ \isabv{m}{\isacharparenright}{\isachardot}\isanewline
+\isaindent{\ \ \ \ \ \ \isaOcomm{shows}\ map\ {\isacharparenleft}{\isasymlambda}}Node\ \isabv{n}\ {\isacharparenleft}NodePrimitive\ \isabv{l\ m}{\isacharparenright}\ {\isacharparenleft}parallelPorts\ {\isadigit{0}}\ In\ \isabv{ins}\ {\isacharat}\isanewline
+\isaindent{\ \ \ \ \ \ \isaOcomm{shows}\ map\ {\isacharparenleft}{\isasymlambda}Node\ \isabv{n}\ {\isacharparenleft}NodePrimitive\ \isabv{l\ m}{\isacharparenright}\ {\isacharparenleft}}parallelPorts\ {\isadigit{0}}\ Out\ \isabv{outs}{\isacharparenright}{\isacharparenright}\isanewline
+\isaindent{\ \ \ \ \ \ \isaOcomm{shows}\ map\ }{\isacharparenleft}namedPrimitives\ \isafv{x}{\isacharparenright}{\isachardoublequoteclose}

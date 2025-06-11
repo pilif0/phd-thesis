@@ -1,0 +1,778 @@
+\documentclass[class=smolathesis,crop=false]{standalone}
+
+\usepackage{standalone}
+
+\begin{document}
+
+\chapter{Process Compositions}
+\label{ch:proc}
+
+The role of process compositions in our framework is to describe how larger processes are built from smaller parts using a handful of simple operations.
+With our focus on the inputs and outputs of processes, a composition describes how the outputs of some actions are used to fulfil the inputs of other ones.
+A central concept is that of \emph{valid} compositions, which uses simple rules to ensure the connections between action outputs and inputs are correct.
+For instance, it ensures that every input resource comes from a known origin and that linear resources are used exactly once.
+
+We start in Section~\ref{sec:proc/type} with our formalisation of the process compositions themselves.
+This revolves around a datatype representing them as a range of basic actions combined with four composition operations.
+We describe each basic action and composition in that datatype, and the resources describing their inputs and outputs.
+
+On this datatype we then formally define validity of process compositions in Section~\ref{sec:proc/valid}, and illustrate what malformed compositions it prevents.
+In Chapter~\ref{ch:linearity} we connect this to the idea of linearity by relating valid compositions to well-formed deductions in linear logic.
+And in Section~\ref{sec:port_graphs/linearity} we characterise the allowed connections between actions and show that valid compositions obey them.
+In Section~\ref{sec:cases/factorio} we formalise a modelling domain whereby validity of compositions in it ensures the processes are free from bottlenecks.
+
+In Section~\ref{sec:proc/diag} we describe our visualisation of process compositions through diagrams.
+We favour this visualisation over purely algebraic composition expressions wherever possible, because it abstracts a number of bookkeeping aspects and focuses on the connections between actions.
+This often renders the diagrams much more readable.
+The process diagrams used in this thesis are drawn by a Haskell program that uses code generated from our mechanisation, ensuring their faithfulness to the theory.
+
+One advantage of our mechanised process compositions is that we can define and formally verify transformations of compositions.
+In Section~\ref{sec:proc/transform} we describe three such transformations: mapping resource atoms to move to a different modelling domain, refining resource atoms with arbitrarily complex resources and refining processes by substituting whole processes for primitive actions.
+We demonstrate their use by refining a process model in Section~\ref{sec:cases/marking}.
+
+\paragraph*{Running example.}
+In this chapter we continue to use our running example from Chapter~\ref{ch:res}, a simple vending machine.
+Recall that this machine can accept cash, dispense one kind of drink at a fixed cost and return change.
+See Chapter~\ref{ch:cases} for more involved examples of process compositions.
+
+\section{Process Composition Datatype}
+\label{sec:proc/type}
+
+We formalise compositions describing how complex processes are built as trees of composition actions with simple actions at their leafs.
+Simple actions are split into two groups: primitive actions represent actions we assert as part of the modelling domain, while resource actions allow us to manipulate the form of resources.
+Composition actions take one or more processes to build a larger one, reflecting simple instructions such as ``do one then the other'' or ``do both of these''.
+
+We first introduce our mechanisation of process compositions in Isabelle/HOL as a datatype along with the definition of their inputs and outputs.
+Then, in the rest of this section, we describe in more detail the nodes of the process composition trees.
+In Section~\ref{sec:proc/valid} we then discuss the validity conditions on compositions.
+
+We mechanise process compositions as the datatype \isa{\isapars{\isatv{a},~\isatv{b},~\isatv{l},~\isatv{m}}~process}.
+The type variables \isa{\isatv{a}} and \isa{\isatv{b}} represent linear and copyable resource atoms respectively, while \isa{\isatv{l}} represents labels of primitive actions (e.g.\ using string literals) and \isa{\isatv{m}} represents any other metadata attached to primitive actions (e.g.\ cost to perform).
+The full datatype is shown in Definition~\ref{isa:process}.
+For the input and output resources we define primitively recursive functions \isa{input} and \isa{output}, whose full definition is show in Definition~\ref{isa:input-output}.
+
+Note that, for brevity, we may also use the notation \isa{\isafv{P}:\ \isafv{x}\ \isasymrightarrow\ \isafv{y}} to say that process \isa{\isafv{P}} has input resource \isa{\isafv{x}} and output resource \isa{\isafv{y}}.
+Recall also that in Definition~\ref{isa:resource_par} we defined \isa{\isafv{x}~\isasymodot~\isafv{y}} as infix syntax for \isa{Parallel\ \isalist{\isafv{x},\ \isafv{y}}}.
+We have for instance \isa{Swap\ \isafv{a}\ \isafv{b}:\ \isafv{a}\ \isasymodot\ \isafv{b}\ \isasymrightarrow\ \isafv{b}~\isasymodot~\isafv{a}} (see Section~\ref{sec:proc/type/res}).
+
+\begin{figure}[p]
+  \begin{isadefraw}[Datatype of process compositions]{isa:process}
+    \includestandalone{fig-process}
+  \end{isadefraw}
+\end{figure}
+
+\begin{figure}[p]
+  \begin{isadefraw}[Input and output resources for composition trees]{isa:input-output}
+    \includestandalone{fig-io}
+  \end{isadefraw}
+\end{figure}
+
+\subsection{Primitive Actions}
+\label{sec:proc/type/primitive}
+
+We start with \emph{primitive actions} which depend on the domain we are modelling: they represent operations we can perform in the domain.
+For instance, if the domain has a notion of resources with locations, then there will be some kind of movement action which may move an object freely between locations or be constrained to edges of some graph.
+We consider these to be assumptions of the model.
+
+In Isabelle/HOL, we represent a primitive action by \isa{Primitive\ \isafv{in\ out\ lab\ meta}}, where \isa{\isafv{in}} and \isa{\isafv{out}} are its input and output resources respectively, \isa{\isafv{lab}} is its label and \isa{\isafv{meta}} is any other associated metadata.
+
+The label serves to distinguish actions that may have equal inputs and outputs but different meaning, such as two modes of moving an object between locations with different costs and speeds (e.g.\ walking \emph{vs.}\ running).
+The term ``label'' is used because it is often set to a printable type, such as a string, which we can then use as a label in visualisations such as the process diagrams discussed in Section~\ref{sec:proc/diag}.
+
+The metadata can carry any further information we may wish to associate with the primitive actions, such as cost of execution or parameters for implementation.
+See for instance our model of manufacturing in Section~\ref{sec:cases/factorio} where action metadata carries the information needed to implement the process in the simulation environment, such as what needs to be manufactured, at what rate and how the products should be moved.
+
+Both the label and metadata are taken from arbitrary types (the unconstrained type variables \isa{\isatv{l}} and \isa{\isatv{m}} of \isa{\isapars{\isatv{a},\ \isatv{b},\ \isatv{l},\ \isatv{m}}\ process}) so they can carry any kind of complex information.
+
+As these primitive actions correspond to the assumptions about the modelling domain on which the composition relies, we make it convenient to collect the assumptions by defining the function \isa{primitives} with the following signature:
+\begin{center}
+  \begin{minipage}{0.8\textwidth}
+    \begin{isabelle}
+      primitives\ \ty\ \isapars{\isatv{a},\ \isatv{b},\ \isatv{l},\ \isatv{m}}\ process\isanewline
+      \isaindent{primitives\ }\isasymRightarrow\ \isapars{\isapars{\isatv{a},\ \isatv{b}}\ resource\ \isasymtimes\ \isapars{\isatv{a},\ \isatv{b}}\ resource\ \isasymtimes\ \isatv{l}\ \isasymtimes\ \isatv{m}}\ list
+    \end{isabelle}
+  \end{minipage}
+\end{center}
+It gathers the parameters of every \isa{Primitive} node, returns the empty list for every other leaf of the composition and gathers children's results for every internal node using list append.
+
+\paragraph*{Example.}
+In our running example, the vending machine, we have three primitive actions: paying into the machine, getting a drink and getting change.
+As linear resource atoms we use those introduced in Section~\ref{sec:res/terms}: \isa{Cash} for an amount of currency, \isa{Drink} for a single drink and \isa{Machine} for a vending machine with some amount in credit.
+We use string literals as labels and assign no metadata to these actions (by using the constant \isa{\isapars{}} of type \isa{unit}).
+
+Paying money into a vending machine requires the machine, which can hold an amount of existing credit, and the cash being paid in.
+It produces a machine with the combined amount in credit.
+We define the action as a function of the two variables:
+\begin{isadef}[Adding to credit of a vending machine]{isa:add_to_credit}
+  \input{isa/definition-add_to_credit}
+\end{isadef}
+
+Returning funds from a vending machine only requires a machine and it produces a machine with zero credit left and the relevant amount of cash dispensed:
+\begin{isadef}[Returning credit as cash]{isa:refund}
+  \input{isa/definition-refund}
+\end{isadef}
+
+Getting a drink requires a machine with credit of at least the price of the drink and produces a machine with decreased credit and the drink.
+We define this action as a partial function of the price and credit:
+\begin{isadef}[Buying a drink]{isa:get_drink}
+  \input{isa/definition-get_drink}
+\end{isadef}
+
+Note that we separate the actions of getting a drink and returning change, while often vending machines return change automatically along with the purchase.
+Our formulation separates these two concerns, which allows returning change and cancelling to both be handled by the \isa{refund} action.
+
+\subsection{Composition Operators}
+\label{sec:proc/type/comp}
+
+Next we have four ways of creating processes from one or two simpler ones, allowing us to inductively describe how to orchestrate the primitive actions:
+\begin{description}[style=nextline]
+  \item[Sequential composition --- \isa{Seq\ \isafv{P\ Q}:\ input\ \isafv{P}\ \isasymrightarrow\ output\ \isafv{Q}}]
+    First execute \isa{\isafv{P}} and then use its output to execute \isa{\isafv{Q}}.
+  \item[Parallel composition --- \isa{Par\ \isafv{P\ Q}:\ input\ \isafv{P}\ \isasymodot\ input\ \isafv{Q}\ \isasymrightarrow\ output\ \isafv{P}\ \isasymodot\ output\ \isafv{Q}}]
+    Execute \isa{\isafv{P}} and \isa{\isafv{Q}} in parallel, combining their inputs into one parallel resource and doing the same for their outputs.
+  \item[Optional composition --- \isa{Opt\ \isafv{P\ Q}:\ NonD\ \isapars{input\ \isafv{P}}\ \isapars{input\ \isafv{Q}}\ \isasymrightarrow\ output\ \isafv{P}}]
+    Given two processes \isa{\isafv{P}} and \isa{\isafv{Q}} with the same output, take as input the non-deterministic combination of their inputs.
+    Execute exactly one of them based on the branch of the input that is supplied at runtime, producing their common output no matter which branch is taken.
+    Thus, this operation is used to eliminate non-determinism from resources by reacting to it.
+  \item[Representation --- \isa{Represent\ \isafv{P}:\ Empty\ \isasymrightarrow\ Repeatable\ \isapars{input\ \isafv{P}}\ \isapars{output\ \isafv{P}}}]
+    Introduce the executable resource representing \isa{\isafv{P}}, which could be an arbitrarily complex composition in its own right.
+    This requires no input, analogously to a constant being viewed as a nullary function.
+
+    Note that the output could have been defined using \isa{Executable}, meaning it would allow only a single use.
+    But based on experience with modelling processes we decided to use \isa{Repeatable} instead, meaning we do not have to know ahead of time how many times we intend to use the representation.
+\end{description}
+
+The simplicity of these composition operations may seem restrictive.
+For instance, what if we wish to use only part of the output of \isa{\isafv{P}} as input to \isa{\isafv{Q}}, essentially using \isa{\isafv{Q}} to further process some objects produced by \isa{\isafv{P}} while keeping others untouched?
+In such a case our composition operations require us to state this explicitly so there is no ambiguity: do \isa{\isafv{P}} and then do \isa{\isafv{Q}} in parallel with ``doing nothing'' for the remainder of \isa{\isafv{P}}'s outputs.
+This is the way our process compositions approach the \emph{frame problem}~\cite{mccarthy_hayes-1969}: the lack of change must be stated.
+The way in which we express such lack of change is through resource actions, discussed in the next section.
+
+\paragraph*{Example.}
+Perhaps the simplest process composition in our running example is paying money into a vending machine and then getting a drink.
+For example we can pay $10$ into an empty machine and then get a drink costing $5$ from the machine which then has $5$ left as credit:
+\begin{isabelle}
+\centering
+  Seq\ \isapars{add{\isacharunderscore}to{\isacharunderscore}credit\ 0\ 10}\ \isapars{get{\isacharunderscore}drink\ 5\ \isadigit{10}}{\isacharcolon}\isanewline
+  Res\ \isapars{Machine\ 0}\ \isasymodot\ Res\ \isapars{Cash\ 10}\ \isasymrightarrow\ Res\ \isapars{Machine\ 5}\ \isasymodot\ Res\ Drink
+\end{isabelle}
+
+\subsection{Resource Actions}
+\label{sec:proc/type/res}
+
+Expressing concepts such as ``doing nothing'' is where \emph{resource actions} come in.
+These are similar to primitive actions but, instead of expressing an assumption about some particular domain, they express the ways that we can always transform resources.
+
+As an inspiration for this range of actions we use theorems of linear logic: if an action can be argued in linear logic without making any assumption about the domain, then we can consider it as always doable with resources.
+However, not all theorems of linear logic have counterparts in process compositions because we do not make use of all of its operators --- see Section~\ref{sec:linearity/res} for our translation of resources into linear logic propositions.
+Note also that to argue for some of these actions one needs more than one inference rule, such as with \isa{OptDistrIn}.
+We aim for convenience of expressing process compositions more than for atomicity with respect to the logic.
+
+The resource actions along with their inputs and outputs are as follows (see also Definitions \ref{isa:process} and \ref{isa:input-output}):
+\begin{description}[style=nextline]
+  \item[Doing nothing --- \isa{Identity\ \isafv{a}:\ \isafv{a}\ \isasymrightarrow\ \isafv{a}}]
+    Take any resource and return it unchanged.
+    For instance, to keep a resource aside while doing something with other resources.
+  \item[Reordering parallel resources --- \isa{Swap\ \isafv{a}\ \isafv{b}:\ \isafv{a}\ \isasymodot\ \isafv{b}\ \isasymrightarrow\ \isafv{b}\ \isasymodot\ \isafv{a}}]
+    Swap the order of any two parallel resources.
+    This allows us to compose processes when their interface has the same resources but in a different order, while retaining information about \emph{how} they were reordered.
+  \item[Injections --- \isa{InjectL\ \isafv{a}\ \isafv{b}:\ \isafv{a}\ \isasymrightarrow\ NonD\ \isafv{a}\ \isafv{b}} and \isa{InjectR\ \isafv{a}\ \isafv{b}:\ \isafv{b}\ \isasymrightarrow\ NonD\ \isafv{a}\ \isafv{b}}]
+    Take one resource to its non-deterministic combination with another.
+    For instance, if a process \isa{\isafv{Q}} has input \isa{NonD\ \isapars{Res\ Tin}\ \isapars{Res\ Copper}} and we can deterministically obtain the atom \isa{Tin} from another process \isa{\isafv{P}}, then \isa{InjectL\ \isapars{Res\ Tin}\ \isapars{Res\ Copper}} is the bridge that connects from \isa{\isafv{P}} to \isa{\isafv{Q}}.
+
+    Furthermore, injections in combination with $Opt$ can also be used to optionally compose\footnote{Specifically: \isa{Opt\ \isapars{Seq\ \isafv{P}\ \isapars{InjectL\ \isapars{output\ \isafv{P}}\ \isapars{output\ \isafv{Q}}}}\ \isapars{Seq\ \isafv{Q}\ \isapars{InjectR\ \isapars{output\ \isafv{P}}\ \isapars{output\ \isafv{Q}}}}}} any two processes \isa{\isafv{P}:\ \isafv{x}\ \isasymrightarrow\ \isafv{a}} and \isa{\isafv{Q}:\ \isafv{y}\ \isasymrightarrow\ \isafv{b}} to one of the form \isa{NonD\ \isafv{x\ y}\ \isasymrightarrow\ NonD\ \isafv{a\ b}}.
+  \item[Inward distributing --- \isa{OptDistrIn\ \isafv{a}\ \isafv{x}\ \isafv{y}:\ \isafv{a}\ \isasymodot\ NonD\ \isafv{x}\ \isafv{y}\ \isasymrightarrow\ NonD\ \isapars{\isafv{a}\ \isasymodot\ \isafv{x}}\ \isapars{\isafv{a}\ \isasymodot\ \isafv{y}}}]
+    Distribute a parallel resource into both branches of a non-deterministic one.
+    This is useful when \isa{\isafv{a}} is deterministically available but needed to resolve the branches of \isa{NonD\ \isafv{x\ y}}.
+    For instance, if always available tools are needed to repair a machine that may break during its use.
+  \item[Outward distributing --- \isa{OptDistrOut\ \isafv{a}\ \isafv{b}\ \isafv{c}:\ NonD\ \isapars{\isafv{a}\ \isasymodot\ \isafv{x}}\ \isapars{\isafv{a}\ \isasymodot\ \isafv{y}}\ \isasymrightarrow\ \isafv{a}\ \isasymodot\ NonD\ \isafv{x}\ \isafv{y}}]
+    Distribute a parallel resource out of both branches of a non-deterministic one.
+    This is useful when processing some non-deterministic resource produces a partially deterministic result.
+    For instance, if using a machine may result in a successful or failed product but always also outputs the machine itself.
+    (Note that this action could be defined as a composition of others\footnote{Specifically: \isa{Opt\ \isapars{Par\ \isapars{Identity\ \isafv{a}}\ \isapars{InjectL\ \isafv{x\ y}}}\ \isapars{Par\ \isapars{Identity\ \isafv{a}}\ \isapars{InjectR\ \isafv{x\ y}}}}}, but we keep it as a primitive for convenience and symmetry.)
+  \item[Duplicating copyable --- \isa{Duplicate\ \isafv{a}:\ Copyable\ \isafv{a}\ \isasymrightarrow\ Copyable\ \isafv{a}\ \isasymodot\ Copyable\ \isafv{a}}]
+    Duplicate a copyable resource into two copies.
+    For instance, to use a single password input for multiple actions requiring it.
+  \item[Erasing copyable --- \isa{Erase\ \isafv{a}:\ Copyable\ \isafv{a}\ \isasymrightarrow\ Empty}]
+    Discard a copyable resource, producing nothing.
+    For instance, when an action produces a digital alert to which we do not wish to react.
+  \item[Higher-order application --- \isa{Apply\ \isafv{a\ b}:\ \isafv{a}\ \isasymodot\ Executable\ \isafv{a\ b}\ \isasymrightarrow\ \isafv{b}}]
+    Take any resource and an executable resource with matching input, evaluate the process represented by the latter and produce its output.
+    If we use a process to prepare an \isa{Executable} resource, then this allows us to execute it.
+  \item[Duplicating repeatable --- \isa{Repeat\ \isafv{a\ b}:\ Repeatable\ \isafv{a\ b}\ \isasymrightarrow\ Repeatable\ \isafv{a\ b}\ \isasymodot\ Repeatable\ \isafv{a\ b}}]
+    Duplicate a repeatably executable resource into two copies, allowing for multiple parallel executions.
+  \item[Erasing repeatable --- \isa{Close\ \isafv{a\ b}:\ Repeatable\ \isafv{a\ b}\ \isasymrightarrow\ Empty}]
+    Discard a repeatably executable resource, producing nothing.
+    This captures that being executable any number of times includes zero times.
+  \item[Dropping repeatability --- \isa{Once\ \isafv{a\ b}:\ Repeatable\ \isafv{a\ b}\ \isasymrightarrow\ Executable\ \isafv{a\ b}}]
+    Turn a repeatably executable resource into a matching single-use executable resource, which can then be executed with \isa{Apply}.
+  \item[Forgetting resource details --- \isa{Forget\ \isafv{a}:\ \isafv{a}\ \isasymrightarrow\ Anything}]
+    Forget all information about some resource, producing \isa{Anything}.
+    For instance: if we have a drawer with socks of two colours, then we can specify the output of a process that finds two matching socks more concisely as: \isa{NonD\ \isapars{Black\ \isasymodot\ Black\ \isasymodot\ Anything}\ \isapars{White\ \isasymodot\ White\ \isasymodot\ Anything}} (for more on this sock example see Section~\ref{sec:cases/three-socks} and Dixon~et~al.~\cite{dixon_et_al-2009}).
+
+    Note that what is forgotten are details about the resource and not its presence, only copyable resources can be erased.
+\end{description}
+
+\medskip
+
+Note how none of these actions interact with the internal state of resource atoms, only changing how they are arranged.
+Indeed, interacting with the internal state of atoms is impossible for these actions, since they are defined regardless of the resource atoms we choose to use.
+This includes the case where atoms have no internal state to interact with.
+
+\paragraph*{Example.}
+With resource actions we can extend our previous vending machine process to also get change after buying the drink.
+We do this by following the previous composition with refunding in parallel with identity on the drink, defined formally as follows and visualised using process diagrams (see Section~\ref{sec:proc/diag}) in Figure~\ref{fig:pay_drink_change}:
+\begin{isabelle}
+\centering
+  Seq\ \isapars{Seq\ \isapars{add{\isacharunderscore}to{\isacharunderscore}credit\ 0\ 10}\ \isapars{drink\ 5\ 10}}\ \isapars{Par\ \isapars{refund\ 5}\ \isapars{Identity\ \isapars{Res\ Drink}}}
+\end{isabelle}
+
+\begin{figure}[htbp]
+  \includesvg[width=\textwidth]{img-gen/pay_drink_change.svg}
+  \caption{Process diagram of paying into a vending machine, getting a drink and the remaining change}
+  \label{fig:pay_drink_change}
+\end{figure}
+
+\section{Valid Compositions}
+\label{sec:proc/valid}
+
+When building compositions of processes, we wish to ensure that we are doing so sensibly, in particular that we are manipulating resources correctly.
+We call such process compositions \emph{valid}.
+
+One approach to ensuring correctness would be to perform each step as a deduction in linear logic, which is generally accepted to produce correct processes (see discussion of proofs-as-processes in Section~\ref{sec:intro/pap}).
+However, this would limit the concepts we can express in compositions and their validity to only what we can express within linear logic.
+
+Instead, we set up rules purely in the language of resources about what compositions ``make sense''.
+In Chapter~\ref{ch:linearity} we then show that the mechanical translation of any composition into a linear logic deduction will be well-formed if the composition satisfies these rules.
+On the process composition side, this approach yields conditions simpler than the full rules of linear logic.
+And the decoupling allows process compositions and their validity to involve concepts outside of linear logic, for example probabilities as we discuss in Chapter~\ref{ch:prob}.
+
+In our mechanisation of composition validity, shown in Definition~\ref{isa:valid}, we consider primitive actions and all resource actions to be valid.
+For all composition operations we require at least that their child processes be valid, and in the sequential and optional composition cases there are further conditions:
+\begin{itemize}
+  \item In sequential composition \isa{Seq\ \isafv{P}\ \isafv{Q}}, the output of the first process \isa{\isafv{P}} must be equal to the input of the second process \isa{\isafv{Q}}.
+  \item In optional composition \isa{Opt\ \isafv{P}\ \isafv{Q}} the outputs of both processes must be equal, so that no matter the branch actually taken we know what the output will be.
+\end{itemize}
+
+\begin{isadef}[Validity of process compositions]{isa:valid}
+  \input{isa/valid}
+\end{isadef}
+
+As an example consider processes \isa{\isafv{P}:\ Res\ \isafv{I}\ \isasymrightarrow\ Res\ \isafv{A}} and \isa{\isafv{Q}:\ Res\ \isafv{A}\ \isasymodot\ Res\ \isafv{B}\ \isasymodot\ Res~\isafv{C}\ \isasymrightarrow\ Res\ \isafv{O}}.
+The sequential composition of \isa{\isafv{P}} then \isa{\isafv{Q}} is not valid, because the output of \isa{\isafv{P}} is not the input of \isa{\isafv{Q}}.
+However, by composing \isa{\isafv{P}} in parallel with identity processes on \isa{Res\ \isafv{B}} and \isa{Res\ \isafv{C}} we can ``fill out'' its output to make the sequential composition valid.
+This situation is visualised using process diagrams (see Section~\ref{sec:proc/diag}) in Figure~\ref{fig:seq_fix}.
+
+\begin{figure}[htbp]
+  \begin{subfigure}{\textwidth}
+  \centering
+    \includesvg[scale=1]{img-gen/seq_bad.svg}
+    \caption{Invalid sequential composition}
+  \end{subfigure}
+  \\~\\
+  \begin{subfigure}{\textwidth}
+  \centering
+    \includesvg[scale=1]{img-gen/seq_fix.svg}
+    \caption{Valid sequential composition}
+  \end{subfigure}
+  \\~\\
+  \begin{subfigure}{\textwidth}
+  \centering
+    \includesvg[scale=1]{img-gen/seq_done.svg}
+    \caption{Resulting process}
+  \end{subfigure}
+  \caption{Example of how sequential composition can fail to be valid, visualised through process diagrams (and treating \isa{\isafv{P}} and \isa{\isafv{Q}} as primitive actions)}
+  \label{fig:seq_fix}
+\end{figure}
+
+Validity ensures that resources are only changed as explicitly stated by the composition.
+Furthermore, composition operations and resource actions at most manipulate the structure of resource combinations and not the contents of atoms, to which they do not have access.
+Thus, the only way to change the contents of resource atoms is via primitive actions, which are all assumptions about the domain.
+
+As a result, the information within resource atoms can interact with this notion of composition validity in interesting ways.
+For instance, if the atoms are located at nodes of a graph and we only use movement actions corresponding to edges of the graph, then validity of compositions in such a domain ensures all resources move along valid paths of the graph.
+As a more involved example, see our model of manufacturing in Section~\ref{sec:cases/factorio} where validity ensures the whole manufacturing process is balanced (\ie contains no bottlenecks).
+
+\section{Process Diagrams}
+\label{sec:proc/diag}
+
+We find it helpful to visualise process compositions using diagrams, such as those in Figure~\ref{fig:seq_fix}.
+These can more concisely communicate processes compared to their algebraic definition, whose readability quickly declines with process size.
+In this section we give an overview of the process diagrams used in this thesis.
+
+In process diagrams we visualise individual actions as shapes (e.g.\ primitive actions as labelled boxes), with compositions laying those shapes out and connecting them.
+These connections represent the flow of resources between actions, the core information in process compositions.
+
+The advantage of diagrams comes from how they more effectively express aspects of the compositions.
+For instance, recall that parallel combination of resources represents their simultaneous presence; in a diagram we express this by visualising parallel resources as parallel connections.
+To aid in this, we define the function \isa{parallel{\isacharunderscore}parts} to split any resource into its simplest parallel constituents.
+Following the pattern from Section~\ref{sec:res/quot}, we define it first for resource terms and then lift it to resources:
+\begin{isadef}[Parallel parts of a resource term]{isa:term-parallel_parts}
+  \input{isa/primrec-parallel_parts}
+\end{isadef}
+\begin{isadef}[Parallel parts of a resource]{isa:parallel_parts}
+  \input{isa/lift_definition-parallel_parts}
+\end{isadef}
+
+Our process diagrams are made to correspond mechanically to the process composition syntax: individual actions are represented by concrete diagrams and composition operations are represented by operations on the diagrams of their children.
+For instance, sequential composition is represented by horizontally juxtaposing diagrams of the two children and then connecting the output points of the first diagram to the input points of the second diagram.
+
+Because it is not possible to draw images directly in Isabelle/HOL, we implement a program to draw these diagrams on top of code automatically generated from our mechanisation.
+\cbar{(See Section~\ref{sec:intro/itp/codegen} for a brief introduction to code generation facilities in Isabelle/HOL\@.)}
+We do so in Haskell, both because it is one of the languages Isabelle can generate and because it has the Diagrams library~\cite{ryan_yorgey-2015}, which suits our purpose.
+
+Note that this means this diagram construction cannot be used as part of logical statements or proofs, nor can we verify properties of the construction itself.
+In contrast, in Chapter~\ref{ch:port_graphs} we discuss a fully formal mapping from process compositions to port graphs, which we then use in proofs about processes.
+
+The crucial point of our implementation rests in uniquely identifying resource occurrences in a process composition, because this allows us to name points in the diagram and then easily look them up and connect them.
+We discuss our approach to this in Section~\ref{sec:proc/diag/paths}, followed by a discussion of the actual diagrams in Section~\ref{sec:proc/diag/draw}.
+In Chapter~\ref{ch:port_graphs} we make further use of these unique identifiers (see Section~\ref{sec:port_graphs/mech/ports} and Section~\ref{sec:port_graphs/process/prelim}).
+
+\subsection{Identifying Resource Occurrences}
+\label{sec:proc/diag/paths}
+
+Connections in the process diagrams are shown as \emph{wires} going from action outputs into action inputs.
+To best draw these wires, we can assign names to individual points in the diagrams and later use those names when placing the connecting line.
+This means that we require unique names for every occurrence of a resource in the process composition.
+
+Intuitively, an occurrence of a resource in a process composition is always as a parallel part of an input or output of some process.
+As such, we can uniquely identify a resource occurrence by identifying: the process, whether it is in the input or output and which parallel part it is.
+And, because process compositions are trees, every subprocess is uniquely identified by the path through that tree.
+These are exactly the ingredients we use in the following mechanisation.
+
+We first define the components of a process composition tree path, a token for each direction we could go at every internal node:
+\begin{isadef}[Components for composition tree paths]{isa:process_inner}
+  \input{isa/datatype-process_inner}
+\end{isadef}
+
+A sequence of these components (\isa{process{\isacharunderscore}inner\ list} in Isabelle/HOL) uniquely identifies a subtree of a process composition.
+Note that not every sequence makes sense for every composition: for instance, a sequence longer than a composition tree is deep cannot make sense for that tree.
+However, whether the sequence makes sense can be easily checked by attempting to traverse the tree while following that sequence, and if it does then the corresponding subprocess can be extracted.
+
+We call the occurrence of a resource in the input or output of a process a \emph{port}, and when combined with a process identifier we call it a \emph{qualified port}.
+(This terminology alludes to \emph{port graphs}, which serve as an inspiration for our process diagrams and are more extensively discussed in Chapter~\ref{ch:port_graphs}.)
+Each port is on a specific side (input or output) of a process, has an index within that side and is labelled with the resource it carries.
+
+\cbstart
+For the sake of generality, we use type parameters for the range of sides on which the ports can appear, their labels and the atoms qualifying them, as shown in Definition~\ref{isa:side-port-qualified}.
+In Section~\ref{sec:port_graphs/mech/ports} we make further use of these ports in our general mechanisation of port graphs.
+For process diagrams we use two sides, input and output, label the ports with resources and qualify them with composition tree paths.
+We use these again in Section~\ref{sec:port_graphs/process/prelim} when specialising port graphs to represent process compositions.
+
+\begin{isadef}[Datatypes for sides, ports and qualified ports]{isa:side-port-qualified}
+  \input{isa/datatype-process_side}
+\item
+  \input{isa/datatype-port}
+\item
+  \input{isa/datatype-qualified_port}
+\end{isadef}
+\cbend
+
+We define convenience functions to construct a list of ports from the parallel parts of a single resource, given a starting index and a common side:
+\begin{isadef}[Ports from lists and parallel parts]{isa:listPorts-parallelPorts}
+\cbstart
+  \input{isa/fun-listPorts}
+\item
+  \input{isa/fun-parallelPorts}
+\cbend
+\end{isadef}
+
+For instance, consider a primitive action with the input resource \isa{Res\ \isafv{A}\ \isasymodot\ Res\ \isafv{B}}.
+The ports corresponding to this resource are generated as follows:
+\begin{isabelle}
+\centering
+  parallelPorts\ \isadigit{0}\ In\ \isapars{Res\ \isafv{A}\ \isasymodot\ Res\ \isafv{B}}\isanewline
+  \isacharequal\ listPorts\ \isadigit{0}\ In\ \isapars{\isalist{Res\ \isafv{A},\ Res\ \isafv{B}}}\isanewline
+  \isacharequal\ \isalist{Port\ \isadigit{0}\ In\ \isapars{Res\ \isafv{A}},\ Port\ \isadigit{1}\ In\ \isapars{Res\ \isafv{B}}}
+\end{isabelle}
+and, if it is the first child of sequential composition, they are uniquely identified as:
+\begin{isabelle}
+\centering
+  \isalist{QPort\ \isalist{SeqL}\ \isapars{Port\ \isadigit{0}\ In\ \isapars{Res\ \isafv{A}}},\ QPort\ \isalist{SeqL}\ \isapars{Port\ \isadigit{1}\ In\ \isapars{Res\ \isafv{B}}}}
+\end{isabelle}
+
+\subsection{Drawing the Diagrams}
+\label{sec:proc/diag/draw}
+
+With a way to uniquely identify resource occurrences, the rest of the diagram construction is a matter of drawing the relevant shapes and connecting points using their names.
+\cbar{This part is done fully outside the proof assistant using the generated Haskell code.}
+
+We define the diagrams for process compositions by pattern matching on the top constructor.
+For each primitive action or resource action we construct a concrete diagram using its parameters (e.g.\ the two resources \isa{\isafv{a}} and \isa{\isafv{b}} being swapped in \isa{Swap~\isafv{a~b}}).
+For each composition operation we first recursively construct the diagrams for all of its children and then combine those in a way specific to that operation.
+
+Note that in our diagrams we arrange sequential composition from left to right and parallel composition from top to bottom.
+This is merely a presentation choice and the implementation could easily be changed to alter these directions.
+
+\cbstart
+Note also that, to make the diagrams more compact, we simplify the printing of resources with respect to the actual formal terms.
+When constructing the diagram we require that both the linear and copyable resource atoms be strings so they can be printed.
+This can be conveniently satisfied using the resource mapping in Section~\ref{sec:proc/transform/res-map}.
+To indicate the different kinds of resources we use a variety of symbols inspired by both our Isabelle syntax (specifically \isa{\isasymodot}) as well as the syntax of their ILL translation (see Section~\ref{sec:linearity/res}).
+However, the font used by the diagram drawing library is limited and does not contain the \isa{\isasymodot} or $\multimap$ symbols.
+As such, we use the following notation, with examples shown in figures throughout the rest of this section:
+\begin{itemize}
+  \item $A \cdot B$ to indicate parallel resources,
+  \item $A \oplus B$ to indicate non-deterministic resources,
+  \item $A \to B$ to indicate executable resources,
+  \item $!A$ to indicate copyable atoms,
+  \item $![A \to B]$ to indicate repeatably executable resources,
+  \item $1$ to indicate the \isa{Empty} resource, and
+  \item $\top$ to indicate the \isa{Anything} resource.
+\end{itemize}
+
+\cbar{In the remainder of this section, we show illustrative examples of diagrams for resource actions and for composition operations, and describe how they relate to the formal objects.}
+
+A primitive action, which represents an assumption about what can be done in the domain, is visualised by a box with inputs on its left, outputs on its right and the action label in the centre.
+This is intended to indicate that a resource goes in, another comes out and we have no further detail about what happens inside to make that transformation.
+An example with two parallel resource atoms as input and one as output is shown in Figure~\ref{fig:process-diagrams/Primitive}.
+\cbend
+
+\begin{figure}[h]
+  \centering
+  \includesvg[scale=1.0]{img-gen/diagPrimitive.svg}
+  \caption{\isa{Primitive\ \isapars{Res\ A\ \isasymodot\ Res\ B}\ \isapars{Res\ C}\ \isaString{Primitive}\ \isapars{}}}
+  \label{fig:process-diagrams/Primitive}
+\end{figure}
+
+\cbstart
+The identity and swap resource actions only interact with the parallel combinations of resources, so we only need wires to visualise them.
+For the identity action this means simply a wire going from left to right for each parallel part.
+For the swap action these wires go diagonally, crossing over in two groups to swap the order of the wires.
+These are shown on examples in Figure~\ref{fig:process-diagrams/Identity+Swap}.
+
+Note that the wires representing the identity action can be shortened to save space in larger diagrams, all the way down to points.
+This loses no information, since the action does nothing with those resources.
+In Section~\ref{sec:port_graphs/process/prop} we come back to this idea, using port graphs to formalise how the identity process is the unit of sequential composition (Lemma~\ref{isa:pgConstruct_seq_unit_pgEquiv}).
+\cbend
+
+\begin{figure}[h]
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=1.0]{img-gen/diagIdentity.svg}
+    \caption{\isa{Identity\ \isapars{Res\ A\ \isasymodot\ NonD\ \isapars{Res\ X}\ \isapars{Res\ Y}}}}
+    \label{fig:process-diagrams/Identity}
+  \end{subfigure}
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=1.0]{img-gen/diagSwap.svg}
+    \caption{\isa{Swap\ \isapars{Res\ A\ \isasymodot\ Res\ B}\ \isapars{Res\ C}}}
+    \label{fig:process-diagrams/Swap}
+  \end{subfigure}
+  \caption{Illustrative diagrams of simple resource actions}
+    \label{fig:process-diagrams/Identity+Swap}
+\end{figure}
+
+\cbstart
+The injection resource actions interact with non-deterministic resource combinations, so cannot be shown simply with wires.
+As such, we visualise them using a triangle, since that can be adapted to any number of input wires coming into its base and there will always be one output wire coming from its point.
+Inside the triangle we place either ``L'' or ``R'' to denote whether the action is injecting into the left or right side of the non-deterministic resource.
+Example instances are shown in Figure~\ref{fig:process-diagrams/Inject}, each injecting into one side of the non-deterministic combination of atoms \isa{X} and \isa{Y}.
+\cbend
+
+\begin{figure}[h]
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=1.0]{img-gen/diagInjectL.svg}
+    \caption{\isa{InjectL\ \isapars{Res\ X}\ \isapars{Res\ Y}}}
+    \label{fig:process-diagrams/InjectL}
+  \end{subfigure}
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=1.0]{img-gen/diagInjectR.svg}
+    \caption{\isa{InjectR\ \isapars{Res\ X}\ \isapars{Res\ Y}}}
+    \label{fig:process-diagrams/InjectR}
+  \end{subfigure}
+  \caption{Illustrative diagrams of injection actions into non-deterministic resources}
+    \label{fig:process-diagrams/Inject}
+\end{figure}
+
+\cbstart
+The idea is similar for the distribution actions, except that they have three resource parameters so the shape we choose is a diamond: three of its points accommodate one non-deterministic input, one non-deterministic output and the arbitrary resource(s) being distributed in or out.
+Example instances are shown in Figure~\ref{fig:process-diagrams/OptDistr}, distributing the atom \isa{A} into and out of the same non-deterministic combination.
+\cbend
+
+\begin{figure}[h]
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=0.8]{img-gen/diagOptDistrIn.svg}
+    \caption{\isa{OptDistrIn\ \isapars{Res\ A}\ \isapars{Res\ X}\ \isapars{Res\ Y}}}
+    \label{fig:process-diagrams/OptDistrIn}
+  \end{subfigure}
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=0.8]{img-gen/diagOptDistrOut.svg}
+    \caption{\isa{OptDistrOut\ \isapars{Res\ A}\ \isapars{Res\ X}\ \isapars{Res\ Y}}}
+    \label{fig:process-diagrams/OptDistrOut}
+  \end{subfigure}
+  \caption{Illustrative diagrams of distribution actions over non-deterministic resources}
+    \label{fig:process-diagrams/OptDistr}
+\end{figure}
+
+\cbstart
+For the duplication and erasing actions on copyable atoms, it would be sufficient to visualise them using a fork in a wire and an end to a wire respectively.
+The fact that the visualisation is constructed from a process composition would ensure that this is only ever done with copyable resources, since no other resources can figure in these actions.
+We however choose to emphasise these actions by adding a small circle into their visualisation, making it clear that this is intentional and not just an error in the program building the diagram.
+Example instances duplicating and erasing a copyable atom \isa{data} are shown in Figure~\ref{fig:process-diagrams/Duplicate+Erase}.
+\cbend
+
+\begin{figure}[h]
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=1.0]{img-gen/diagDuplicate.svg}
+    \caption{\isa{Duplicate\ data}}
+    \label{fig:process-diagrams/Duplicate}
+  \end{subfigure}
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=1.0]{img-gen/diagErase.svg}
+    \caption{\isa{Erase\ data}}
+    \label{fig:process-diagrams/Erase}
+  \end{subfigure}
+  \caption{Illustrative diagrams of resource actions duplicating and erasing a copyable resource atom}
+    \label{fig:process-diagrams/Duplicate+Erase}
+\end{figure}
+
+\cbstart
+We use the same visualisations for the repetition and closing of repeatably executable resources, because these represent the copyable aspect of these resources.
+For the third action related to this type of resources, turning them into plain executable resources, we use an open box shape to suggest the ``unboxing''.
+Example instances of these actions are shown in Figure~\ref{fig:process-diagrams/Repeat+Close+Once}, using a repeatably executable resource with input atom \isa{I} and output atom \isa{O}.
+\cbend
+
+\begin{figure}[h]
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=1.0]{img-gen/diagRepeat.svg}
+    \caption{\isa{Repeat\ \isapars{Res\ I}\ \isapars{Res\ O}}}
+    \label{fig:process-diagrams/Repeat}
+  \end{subfigure}
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includesvg[scale=1.0]{img-gen/diagClose.svg}
+    \caption{\isa{Close\ \isapars{Res\ I}\ \isapars{Res\ O}}}
+    \label{fig:process-diagrams/Close}
+  \end{subfigure}
+  \\~\\
+  \begin{subfigure}{\textwidth}
+    \centering
+    \includesvg[scale=1.0]{img-gen/diagOnce.svg}
+    \caption{\isa{Once\ \isapars{Res\ I}\ \isapars{Res\ O}}}
+    \label{fig:process-diagrams/Once}
+  \end{subfigure}
+  \caption{Illustrative diagrams of characteristic resource actions for repeatably executable resources}
+  \label{fig:process-diagrams/Repeat+Close+Once}
+\end{figure}
+
+\cbstart
+For the application of an executable resource to an input we use use a box with two groups of incoming wires --- one group for the input resource and one wire for the executable resource --- and output wires for the corresponding output resource.
+To distinguish this box from the visualisation of primitive actions, we connect the wire carrying the executable resource to the bottom of the box, separating it from the ordinary input and output, and include two bent wires inside the box.
+These wires suggest that the input resource is brought to the executable resource, and that the output resource is brought from it.
+This visualisation is meant to match that of \isa{Represent} (shown in Figure~\ref{fig:process-diagrams/Represent}), which can be used to introduce (repeatably) executable resources.
+An example visualisation for an instance of the \isa{Apply} action is shown in Figure~\ref{fig:process-diagrams/Apply}.
+\cbend
+
+\begin{figure}[h]
+  \centering
+  \includesvg[scale=1.0]{img-gen/diagApply.svg}
+  \caption{\isa{Apply\ \isapars{Res\ I}\ \isapars{Res\ O}}}
+  \label{fig:process-diagrams/Apply}
+\end{figure}
+
+\cbstart
+Final among the resource actions, forgetting is visualised with a cross to whose centre all input wires are brought, with a single wire coming out carrying the \isa{Anything} resource.
+This is intended to indicate all information about the input resource being discarded, including any parallel combination structure it might have had.
+An example instance is shown in Figure~\ref{fig:process-diagrams/Forget}, in this case forgetting the two parallel atoms \isa{A} and \isa{B}.
+\cbend
+
+\begin{figure}[h]
+  \centering
+  \includesvg[scale=1.0]{img-gen/diagForget.svg}
+  \caption{\isa{Forget\ \isapars{Res\ A\ \isasymodot\ Res\ B}}}
+  \label{fig:process-diagrams/Forget}
+\end{figure}
+
+\cbstart
+To represent sequential composition, we take the diagrams visualising the processes being composed and lay them out horizontally with a set amount of spacing between them.
+We then connect the ends of output wires in the first diagram to the starts of input wires in the second diagram.
+Assuming that the composition we are visualising is valid, we know that the output and input resources match (see Section~\ref{sec:proc/valid}) and as a result so will the wires.
+An example instance is shown in Figure~\ref{fig:process-diagrams/Seq}.
+\cbend
+
+\begin{figure}[h]
+  \centering
+  \includesvg[scale=1.0]{img-gen/diagSeq.svg}
+  \caption{\isa{Seq\ \isapars{Primitive\ \isapars{Res\ A}\ \isapars{Res\ B\ \isasymodot\ Res\ C}\ \isaString{P}\ \isapars{}}\isanewline\isaindent{Figure\ 1.11:\ Seq\ }\isapars{Primitive\ \isapars{Res\ B\ \isasymodot\ Res\ C}\ \isapars{Res\ D}\ \isaString{Q}\ \isapars{}}}}
+  \label{fig:process-diagrams/Seq}
+\end{figure}
+
+\cbstart
+The case of parallel composition is simpler, since we do not make any new connections.
+We simply lay the two diagrams out vertically, with a set amount of space between them.
+Additionally, to improve the layout of the diagrams, we stretch the smaller diagram of the two to the same width as the other by extending its input and output wires.
+An example instance is shown in Figure~\ref{fig:process-diagrams/Par}.
+\cbend
+
+\begin{figure}[h]
+  \centering
+  \includesvg[scale=1.0]{img-gen/diagPar.svg}
+  \caption{\isa{Par\ \isapars{Primitive\ \isapars{Res\ A}\ \isapars{Res\ B\ \isasymodot\ Res\ C}\ \isaString{P}\ \isapars{}}\isanewline\isaindent{Figure\ 1.12:\ Par\ }\isapars{Primitive\ \isapars{Res\ B\ \isasymodot\ Res\ C}\ \isapars{Res\ D}\ \isaString{Q}\ \isapars{}}}}
+  \label{fig:process-diagrams/Par}
+\end{figure}
+
+\cbstart
+The visualisation of optional composition is complicated by the fact that we have already used the two axes available to us in the plane for sequential and parallel composition.
+As such, we cannot show it with just juxtaposition.
+As the basis of our visualisation we lay out the diagrams of the children vertically, and then we introduce two special shapes: an input ``splitter'' shown as the \isa{\isasymoplus} symbol and an output ``combiner'' shown as a triangle pointing left.
+These are meant to depict the input non-deterministic resource being split into its branches, each routed to the corresponding child of the composition, and the children's outputs being merged together to get the overall output.
+We use the \isa{\isasymoplus} shape to suggest the involvement of non-deterministic resources, and the triangle because its angled sides can face the child diagrams and its vertical side can accommodate any number of parallel outputs.
+An example instance is shown in Figure~\ref{fig:process-diagrams/Opt}.
+\cbend
+
+\begin{figure}[h]
+  \centering
+  \includesvg[scale=1.0]{img-gen/diagOpt.svg}
+  \caption{\isa{Opt\ \isapars{Primitive\ \isapars{Res\ A\ \isasymodot\ Res\ B}\ \isapars{Res\ X\ \isasymodot\ Res\ Y}\ \isaString{P}\ \isapars{}}\isanewline\isaindent{Figure\ 1.13:\ Opt\ }\isapars{Primitive\ \isapars{Res\ C}\ \isapars{Res\ X\ \isasymodot\ Res\ Y}\ \isaString{Q}\ \isapars{}}}}
+  \label{fig:process-diagrams/Opt}
+\end{figure}
+
+\cbstart
+Finally, the visualisation of process representation as a repeatably executable resource only needs to include one child diagram within it.
+We surround it with a box to clarify that this is the nested part.
+Then we add a wire going from the input side of the nested diagram and wrapping around to the right, matching the fact that the representation of a process takes no input and instead both the input and output of the child process play a role in the representation's output.
+Since the repeatably executable resource is not the same as a parallel combination of resources, we enclose the diagram in another box to avoid suggesting as much and give it the one output wire for the output that this process actually has.
+An example instance is shown in Figure~\ref{fig:process-diagrams/Represent}.
+\cbend
+
+\begin{figure}[h]
+  \centering
+  \includesvg[scale=1.0]{img-gen/diagRepresent.svg}
+  \caption{\isa{Represent\ \isapars{Primitive\ \isapars{Res\ A\ \isasymodot\ Res\ B}\ \isapars{Res\ C}\ \isaString{P}\ \isapars{}}}}
+  \label{fig:process-diagrams/Represent}
+\end{figure}
+
+\section{Process Transformations}
+\label{sec:proc/transform}
+
+When modelling processes, we often find ourselves wanting to refine the modelling domain or the process itself.
+We may for example want to take a formalised process talking about one set of objects, and formalise the same process over a different set of objects.
+Or we may want to make an abstract process more specific by replacing one of its actions with a composition of several other actions.
+
+The simplest ways to make such refinements is to formalise the new domain and repeat the same composition steps in it, possibly going into more detail at some point.
+But, with our mechanised framework we can make such refinements more rigorous as an operation on process compositions.
+This allows us to automate process transformations, make explicit the connection between the original process and the result, and formally verify properties of the transformations.
+
+In this section we discuss three process transformations: mapping resource atoms to a new domain, refining resource atoms into arbitrarily complex resources and refining primitive actions.
+All three are mechanised as part of our framework, allow for code generation and we verify under what conditions they preserve composition validity.
+
+In Section~\ref{sec:cases/marking} we demonstrate these transformations by taking an abstract model of coursework marking and refining it with concrete information only available later in the run of a course.
+The transformations allow us to derive a model that is more faithful to the practice of that process while retaining its status as a refinement of the initial outline.
+As a result, any change to the abstract model is automatically projected to the refined model.
+
+\subsection{Resource Mapping}
+\label{sec:proc/transform/res-map}
+
+Resource mapping refers to transforming all atoms present in a resource, either within one domain or to another domain entirely.
+\cbar{When we define the resource terms in Definition~\ref{isa:res_term}, Isabelle/HOL automatically defines} the function \isa{map{\isacharunderscore}res{\isacharunderscore}term~\isafv{f~g}}\cbar{, which} transforms a resource term by applying the function \isa{\isafv{f}} to any linear atom within it and the function \isa{\isafv{g}} to any copyable atom.
+\cbar{This function} is lifted to resources as \isa{map{\isacharunderscore}resource} when we prove they inherit the BNF structure of the terms (see Section~\ref{sec:res/bnf}).
+\cbar{Finally, when we define process compositions in Definition~\ref{isa:process}, Isabelle/HOL uses the lifted function to define \isa{map{\isacharunderscore}process}, which takes as arguments a function for each of: linear atoms, copyable atoms, labels and metadata.}
+
+For instance, consider a domain whose linear atoms are amounts of some currency (\eg as a pair of natural number and currency tag).
+Then, given the conversion ratios, we can map each of those atoms to the corresponding amount in some unified currency (\eg that of the account we are paying from).
+Mapping this over all resources in a process can be considered as transforming that process within one domain because the result still has amounts of currency as atoms, just with different magnitudes.
+
+Or, consider a domain whose linear atoms are objects placed at some locations.
+Then we can map each of those atoms to just the relevant object, forgetting its location.
+Applying this map to a process then represents moving to a simplified domain where we do not account for locations.
+For example, if the located atoms are represented by object-location pairs, then we can use the projection \isa{fst} to retain only the objects.
+A mug in the office, another mug in the bedroom and a book in the office then become just a mug, a mug and a book:
+\begin{isabelle}
+\centering
+  map{\isacharunderscore}resource\ fst\ fst\ \isapars{Res\ \isapars{Mug,\ Office}\ \isasymodot\ Res\ \isapars{Mug,\ Bedroom}\ \isasymodot\ Res\ \isapars{Book,\ Office}}\isanewline
+  \isacharequal\ Res\ Mug\ \isasymodot\ Res\ Mug\ \isasymodot\ Res\ Book
+\end{isabelle}
+
+The fact that this transformation changes resource atoms involved in a process while preserving its structure gives it strong properties.
+First, the input and output of the transformed process are the input and output of the original process transformed accordingly.
+Second, any process that was valid before the transformation will remain valid after it.
+
+Note that the second point does not require anything from the functions.
+Any valid process composition transformed in any way will always remain valid.
+But the converse is not the case: it is possible to map distinct atoms to the same one, erasing what made a composition invalid.
+
+\subsection{Resource Refinement}
+\label{sec:proc/transform/res-refine}
+
+Resource refinement generalises the idea of resource mapping: instead of replacing atoms with other atoms, we allow the replacement to be any resource.
+This leads to opaque atoms being replaced with resources that have known structure, refining the description.
+
+Note, however, that we can only allow such a refinement for linear atoms, because otherwise we could use it to refine a copyable resource into a linear resource.
+This would make it very easy for this transformation to render a process composition invalid, for instance if it involves the \isa{Duplicate} action.
+As such, we restrict the replacements for copyable atoms to other copyable atoms.
+
+We define this operation on resource terms by recursion through all its constructors, using functions passed as arguments in the linear and copyable atom cases to form the replacement subterm.
+This we then lift to resources, and define the function \isa{process{\isacharunderscore}refineRes} to apply it across all resources within a process.
+
+For instance, consider our model of coursework marking (see also Section~\ref{sec:proc/transform} and Section~\ref{sec:cases/marking}).
+In the abstract model we use a single resource atom to represent all of the students.
+Once the number of students is known, we can use resource refinement to replace every occurrence of this monolithic resource with a parallel combination of the right number of atoms to represent individual students.
+This refinement not only makes the process reflect the new information, it also paves the way towards breaking up monolithic actions: once we consider the students as individuals, we can conceive of marking their coursework submissions as separate actions.
+Consider the following simplified example (see Section~\ref{sec:cases/marking/ref} for the full version):
+\begin{isabelle}
+\centering
+  refine{\isacharunderscore}resource\ \isapars{{\isasymlambda}\isabv{x}{\isachardot}\ Parallel\ \isapars{replicate\ \isadigit{3}\ \isapars{Res\ Student}}}\ \isapars{{\isasymlambda}\isabv{x}{\isachardot}\ \isabv{x}}\ \isapars{Res\ Students}\isanewline
+  \isacharequal\ Res\ Student\ \isasymodot\ Res\ Student\ \isasymodot\ Res\ Student
+\end{isabelle}
+
+Once again, this operation has strong properties.
+The input and output of the refined process are the input and output of the original process, refined accordingly.
+And any process that was valid before the refinement will remain valid after it.
+
+\subsection{Primitive Action Substitution}
+\label{sec:proc/transform/proc-subst}
+
+To refine a process composition, we substitute an arbitrarily complex process in place of a primitive action.
+The simplest approach would be to target a single action (perhaps identified by its path in the composition tree, see Section~\ref{sec:proc/diag/paths}) and replace it with a given process.
+But our definition is more complex in order for the operation to be more generally useful.
+
+We define the substitution as a function with two parameters, \isa{process{\isacharunderscore}subst\ \isafv{P\ f}}.
+The first parameter acts as a predicate on the four primitive action parameters (input, output, label and metadata) and determines targets for the substitution.
+The second parameter takes those four parameters of every target and generates its replacement process.
+As with resource refinement, the function recursively passes over a composition and for every primitive action it checks whether it satisfies \isa{\isafv{P}} and, if so, replaces it with the relevant output of \isa{\isafv{f}}.
+This allows us to define substitutions of multiple actions at once that react to what they are replacing.
+
+Referring back to our initial model of coursework marking from Section~\ref{sec:proc/transform/res-refine}, once we have used the resource refinement to split the monolithic \isa{Students} resource into multiple individuals, we can use process substitution to break up a monolithic marking action into several parallel actions marking individual submissions.
+The predicate can identify the target action by its input (all students).
+The replacement can then be a parallel composition of individual marking actions, with their number determined by the number of students.
+See Section~\ref{sec:cases/marking/ref} for concrete examples of the target predicate and replacement function.
+Applying this substitution expresses that, once we model students and their submissions individually, we can mark each submission independently of the others.
+
+The increased complexity of this transformation is reflected in the assumptions of its properties.
+If the replacement function does not change the target action's input, then the input of the composition does not change.
+If it does not change the input and output, then the output of the composition also does not change.
+If, furthermore, every replacement it generates is valid, then any composition that was valid before the substitution will remain valid after it.
+
+\section{Conclusion}
+\label{sec:proc/conc}
+
+In this chapter we described our mechanisation of process compositions as trees of individual actions and composition operations.
+We use resources to describe the inputs and outputs of processes, with the compositions describing how these inputs and outputs combine.
+For instance, sequential composition describes that the output of one process is used as input to another.
+We then formalised a validity condition for process compositions, expressing when the composition operations are used correctly.
+
+We also gave a brief overview of how we generate process diagrams to visualise our compositions, using Haskell code generated automatically by Isabelle from our mechanisation.
+And we closed on a discussion of the kinds of systematic process transformations we can define and verify in our framework.
+
+As with the equivalences that build the resource algebra, the set of resource actions we use is not exhaustive.
+For instance, in Section~\ref{sec:prob/limit/more-simps} we suggest two possible additions.
+As such, we see the identification and addition of further resource actions as a continual part of future work.
+
+We use process compositions in the remainder of this thesis.
+In the next chapter, we connect them to deductions of linear logic in such a way that valid compositions always yield well-formed deductions.
+In Chapter~\ref{ch:port_graphs} we make the ideas underlying our process diagrams more formal and use them to verify properties of process compositions.
+
+\ifstandalone
+\bibliographystyle{plainurl}
+\bibliography{references}
+\fi
+
+\end{document}

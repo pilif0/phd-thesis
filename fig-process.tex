@@ -1,0 +1,25 @@
+\documentclass[class=infthesis]{standalone}
+
+\usepackage{bussproofs}
+\usepackage{amssymb}
+
+\begin{document}
+
+\begin{minipage}{\linewidth}
+  \begin{minipage}{0.64\linewidth}
+    \begin{isabellebody}
+      \input{isa/process}
+    \end{isabellebody}
+  \end{minipage}
+  \begin{minipage}{0.35\linewidth}
+    \begin{displaymath}
+      \begin{split}
+        \left. \begin{array}{c}\\[1em]\end{array} \right. & \text{Primitive Action}\\
+        \left. \begin{array}{c}\\[6em]\end{array} \right\} & \text{Composition Operations}\\
+        \left. \begin{array}{c}\\[16em]\end{array} \right\} & \text{Resource Actions}
+      \end{split}
+    \end{displaymath}
+  \end{minipage}
+\end{minipage}
+
+\end{document}

@@ -1,0 +1,14 @@
+\isacomm{definition}\isamarkupfalse%
+\ openPortToJSON\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}nat\ {\isasymRightarrow}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharparenright}\ port\ {\isasymRightarrow}\ {\isacharparenleft}String{\isachardot}literal{\isacharcomma}\ int{\isacharparenright}\ json{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{openPortToJSON}\ \isabv{maxIdx\ p}\ {\isacharequal}\isanewline
+\ \ OBJECT\ {\isacharbrackleft}\isanewline
+\ \ \ \ {\isacharparenleft}\isaString{id}{\isacharcomma}\ STRING\ {\isacharparenleft}openPlaceToID\ \isabv{p}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{properties}{\isacharcomma}\ OBJECT\ {\isacharbrackleft}\isanewline
+\ \ \ \ \ \ {\isacharparenleft}\isaString{port{\isachardot}side}{\isacharcomma}\ STRING\ {\isacharparenleft}elkSideToString\ {\isacharparenleft}\isafv{portSideToELK}\ {\isacharparenleft}port{\isachardot}side\ \isabv{p}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharcomma}\ {\isacharparenleft}\isaString{port{\isachardot}index}{\isacharcomma}\ NUMBER\ {\isacharparenleft}int\ {\isacharparenleft}\isanewline
+\isaindent{\ \ \ \ {\isacharcomma}\ {\isacharparenleft}S}\isanotation{if}\ \isafv{portSideToELK}\ {\isacharparenleft}port{\isachardot}side\ \isabv{p}{\isacharparenright}\ {\isasymin}\ \isabraces{WEST{\isacharcomma}\ SOUTH}\isanewline
+\isaindent{\ \ \ \ {\isacharcomma}\ {\isacharparenleft}Sif}\isanotation{then}\ \isabv{maxIdx}\ {\isacharminus}\ port{\isachardot}index\ \isabv{p}\isanewline
+\isaindent{\ \ \ \ {\isacharcomma}\ {\isacharparenleft}Sif}\isanotation{else}\ port{\isachardot}index\ \isabv{p}{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharbrackright}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{width}{\isacharcomma}\ NUMBER\ {\isadigit{1}}{\isadigit{0}}{\isacharparenright}\isanewline
+\ \ {\isacharcomma}\ {\isacharparenleft}\isaString{height}{\isacharcomma}\ NUMBER\ {\isadigit{1}}{\isadigit{0}}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}

@@ -1,0 +1,26 @@
+\isacomm{primrec}\isamarkupfalse%
+\ step\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isatv{a}\ res{\isacharunderscore}term\ {\isasymRightarrow}\ \isatv{a}\ res{\isacharunderscore}term{\isachardoublequoteclose}\ \isaOcomm{where}\isanewline
+\ \ \ \ {\isachardoublequoteopen}\isafv{step}\ Empty\ {\isacharequal}\ Empty{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{step}\ Anything\ {\isacharequal}\ Anything{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{step}\ {\isacharparenleft}Res\ \isabv{x}{\isacharparenright}\ {\isacharequal}\ Res\ \isabv{x}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{step}\ {\isacharparenleft}Copyable\ \isabv{x}{\isacharparenright}\ {\isacharequal}\ Copyable\ \isabv{x}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{step}\ {\isacharparenleft}NonD\ \isabv{x}\ \isabv{y}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ {\isacharparenleft}\ \isanotation{if}\ {\isasymnot}\ normalised\ \isabv{x}\ \isanotation{then}\ NonD\ {\isacharparenleft}\isafv{step}\ \isabv{x}{\isacharparenright}\ \isabv{y}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ \isanotation{if}\ {\isasymnot}\ normalised\ \isabv{y}\ \isanotation{then}\ NonD\ \isabv{x}\ {\isacharparenleft}\isafv{step}\ \isabv{y}{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ NonD\ \isabv{x}\ \isabv{y}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{step}\ {\isacharparenleft}Executable\ \isabv{x}\ \isabv{y}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ {\isacharparenleft}\ \isanotation{if}\ {\isasymnot}\ normalised\ \isabv{x}\ \isanotation{then}\ Executable\ {\isacharparenleft}\isafv{step}\ \isabv{x}{\isacharparenright}\ \isabv{y}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ \isanotation{if}\ {\isasymnot}\ normalised\ \isabv{y}\ \isanotation{then}\ Executable\ \isabv{x}\ {\isacharparenleft}\isafv{step}\ \isabv{y}{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ Executable\ \isabv{x}\ \isabv{y}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{step}\ {\isacharparenleft}Repeatable\ \isabv{x}\ \isabv{y}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ {\isacharparenleft}\ \isanotation{if}\ {\isasymnot}\ normalised\ \isabv{x}\ \isanotation{then}\ Repeatable\ {\isacharparenleft}\isafv{step}\ \isabv{x}{\isacharparenright}\ \isabv{y}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ \isanotation{if}\ {\isasymnot}\ normalised\ \isabv{y}\ \isanotation{then}\ Repeatable\ \isabv{x}\ {\isacharparenleft}\isafv{step}\ \isabv{y}{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ Repeatable\ \isabv{x}\ \isabv{y}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{step}\ {\isacharparenleft}Parallel\ \isabv{xs}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ {\isacharparenleft}\ \isanotation{if}\ list{\isacharunderscore}ex\ {\isacharparenleft}{\isasymlambda}x{\isachardot}\ {\isasymnot}\ normalised\ \isabv{x}{\isacharparenright}\ \isabv{xs}\ \isanotation{then}\ Parallel\ {\isacharparenleft}map\ \isafv{step}\ \isabv{xs}{\isacharparenright}\hfill\isapars{i.}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ \isanotation{if}\ list{\isacharunderscore}ex\ is{\isacharunderscore}Parallel\ \isabv{xs}\ \isanotation{then}\ Parallel\ {\isacharparenleft}merge{\isacharunderscore}one{\isacharunderscore}parallel\ \isabv{xs}{\isacharparenright}\hfill\isapars{ii.}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ \isanotation{if}\ list{\isacharunderscore}ex\ is{\isacharunderscore}Empty\ \isabv{xs}\ \isanotation{then}\ Parallel\ {\isacharparenleft}remove{\isacharunderscore}one{\isacharunderscore}empty\ \isabv{xs}{\isacharparenright}\hfill\isapars{iii.}\isanewline
+\ \ \ \ \ \ \ \ \isanotation{else}\ {\isacharparenleft}\isanotation{case}\ \isabv{xs}\ \isanotation{of}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\isacharbrackleft}{\isacharbrackright}\ {\isasymRightarrow}\ Empty\hfill\isapars{iv.}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ {\isacharbar}\ {\isacharbrackleft}\isabv{a}{\isacharbrackright}\ {\isasymRightarrow}\ \isabv{a}\hfill\isapars{v.}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ {\isacharbar}\ {\isacharunderscore}\ {\isasymRightarrow}\ Parallel\ \isabv{xs}{\isacharparenright}{\isacharparenright}\hfill\isapars{vi.}{\isachardoublequoteclose}%

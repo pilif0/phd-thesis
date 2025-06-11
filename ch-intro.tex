@@ -1,0 +1,381 @@
+\documentclass[class=smolathesis,crop=false]{standalone}
+
+\usepackage{standalone}
+
+\begin{document}
+
+\chapter{Introduction}
+\label{ch:intro}
+
+In this thesis we present a formal framework for process composition based on actions specified by their input and output.
+Our framework describes how actions depend on each other's outputs and ensures that they do not compete for resources.
+
+We take inspiration from the proofs-as-processes paradigm~\cite{abramsky-1994}, which relates processes to linear logic~\cite{girard-1987}.
+In our case, we prove that process compositions deemed valid in our framework correspond to well-formed linear deductions, demonstrating that such valid compositions obey our expectations of processes.
+To make these expectations more concrete, we then formally link compositions to a diagrammatic representation and specify the allowed connections between actions, proving that valid compositions obey them.
+
+We develop our framework in the proof assistant Isabelle/HOL~\cite{nipkow_wenzel_paulson-2002} to ensure that its logical underpinnings and the proofs of its properties are fully rigorous.
+Beyond this, the mechanisation of our framework enables automated generation of verified executable code for our definitions, meaning we can readily use the verified concepts outside of the proof assistant.
+
+To support our work, we mechanise two self-contained theories that can be reused in other projects.
+One is a deep embedding of intuitionistic linear logic, which we use to translate resources into propositions and process compositions into deductions.
+The other is a formalisation of port graphs, which we use to graphically represent and reason about process compositions.
+
+\paragraph*{Resources.}
+Resources in our framework specify inputs and outputs of individual actions and whole processes, and are discussed in Chapter~\ref{ch:res}.
+They can represent physical as well as digital objects, and as such must be manipulated in a linear manner: preventing the free duplication or discarding of those objects not explicitly marked as allowing it.
+
+This linearity is ensured by our process compositions, a fact that we demonstrate in two ways.
+First, in Chapter~\ref{ch:linearity}, we produce well-formed linear logic deductions for each valid composition, meaning the composition manipulates resources in a way that obeys the rules of linear logic.
+Second, in Chapter~\ref{ch:port_graphs}, we use port graphs (a refinement of ordinary graphs with ports mediating edge connection), to show that the actions in valid process compositions are connected in a linear way.
+
+Our resources form an algebraic structure~\cite{baader_nipkow-1998-ch03}, allowing for combinations that can represent, for instance, multiple simultaneous objects and non-deterministic outcomes.
+The atoms of this algebra are not constrained in any way beyond having a notion of equality, which makes them (and the resources induced by them) able to carry extra information such as location or internal state depending on the needs of the domain being modelled.
+We partition the atoms into two sets: linear and copyable ones.
+This helps the Isabelle type system control which resources can be duplicated and discarded (e.g.\ data) and which do not allow that (e.g.\ physical objects).
+
+\paragraph*{Processes.}
+Processes are collections of actions that transform resources, such as manufacturing processes where physical objects are transformed with the use of tools and machines.
+They are discussed in Chapter~\ref{ch:proc}.
+
+We focus our view on the actions' inputs and outputs, as described by resources, with compositions describing how resources move between individual actions to form a larger process.
+This view is reminiscent of algorithmic planning~\cite{russell_norvig-2013}, but instead of preconditions and postconditions we focus on the objects and data that actions pass to each other.
+
+We formulate a simple condition on how these compositions of processes are formed that ensures they handle the resources in the correct way.
+This correctness is grounded in linear logic (see Chapter~\ref{ch:linearity}) and made more concrete with port graphs (see Chapter~\ref{ch:port_graphs}).
+
+Moreover, in the presence of complex information in resource atoms, this condition can have implications such as ensuring the process is free of bottlenecks or that it obeys a given graph of locations.
+We illustrate this with a case study in Section~\ref{sec:cases/factorio}.
+
+Our view is focused on processes as collections of actions connected through their inputs and outputs, rather than focusing on the agents executing those actions.
+This can be contrasted with many process calculi, whose presentations often focus on agents performing sequences of actions while communicating with each other or sometimes cooperating on the actions.
+Our approach is more specific, making correctness conditions simpler to check.
+We note the possibility of formally connecting to these other formalisms as part of future work in Section~\ref{sec:conc/future}.
+
+\paragraph*{Contributions.}
+
+The contributions of this thesis revolve around a formal language for describing the structure of processes composed from actions.
+We list the main points:
+\begin{itemize}
+  \item Mechanisation of the language for composing processes, supporting automated generation of executable code.
+  \item Verified operations for converting processes between modelling domains while preserving their correctness.
+  \item \cbar{General mechanisation of intuitionistic linear logic.}
+  \item Translation of all valid processes into well-formed deductions of linear logic.
+  \item \cbar{General mechanisation of port graphs.}
+  \item Formalised graphical representation of processes, useful for both visualisation and proof.
+  \item Preliminary exploration of a probabilistic extension to our language.
+\end{itemize}
+
+\paragraph*{Thesis Structure.}
+In the rest of Chapter~\ref{ch:intro} we introduce the main strands of background work that feed into our framework.
+This includes intuitionistic linear logic (in Section~\ref{sec:intro/ill}), to which we appeal when arguing the correctness of our process compositions, and the proofs-as-processes paradigm (in Section~\ref{sec:intro/pap}), which inspires this connection between processes and linear logic.
+We also give a brief overview of \cbar{interactive theorem proving (in Section~\ref{sec:intro/itp}) focusing on} Isabelle/HOL, the proof assistant in which we mechanise our work throughout the rest of this thesis.
+
+In Chapter~\ref{ch:res} we introduce resources, which we use to specify inputs and outputs of actions.
+This includes their formalisation as a universal algebra as well as a decision procedure for equality of resources based on rewriting.
+
+In Chapter~\ref{ch:proc} we build on resources by introducing process compositions.
+We formally define compositions of processes with resources as inputs and outputs, and give a brief overview of how we visualise them with process diagrams.
+We then touch on systematic transformations of processes, which allow us to reuse the structure of a composition in a different domain while preserving its correctness.
+
+In Chapter~\ref{ch:linearity} we demonstrate that the notion of validity for process compositions ensures \emph{linearity}.
+Following common practice in literature around the proofs-as-processes paradigm, we do so by relating to linear logic.
+Specifically, we map resources to propositions and processes to deductions, with valid compositions mapping to well-formed deductions.
+
+In Chapter~\ref{ch:port_graphs} we take an alternative approach to demonstrating linearity compared to Chapter~\ref{ch:linearity}: instead of appealing to linear logic for the notion of linearity, we express it directly in terms of resource-bearing connections between individual actions.
+To formalise these connections, we map process compositions to port graphs where they figure as edges.
+
+In Chapter~\ref{ch:prob} we explore an extension of our framework to include probabilistic information by furnishing non-deterministic resources with concrete distributions between their options.
+While this expands the information that process compositions can express, it also significantly complicates their theory.
+We mitigate some of these complications, we discuss limitations of our approach and suggest future directions.
+
+In Chapter~\ref{ch:cases} we detail a number of concrete domains and process models.
+These case studies illustrate the main features of our framework, from representing non-determinism and action refinement to using composition validity to ensure that a process is free of bottlenecks.
+
+In Chapter~\ref{ch:conc} we summarise the thesis, highlight the major threads of future work and offer some concluding remarks.
+
+\paragraph*{Published Work.}
+We have published part of the work described in this thesis in the Journal of Automated Reasoning as ``Linear Resources in Isabelle/HOL''~\cite{smola_fleuriot-2024}.
+Section~3 of the paper discusses resources, which are discussed in Chapter~\ref{ch:res} of this thesis.
+Section~4 of the paper discusses process compositions, which are discussed in Chapter~\ref{ch:proc} of this thesis.
+Section~5 of the paper discusses the translation of resources and process compositions into linear logic, which are discussed in Chapter~\ref{ch:linearity} of this thesis.
+Section~7 of the paper discusses the modelling of manufacturing in the simulation game Factorio, which is discussed in Section~\ref{sec:cases/factorio} of this thesis.
+
+As the paper is based on an earlier version of our work, there are changes both in the formalisation and in its discussion.
+This thesis refines and expands upon what is described in the paper.
+
+\cbstart
+\paragraph*{Code.}
+The code supporting this thesis is available online in the Archive of Formal Proofs (AFP)\footnote{\url{https://www.isa-afp.org}} and on GitHub.
+The archive entries contain the stable parts of our framework, reviewed by editors to ensure they build without errors in the latest version of Isabelle/HOL\@.
+The GitHub repositories contain a development version of the mechanisation, with examples and in-progress formalisation, as well as non-proof code.
+
+Our mechanisation of intuitionistic linear logic, corresponding to Section~\ref{sec:linearity/shallow} and Section~\ref{sec:linearity/deep}, is available in the AFP as the entry \isa{ILL}~\cite{ILL-AFP}.
+So is the core of our framework and its connection with ILL, corresponding to Chapter~\ref{ch:res}, Chapter~\ref{ch:proc} and the rest of Chapter~\ref{ch:linearity}, as the entry \isa{ProcessComposition}~\cite{ProcessComposition-AFP}.
+
+These AFP entries have development counterparts in two GitHub repositories, one for the \isa{ILL} entry\footnote{\url{https://github.com/pilif0/isa-ILL}} and one for the \isa{ProcessComposition} entry\footnote{\url{https://github.com/pilif0/isa-ProcessComposition}}.
+The latter repository contains extra theories with respect to the archive, as well as the case studies from Section~\ref{sec:cases/marking}, Section~\ref{sec:cases/assembly} and Section~\ref{sec:cases/factorio}.
+It also includes our mechanisation of process port graphs from Section~\ref{sec:port_graphs/process}, resting on the general mechanisation of port graphs from Section~\ref{sec:port_graphs/mech} which has its own repository\footnote{\url{https://github.com/pilif0/isa-PortGraph}}.
+
+Code generated from our formalisation is tracked in its own repository\footnote{\url{https://github.com/pilif0/codegen-ProcessComposition}}.
+This allows us to control the version of the mechanisation from which it is generated and turn it into a Haskell library that can be easily reused.
+It is used by our final repository\footnote{\url{https://github.com/pilif0/process-diagram}}, which contains the implementation of process diagrams from Section~\ref{sec:proc/diag}.
+\cbend
+
+\section{Intuitionistic Linear Logic}
+\label{sec:intro/ill}
+
+Logical systems usually contain what are called structural rules, ones governing the structure of the argument rather than its logical content.
+For instance, a core such rule of linear logic is the \emph{Cut} rule, which states that two deductions can be connected to have one satisfy an assumption of the other.
+When discussing linear logic we are mainly interested in the structural rules \emph{Weakening} and \emph{Contraction}.
+\emph{Weakening} states that whatever we can deduce from a collection of propositions $\Gamma$, we can also deduce from $\Gamma$ with the addition of any further proposition.
+\emph{Contraction}, for its part, states that whatever we can deduce from a collection of propositions $\Gamma$ containing two instances of some proposition $A$, we can also deduce a variant of $\Gamma$ containing only a single instance of $A$.
+That is, in essence, they allow us to disregard and reuse assumptions respectively.
+
+Linear logic is a formal system introduced by Girard~\cite{girard-1987} which constrains the use of \emph{Weakening} and \emph{Contraction}.
+As a result, it accounts for the number of propositions being used and not just their presence, making it well suited for representing resources and processes.
+In this section we discuss linear logic and in particular its intuitionistic fragment.
+In Chapter~\ref{ch:linearity} we use intuitionistic linear logic to argue correctness of process compositions formed in our framework.
+As such, the rules of linear logic influence the theory presented in Chapter~\ref{ch:res} and Chapter~\ref{ch:proc} in order for the correctness argument to be valid.
+
+\emph{Substructural} logics are those that constrain or outright remove one of the structural rules.
+For instance, relevant logic~\cite{dunn-1986} disallows \emph{Weakening}.
+Linear logic does not purely disallow \emph{Weakening} and \emph{Contraction}, it instead restricts them with the modal operator $!$.
+As a result, deduction of ordinary logic remains accessible under this modality while more controlled \emph{linear} deduction takes place outside of it.
+It is this linearity, the control of \emph{Weakening} and \emph{Contraction}, that makes linear logic useful when accounting precisely for the resources consumed and produced by processes.
+This is demonstrated by the frequent use of linear logic in the formal process modelling literature, which we note in Section~\ref{sec:intro/pap}.
+
+In the present work we use \emph{intuitionistic} linear logic (ILL), and specifically its sequent calculus formulation.
+In contrast to classical logic, it only allows deductions with a single conclusion.
+Specifically with linear logic, this means that ILL has fewer operators and rules than its classical counterpart (CLL).
+However, the intuitionistic constraint is well suited to our representation of processes as deductions from one input proposition to one output proposition (see Chapter~\ref{ch:linearity}).
+
+Given a set of propositional variables $A$, the propositions of ILL are generated as follows:
+\begin{equation}
+\label{eq:ill-prop}
+    P, Q = a \mid \mathbf{1} \mid P \otimes Q \mid \mathbf{0} \mid P \oplus Q \mid \top \mid P\ \&\ Q \mid P \multimap Q \mid\ !P \qquad \text{for } a \in A
+\end{equation}
+where $\otimes$ is the operator \emph{times}, $\oplus$ is the operator \emph{plus}, $\&$ is the operator \emph{with}, $\multimap$ is \emph{linear implication} and $!$ is \emph{exponential}.
+
+Sequents are of the form $\Gamma \vdash C$ where $\Gamma$ is a list of propositions, the \emph{antecedents}, and $C$ is a single proposition, the \emph{consequent}.
+Valid sequents are generated by the sequent calculus rules shown in Figure~\ref{fig:ill-rules}, which we take from Bierman's work~\cite{bierman-1994}.
+$!\Gamma$ denotes the result of exponentiating (i.e.\ applying $!$ to) each proposition in the list $\Gamma$.
+
+In the rest of this section we introduce the operators of ILL in more detail, with reference to the rules in Figure~\ref{fig:ill-rules}, and link them to our use.
+We pay particular attention to the $!$ operator.
+
+The operators $\otimes$ and $\&$ are the two linear forms of conjunction, with units $\mathbf{1}$ and $\top$ respectively.
+Following Girard's terminology, $\otimes$ is considered \emph{multiplicative} conjunction while $\&$ is considered \emph{additive} conjunction.
+This is because in the premises of their rules $\otimes_R$ and $\&_R$, $\otimes$ requires distinct formula lists $\Gamma$ and $\Delta$ as antecedents while $\&$ requires the same list $\Gamma$.
+Intuitively, $\otimes$ represents simultaneous availability of two formulas while $\&$ represents the availability of a choice of one of them.
+Thus $\otimes_R$ combines into the antecedents those of both premises, while $\&_R$ only propagates one list of antecedents into its conclusion.
+In our work we only make use of $\otimes$, which forms the counterpart to parallel resources.
+
+The operator $\oplus$ is the only linear form of disjunction in ILL and has $\mathbf{0}$ as its unit.
+Note that in the premises of its rule $\oplus_L$ it requires the same formula list $\Gamma$ in the antecedents, making it \emph{additive} disjunction.
+Intuitively, $\oplus$ represents the non-deterministic availability of one of the two formulas.
+Thus, just as with $\&_R$, the rule $\oplus_L$ only propagates one list of antecedents into its conclusion.
+In our work this operator forms the counterpart to non-deterministic resources.
+
+The operator $\multimap$ is the linear form of implication.
+Note that in the premises of its rule $\multimap_L$, it requires distinct formula lists $\Gamma$ and $\Delta$ in the antecedents, making it \emph{multiplicative} implication.
+Intuitively, $\multimap$ represents the availability of a transformation from its left-hand formula to its right-hand formula.
+This can be seen in how it is derived using $\multimap_R$.
+In our work this operator forms the counterpart to executable resources.
+
+Finally, the $!$ operator controls the use of weakening and contraction.
+This is a distinguishing feature of linear logic, limiting the use of weakening and contraction but not outright rejecting them.
+Notably, reasoning in intuitionistic linear logic with exponentiated formulas recovers ordinary intuitionistic logic.
+In our work this operator forms the counterpart to copyable resources, restricting copying (contraction) and erasing (weakening) to them.
+
+There are four rules in ILL concerning the $!$ operator.
+The first two, Weakening and Contraction, reintroduce these two concepts into the logic but constrain them only to exponentiated formulas.
+Thus, once we have an exponentiated formula we can get any number of copies of it or fully discard it.
+The third rule, Dereliction, says that if something can be derived from a list of formulae then it can be derived with any of them exponentiated.
+Intuitively this is because having one copy is a special case of being able to get any number of copies.
+The fourth rule, Promotion, says that if something can be derived from a list of only exponentiated formulas then the result can be exponentiated.
+Intuitively this is because to get any number of the consequent we need only copy all of the antecedents that many times.
+
+\begin{figure}[htbp]
+  \centering
+  \includestandalone{ill_rules}
+  \caption{ILL Inference Rules}
+  \label{fig:ill-rules}
+\end{figure}
+
+\section{Proofs-as-Processes}
+\label{sec:intro/pap}
+
+The \emph{proofs-as-processes} paradigm was introduced by Abramsky~\cite{abramsky-1994} and examined in more depth by Bellin and Scott~\cite{bellin_scott-1994}.
+It concerns the connection of linear logic to processes akin to the famous \emph{propositions-as-types}~\cite{wadler-2015} paradigm.
+In particular, Bellin and Scott examine how a deduction in classical linear logic can be used to synthesise a $\pi$-calculus~\cite{milner-1993} agent.
+That agent's behaviour mirrors the manipulation of propositional variables described by the deduction, with a correspondence between execution of the agent and cut elimination of the logic.
+
+There are further strands of work within the proofs-as-process paradigm that use linear logic to argue for process correctness.
+Caires and Pfenning~\cite{caires_pfenning-2010} describe a type system for $\pi$-calculus corresponding to the proof system of dual intuitionistic linear logic~\cite{barber-1996}.
+The types in this system can be viewed as session types, a wider concept introduced by Honda~\cite{honda-1993} which offers a type discipline for symmetric dyadic communication, such as between a server and a client in a distributed system.
+The connection between session types and linear logic is reinforced by the work of Wadler~\cite{wadler-2012} who, instead of using $\pi$-calculus, introduces the new calculus CP\@.
+While session types focus more on communication protocols of virtual agents in distributed systems, they give us confidence that well-formed linear logic deduction is good evidence for correctness of a process.
+
+As such, we take adherence to the rules of linear logic as a formalisation of process correctness.
+However, instead of synthesising processes from deduction, we compose processes independently in a way that all valid compositions reflect well-formed deductions in intuitionistic linear logic.
+We verify this in Chapter~\ref{ch:linearity} by mechanising deductions of ILL in Isabelle/HOL and then defining exactly how compositions map to them.
+Note that we do not formalise a notion of execution for process compositions and thus, unlike Bellin and Scott, we do not relate execution to cut elimination.
+Nevertheless, our processes take some inspiration from deductions of ILL as well as from the proofs-as-processes literature.
+
+\subsection{WorkflowFM}
+\label{sec:intro/pap/wfm}
+
+One application of the proofs-as-processes paradigm, and a significant source of inspiration for our framework, is WorkflowFM~\cite{papapa_fleuriot-2017}, a formal framework for modelling and deploying workflows, which we previously worked on.
+At its core is a reasoner based on HOL~Light~\cite{harrison-2009} which accepts instructions from a graphical user interface and performs automated deduction in a deeply-embedded classical linear logic (CLL).
+Following the proofs-as-processes paradigm, specifically the work of Bellin and Scott, the reasoner produces a $\pi$-calculus process as a side-effect of the deduction.
+The generated $\pi$-calculus term can be deployed into a framework implemented in Scala for the purposes of simulation and monitoring.
+WorkflowFM has been applied in the medical and manufacturing domains~\cite{manataki_et_al-2017,papapa_fleuriot-2015,papapa_et_al-2021}.
+
+Our current framework takes a similar perspective on processes, viewing them as actions connected by their inputs and outputs, and similarly targets physical processes such as manufacturing.
+However, our connection to linear logic is looser than that of WorkflowFM: its processes are side-effects of deduction while ours are separate objects that can be used to construct a deduction on demand.
+This decoupling has three notable effects.
+
+First it means that modelling with our framework is not slowed down by the proof assistant.
+With WorkflowFM, interaction with the prover is a constant part of the modelling process as each operation triggers proof search.
+We instead verify the operations of our framework ahead of time so that modelling can proceed independently using just the generated verified code.
+This change speeds up the modelling action-response loop and makes programs that create compositions easier to implement.
+
+Second, we are not limited to \emph{classical} linear logic.
+Our switch to \emph{intuitionistic} linear logic allows us to express higher-order processes using its linear implication.
+In CLL linear implication is syntactic sugar, with $A \multimap B = A^\bot \mathbin{\rotatebox[origin=c]{180}{\&}} B$.
+But the same can also mean an ordinary process from $A$ to $B$, making higher-order processes indistinguishable from ordinary processes.
+As a result, WorkflowFM cannot express higher-order processes distinctively as can be done in our framework.
+
+Third, our notion of correctness is not limited to linear logic.
+In WorkflowFM, correct processes are side-effects of deduction and so changing the notion of correctness would mean changing the logic.
+In our framework, process composition correctness is expressed by a predicate on the composition itself (see Section~\ref{sec:proc/valid}).
+Correctness with respect to linear logic is expressed by our translation into well-formed deductions of ILL\@.
+But, if we were to add more correctness conditions, then that translation would still work and we would only have to further verify those additional conditions.
+
+As a final note, the WorkflowFM framework includes a graphical user interface for composing processes, where processes are visualised using diagrams.
+Those diagrams are implemented entirely outside of the formal environment and, as a result, their faithfulness to the process formalism cannot be verified.
+In contrast, our framework includes a formal connection of process compositions to port graphs, as described in Chapter~\ref{ch:port_graphs}, which can serve as a basis for visualisation.
+
+\cbstart
+\section{Interactive Theorem Proving}
+\label{sec:intro/itp}
+
+Automated and interactive theorem proving both involve the use of computers to check proofs in some formal logical system.
+In the case of automated theorem proving, the computer is also tasked with finding the proof itself, while in the interactive setting the user guides the proof construction.
+The interactivity lets us tackle more complex problems, where automated procedures might not find a proof, but it comes at the cost of needing manual intervention.
+In practice, modern interactive theorem provers often integrate with automated theorem provers and offload simpler goals to these, allowing the user to focus on more complex, higher-level reasoning.
+
+Since our aim is to produce a framework that has been formally verified rather than to fully automatically produce proofs as part of its day-to-day use, we choose to use an interactive theorem prover.
+This also allows us to annotate the proofs as we build them, shaping them to be more readable than ones found automatically, which aids the trustworthiness of our formalisation.
+
+There are two popular approaches to interactive theorem provers: the Logic of Computable Functions (LCF)~\cite{scott-1993} approach and the calculus of constructions (CoC)~\cite{coquand_huet-1986}.
+Since we use Isabelle/HOL, which follows the LCF approach, we focus our discussion on the former, but we also briefly recount the CoC approach.
+
+In the LCF approach, first mechanised by Milner~\cite{milner-1976}, we use the type system of a host language to reduce soundness of proofs to a small kernel that can be manually analysed and trusted.
+This can be done by using abstract types, so that the only way to construct an object of type ``theorem'' outside of this kernel is by using sound operations.
+The rest of the formal environment is then built up from these basic operations using the full range of programming constructs available in the language.
+This approach is used, for instance, by HOL~\cite{gordon_melham-1993}, HOL~Light~\cite{harrison-2009} and Isabelle~\cite{paulson-1994}.
+
+The CoC approach is itself a dependent type theory, often extended to include (co)inductive types.
+This means that, in contrast to LCF's use of the host language type system, here the theory \emph{is} the type system.
+Moreover, systems based on the CoC use dependent type theory, while systems based on LCF use simple type theory.
+The calculus of constructions is used, for instance, by Rocq~\cite{coq-2024} and Lean~\cite{demoura_ullrich-2021}.
+
+We use Isabelle/HOL, which is an axiomatisation of higher-order logic in the generic proof assistant Isabelle~\cite{paulson-1994}.
+Beyond our familiarity with the system, its advantages lie in its mature proof language resembling written mathematics, a wide range of proof automation tools and its ability to automatically generate executable code from our definitions.
+In the rest of this section we give more detail on Isabelle/HOL and of its use in our work.
+
+There is nothing in our experience that leads us to believe that an analogous mechanisation could not be achieved using other proof assistants.
+While we have not found ourselves limited by the simple type theory, a system based on a more involved type theory may allow us to express certain concepts more concisely.
+For instance, what we now achieve with a combination of datatype and relation --- such as valid compositions (see Section~\ref{sec:proc/valid}) and well-formed port graphs (see Section~\ref{sec:port_graphs/mech/base_locale}) --- other systems may be able to express with just the type.
+Additionally, the automation available for specification, proving and code generation differs from tool to tool.
+We have found Isabelle/HOL to be comfortably up to the present task.
+
+\subsection{Isabelle/HOL}
+\label{sec:intro/itp/isabelle}
+
+We mechanise our work in the proof assistant Isabelle~\cite{paulson-1994} using higher-order logic (HOL).
+As we noted previously, Isabelle follows the LCF approach with the host language being ML~\cite{milner_et_al-1990}, forming a general basis in which many logical systems can be axiomatised.
+We use the axiomatisation of higher-order logic, known as Isabelle/HOL\@.
+
+When working with an LCF-style proof assistant, we find it helpful to follow the HOL methodology: making extensions to the theory in a conservative manner, using definitions instead of axiomatisations.
+A bad definition is at worst not useful, while a bad set of axioms may hide an inconsistency and allow us to ``prove'' false statements without the kernel needing to be compromised.
+As such, our work consists of definitions --- of datatypes, relations, functions and logical locales --- and no axioms.
+
+Isabelle provides the proof language Isar~\cite{wenzel-1999} which is close to the language of mathematical proofs.
+This aids in readability and maintainability of the statements and their proofs, and seamlessly integrates with all the automation available in Isabelle.
+
+It also includes Sledgehammer~\cite{blanchette_et_al-2011}, which allows the user to invoke a number of automated theorem provers on a specified goal with the aim of finding its proof.
+If they succeed, then their output is used as a guide by Isabelle to reconstruct the proof using its own internal methods.
+This is especially useful for finding proofs of simpler subgoals, allowing us to concentrate on higher-level reasoning.
+Even when unsuccessful, the output may contain information about where the proof lies or that the statement is false.
+
+We found the combination of Isar and Sledgehammer invaluable when mechanising our theory.
+The robustness of Isar means that, in many cases, when we make a change deep in a formalisation many of the proofs following it will still work.
+Moreover, with Sledgehammer even those proofs that require different justification can often be rapidly adapted.
+Thus, what is left for us to focus on are the core implications of the change.
+This removes much of the cost of exploration and allows us to rapidly iterate through ideas.
+
+\subsection{Isabele/HOL Syntax}
+\label{sec:intro/itp/syntax}
+\cbend
+
+In this thesis we use Isabelle/HOL code blocks to introduce definitions and theorem statements, with terms rendered in italics.
+These definitions include inductive datatypes (\isa{\isacomm{datatype}}), recursive functions (\isa{\isacomm{function}} and \isa{\isacomm{fun}}) including primitively recursive ones (\isa{\isacomm{primrec}}),\cbar{ inductive relations (\isa{\isacomm{inductive}}),} and general definitions (\isa{\isacomm{definition}}).
+\cbar{Proven theorems start with the keyword \isa{\isacomm{lemma}}, followed by a name and then the statement being proven.
+In most cases we omit the proofs of our lemmas for the sake of space.}
+Type variables are preceded by \isa{\isacharprime} as for instance in \isa{\isatv{a}}.
+We also use Isabelle/HOL syntax inline when talking about formal entities, such as the empty list constructor \isa{Nil}.
+
+In our formal statements we use the following Isabelle/HOL notation:
+\begin{itemize}
+  \item Meta-level implication: \isa{{\isasymlbrakk}\isafv{P}{\isacharsemicolon}\ \isafv{Q}{\isasymrbrakk}\ \isasymLongrightarrow\ \isafv{P}\ \isasymand\ \isafv{Q}} expresses the conjunction introduction rule from the assumptions \isa{\isafv{P}} and \isa{\isafv{Q}};
+  \item List construction: \isa{\isalist{\isafv{x},\ \isafv{y}}\ =\ \isafv{x}\ \isacharhash\ \isalist{\isafv{y}}};
+  \item List append: \isa{\isalist{\isafv{x},\ \isafv{y}}\ =\ \isalist{\isafv{x}}\ \isacharat\ \isalist{\isafv{y}}};
+  \item List to set conversion: \isa{set\ \isalist{1,\ 2,\ 7,\ 4,\ 2}\ \isacharequal\ \isabraces{1,\ 2,\ 4,\ 7}}
+  \item List quantifiers: \isa{list{\isacharunderscore}all\ \isafv{P\ xs}\ \isacharequal\ \isapars{{\isasymforall}\isabv{x}\ \isasymin\ set\ \isafv{xs}{\isachardot}\ \isafv{P}\ \isabv{x}}} and\\
+    \isa{list{\isacharunderscore}all2\ \isafv{P\ xs\ ys}\ \isacharequal\ \isapars{{\isasymforall}\isapars{\isabv{x},\ \isabv{y}}\ \isasymin\ set\ \isapars{zip\ \isafv{xs\ ys}}{\isachardot}\ \isafv{P}\ \isabv{x\ y}}}
+  \item Function image: \isa{\isafv{f}\ {\isacharbackquote}\ \isabraces{\isafv{x},\ \isafv{y},\ \isafv{z}}\ \isacharequal\ \isabraces{\isafv{f\ x},\ \isafv{f\ y},\ \isafv{f\ z}}}
+  \item String literal: \isa{\isaString{Hello\ World}}.
+\end{itemize}
+
+\cbstart
+\subsection{Extraction of Code from Isabelle/HOL}
+\label{sec:intro/itp/codegen}
+
+To make practical use of our framework, we take advantage of the code generator~\cite{isabelle-codegen} included in Isabelle/HOL\@.
+Given a set of formal objects to export, this system takes the definitions we make and the theorems we prove, and transforms them into executable code in one of several target languages.
+By default, Isabelle is distributed with support for SML~\cite{milner_et_al-1990}, OCaml~\cite{OCaml}, Haskell~\cite{jones_et_al-2003} and Scala~\cite{odersky_et_al-2004}, and support for Go~\cite{stubinger_hupel-2025} is available on the Archive of Formal Proofs~\cite{Go-AFP}.
+We will focus our attention on Haskell, but in principle any of these languages could be used in its place.
+
+The code generator first collects code equations for all the requested formal objects, which can come directly from their definitions or from proven theorems.
+It then recursively collects all other formal objects needed for those code equations until it has all that it needs, and preprocesses them using a configurable range of proven theorems.
+This preprocessing step can for instance be used to replace certain functions with more performant variants, as long as we can prove them to be equal on all inputs.
+
+The final code equations are translated into an intermediate functional language, called Thingol, which is then serialised into source code of the selected target language.
+The code equations, and any preprocessing done on them, are part of the logical environment of Isabelle, and thus verified.
+Only the translations into Thingol and into the target language fall outside the logic.
+
+In practice, for most of our formalisation the code generation is set up by the specification tools themselves: inductive datatypes, primitively recursive functions and plain definitions.
+However, there is a case where we need to manually bridge the gap from our specification to executable code: the resource term equivalence in Section~\ref{sec:res/quot}, whose inductive relation definition does not automatically yield a code equation.
+It is only once we prove that the equivalence can be decided by a rewriting normalisation procedure that we can register a code equation for it (see Section~\ref{sec:res/rewr/equivalence}).
+
+The ability to extract executable code from our definitions enables us to work with the formal objects outside of the proof assistant.
+This means that we can use them in informal contexts, such as drawing diagrams like those we discuss in Section~\ref{sec:proc/diag}.
+It also means that, if we wish to only construct and consume the process compositions and not make proofs about them, we need not be slowed down by a fully formal environment (see for instance the case study in Section~\ref{sec:cases/three-socks}).
+Throughout this we have an assurance that the code we are working with accurately reflects the verified theory.
+\cbend
+
+\section{Conclusion}
+\label{sec:intro/conc}
+
+In the next chapter, we introduce our notion of resources.
+They are the foundation on which we build process compositions, representing their inputs and outputs, and feature throughout the rest of our work.
+
+\ifstandalone
+\bibliographystyle{plainurl}
+\bibliography{references}
+\fi
+
+\end{document}

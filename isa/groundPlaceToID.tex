@@ -1,0 +1,6 @@
+\isacomm{definition}\isamarkupfalse%
+\ groundPlaceToID\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isatv{p}\ list\ {\isasymRightarrow}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharparenright}\ place\ {\isasymRightarrow}\ String{\isachardot}literal{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{groundPlaceToID}\ \isabv{prefix\ p}\ {\isacharequal}\isanewline
+\ \ \ \ \isafv{pathToString}\ {\isacharparenleft}\isabv{prefix}\ {\isacharat}\ place{\isacharunderscore}name\ \isabv{p}{\isacharparenright}\ {\isacharplus}\isanewline
+\ \ \ \ elkSideToString\ {\isacharparenleft}\isafv{portSideToELK}\ {\isacharparenleft}port{\isachardot}side\ {\isacharparenleft}place{\isacharunderscore}port\ \isabv{p}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharplus}\isanewline
+\ \ \ \ String{\isachardot}implode\ {\isacharparenleft}show\ {\isacharparenleft}port{\isachardot}index\ {\isacharparenleft}place{\isacharunderscore}port\ \isabv{p}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}

@@ -1,0 +1,731 @@
+\documentclass[class=smolathesis,crop=false]{standalone}
+
+\usepackage{standalone}
+
+% For transparency in update visualisation
+\usepackage{transparent}
+
+\begin{document}
+
+\chapter{Probabilistic Resources}
+\label{ch:prob}
+
+Our non-deterministic resources (introduced in Chapter~\ref{ch:res}) represent possible outcomes of a process, with optional composition (introduced in Section~\ref{sec:proc/type/comp}) building non-deterministic actions reacting to those outcomes.
+When we aim to distil quantitative information from a process compositions, such as the number of steps taken or the total amount of some resource (e.g.\ electricity) consumed, we may need to weigh the contribution of different execution paths if any part of the process reacts to such non-deterministic outcomes.
+Without more information, we can at best use unrepresentative values such as assuming all outcomes are equally likely.
+
+In this chapter we explore how such probabilistic information could be added to our non-deterministic resources.
+With this, we can weigh the contribution of different execution paths by their relative probability and arrive at an expected value for the numeric information we seek.
+
+Note, however, that sometimes it may not be appropriate to give a non-deterministic outcome of an action any explicit probability.
+For instance, compare using a machine with a known failure rate to the probability of the password being wrong in a log-in process.
+The latter is nearly impossible to accurately quantify without access to large amounts of data and is likely to vary significantly between different users.
+To ensure that framework can express both situations, we make the probability information optional when extending our resources.
+Uses of that information are then conditional on its presence, a fact enforced by the type system of both Isabelle/HOL and any target languages such as Haskell or OCaml.
+
+We proceed with this exploration by progressively extending the framework described in the preceding chapters and addressing the resulting issues.
+We set some general context by looking at related work in the next section.
+Then in Section~\ref{sec:prob/add-prob-info}, we describe how we extend our mechanisation of resources to carry the probabilistic information.
+This is done with minimal use of the information itself, mainly to observe the effects of its presence.
+In Section~\ref{sec:prob/complications} we discuss complications to process compositions arising from that information being present, and in Section~\ref{sec:prob/simple-opt} we discuss our approach to alleviating those complications.
+This includes three new equations for our resource algebra (one described in Section~\ref{sec:prob/simple-opt/no-matter} and two in Section~\ref{sec:prob/simple-opt/inject-eqs}), each working to uncover implicit forms of determinism in the resources and thus simplify them.
+We close with concluding remarks and future work in Section~\ref{sec:prob/conc}.
+
+Isabelle/HOL makes the process of extending our theory significantly smoother than it might be if we were not using a proof assistant, because every change we make in the theory instantly propagates to parts depending on it.
+Every definition and proof following the change is re-run and either still works after the change or it is highlighted by the system.
+At such breakages, we are given the state just before and a description of the issue.
+This makes fundamental changes to the theory easier to enact, because we can focus on newly arisen issues while trusting that proofs not highlighted by Isabelle/HOL are still fully correct.
+
+\section{Related Work}
+\label{sec:prob/related}
+
+Many process calculi include the information we are concerned with in a stochastic manner: the probability of certain action outcomes is not described directly as a probability distribution but is the result of different actions racing to complete with delays generated according to a random distribution.
+Most often this distribution is the negative exponential distribution, which describes the time between events of a Poisson process, because it has mathematical properties aiding in efficient model parameterisation and simulation (e.g.\ it is memory-less).
+This approach is for instance taken by generalised stochastic Petri nets~\cite{murata-1989}, the stochastic $\pi$-calculus~\cite{milner-1993} and PEPA~\cite{hillston-1996}.
+
+This is in contrast to our approach in this chapter, where we assign the probability distribution explicitly within the resource describing the action output.
+We find that having two actions racing to completion, with one being the winner and outcome as if the other did not happen, would clash with the notion of linearity in our processes.
+
+Recall that our framework for process composition is inspired by linear logic (see Chapter~\ref{ch:linearity} for the formal connection to ILL).
+While linear logic does not concern itself with probabilities, Horne~\cite{horne-2019} introduces the notion of sub-additives to linear logic and links it to probabilistic choice in processes.
+This refinement of additive operators of linear logic is along the same lines as our extensions of non-deterministic resources in this chapter.
+Horne's work thus opens the possibility of verifying probabilistic aspects of our framework with (this extension of) linear logic, not just their linearity.
+While we do not do so at present, we note this as part of future work in Section~\ref{sec:prob/conc}.
+
+Recall also WorkflowFM, which is the most significant inspiration for our approach (see Section~\ref{sec:intro/pap/wfm}).
+The process models of WorkflowFM do not themselves include probabilistic information.
+However, part of the larger framework is an agent-based simulator for deployed models with which we can carry out stochastic simulations for an implementation of the process~\cite{papapa_et_al-2021}.
+This is unlike the present work, where we include the probabilistic information in the model itself.
+
+Finally, we should note that the concept of non-determinism can relate to multiple aspects of processes.
+In this chapter we focus on the non-determinism introduced by an action having multiple possible outcomes.
+However, another kind of non-determinism is introduced by the possible interleavings of parallel actions.
+See for instance the overview by Segala~\cite{segala-2006} for a discussion of both kinds of non-determinism and how different probabilistic process models refine them.
+We do not consider a probabilistic refinement of this second form of non-determinism at present.
+
+\section{Probability Theory in Isabelle/HOL}
+\label{sec:prob/bg}
+
+We now give a brief introduction to the way probability theory is mechanised in Isabelle/HOL.
+We focus on probability mass functions and their operations, as those are what we use in this chapter.
+
+We use the mechanisation of probability theory distributed with Isabelle as the session (collection of theories) \isa{HOL{\isacharunderscore}Probability}.
+This mechanisation is based on measure theory, and its core is described in H{\"o}lzl's thesis~\cite{holzl-2013} and further discussed in papers by H{\"o}lzl and Heller~\cite{holzl_heller-2011}, Avigad, H{\"o}lzl and Serafin~\cite{avigad_holzl_serafin-2017}, and H{\"o}lzl, Lochbihler and Traytel~\cite{holzl_lochbihler_traytel-2015}.
+The resulting probability theory has been used, for instance, to mechanise Markov Chains and Markov Decision Processes~\cite{holzl-2017} and a compiler for probability density functions described by probabilistic programs~\cite{eberl_holzl_nipkow-2015}.
+
+Intuitively, a measure is a collection of sets along with a function that assigns non-negative values to those sets such that the value it assigns to the union of two sets is the sum of the values it assigns to those sets.
+A probability distribution is a measure that assigns the value $1$ to the whole space --- in that context, we consider the whole space as the events and the measure as the probability of some subset of events.
+A probability mass function (PMF) is a distribution whose whole space is countable.
+As such, we can also view a PMF as a function assigning a real value to elements of the space that sums up to $1$.
+
+In Isabelle/HOL, PMFs over the type \isa{\isatv{a}} are represented by the type \isa{\isatv{a}\ pmf}.
+For instance, the Bernoulli distribution assigning probability \isa{\isafv{p}} to \isa{True} is \isa{bernoulli{\isacharunderscore}pmf\ \isafv{p}\ \ty\ bool\ pmf}.
+We use several functions to manipulate PMFs in our work:
+\begin{itemize}
+  \item \isa{map{\isacharunderscore}pmf\ \isafv{f\ p}} uses the function \isa{\isafv{f}} to transform the domain of the PMF \isa{\isafv{p}}.
+    Note that if two elements are mapped to the same one then this adds their probability.
+  \item \isa{pmf\ \isafv{p\ x}} is the probability that the PMF \isa{\isafv{p}} assigns to \isa{\isafv{x}}.
+  \item \isa{return{\isacharunderscore}pmf\ \isafv{x}} constructs the trivial PMF that assigns probability $1$ to \isa{\isafv{x}}.
+  \item \isa{bind{\isacharunderscore}pmf\ \isafv{p\ f}} uses \isa{\isafv{f}} to take every element in the space of the PMF \isa{\isafv{p}} to some PMF, and then combines those PMFs according to the probability that \isa{\isafv{p}} assigns to the relevant elements of its space.
+    We use its infix syntax: \isa{\isafv{p}\ \isasymbind\ \isafv{f}}.
+\end{itemize}
+
+To illustrate the function \isa{bind{\isacharunderscore}pmf}, consider the joint PMF defined as follows~\footnote{\url{https://isabelle.in.tum.de/dist/library/HOL/HOL-Probability/Probability_Mass_Function.html\#Probability_Mass_Function.pair_pmf|const}}:
+\begin{isadef}[Product PMF]{isa:pair_pmf}
+  \input{isa/definition-pair_pmf}
+\end{isadef}
+\noindent
+which assigns the expected probabilities:
+\begin{isalemma}[Probability of a pair in product PMF]{isa:pmf_pair}
+  \input{isa/lemma-pmf_pair}
+\end{isalemma}
+
+\section{Adding Probabilistic Information}
+\label{sec:prob/add-prob-info}
+
+The probabilistic information we add to our non-deterministic resources represents the probability distribution over the two children of that resource combination.
+We represent this with a PMF, because it is a probability distribution over a discrete domain: the first child and the second child.
+See Section~\ref{sec:prob/bg} for a brief overview of how PMFs and probability theory in general are mechanised in Isabelle/HOL.
+
+Another aspect of the information we are adding is its optional nature, because in some situations it is not possible to assign reasonable probabilities to the outcomes.
+For this we use the option monad, which in Isabelle/HOL is mechanised as the type \isa{\isatv{a}~option} for contents represented by type \isa{\isatv{a}}.
+It has two constructors, \isa{Some\ \isatv{x}} and \isa{None}, that respectively wrap an existing value and represent absence.
+
+The last aspect is the actual domain we will use for the PMF.
+Because it only needs to have two elements, we could use the type \isa{bool}, for instance representing an answer to ``do you mean the first child?''
+But, to make our code more readable, in Definition~\ref{isa:bchoice} we define a new datatype called \isa{bchoice} (as in, ``binary choice'') with two elements: \isa{First} and \isa{Second}.
+For convenience, we use the existing Bernoulli distribution in Definition~\ref{isa:first_pmf} to define \isa{first{\isacharunderscore}pmf\ \isafv{p}}, which assigns probability \isa{\isafv{p}} to \isa{First} and \isa{\isadigit{1}~\isacharminus~\isafv{p}} to \isa{Second}.
+
+\begin{isadef}[Datatype annotating binary choice]{isa:bchoice}
+  \input{isa/datatype-bchoice}
+\end{isadef}
+
+\begin{isadef}[Binary choice PMF from the first option's probability]{isa:first_pmf}
+  \input{isa/definition-first_pmf}
+\end{isadef}
+
+\subsection{Extending Resources}
+\label{sec:prob/add-prob-info/res}
+
+Bringing all of these together in one parameter, we expand the non-deterministic resource term constructor and rename it to \isa{NonD\isactrlsub{P}}:
+\begin{changebar}
+\begin{isadef}[Updated datatype of resource terms]{isa:res_term-probabilistic}
+  \input{isa/datatype-res_term-probabilistic}
+\end{isadef}
+\end{changebar}
+
+After this change, we also update all of the resource theory to accommodate the new parameter.
+At this stage we avoid making extensive use of the new information, such as in the resource term equivalence, which will be covered in the next sections.
+Thus, for two \isa{NonD\isactrlsub{P}} terms to be equivalent they have to be assigned the same probabilistic information.
+Updating all of the resource theory is mechanical, showing that expanding the information that resources carry is unproblematic for that part of our framework.
+
+As an example, at this point we can express the outcome of using a laser cutting machine with 30\% failure rate as the following resource:
+\begin{isabelle}
+\centering
+  NonD\isactrlsub{P}\ \isapars{Some \isapars{first{\isacharunderscore}pmf\ \isadigit{0}{\isachardot}\isadigit{7}}}\ \isapars{Res\ Cutter\ \isasymodot\ Res\ CutShape}\ \isapars{Res\ CutterBlocked}
+\end{isabelle}
+
+\subsection{Extending Compositions}
+\label{sec:prob/add-prob-info/proc}
+
+When it comes to the process theory, we need to match the expanded \isa{NonD\isactrlsub{P}} resources by adding that same probabilistic information parameter (\isa{bchoice\ pmf\ option}) to the relevant constructors.
+These are: the optional composition \isa{Opt}, and the resource actions \isa{OptDistrIn} and \isa{OptDistrOut}.
+Note that we do not need such a parameter in \isa{InjectL} and \isa{InjectR}, even though their outputs involve non-deterministic resources, because the probabilistic information they use is constant: full probability of $1$ towards the first and second child respectively.
+
+With this information we can update the \isa{input} and \isa{output} functions (originally given in Definition~\ref{isa:input-output}) to provide the relevant information to \isa{NonD\isactrlsub{P}} resources.
+We use either a new parameter of the process (here named \isa{\isabv{d}} in all cases) or a constant (via \isa{first{\isacharunderscore}pmf}), yielding the following new defining equations:
+\begin{isadefraw}[Probabilistic input and output definitions]{isa:prob-input-output}
+  \includestandalone{fig-io-prob}
+\end{isadefraw}
+
+The rest of the adjustments just mechanically account for the new parameters.
+Note that, at this stage, we do not yet make any changes to process composition validity, meaning optional composition still requires that the outputs of the two child processes be equal.
+As a result, we lose our original way of transforming branches of a non-deterministic resource without merging them, because it relies on \isa{InjectL} and \isa{InjectR} actions whose outputs now differ (see Section~\ref{sec:proc/type/res}).
+We address this point in the remainder of this chapter\cbar{ after describing how we adjust linearity demonstration from Chapter~\ref{ch:linearity}}.
+
+\subsection{Linearity Demonstration Through ILL}
+\label{sec:prob/add-prob-info/ill}
+
+The adjustment needed for the ILL translation demonstrating our compositions' linearity (see Chapter~\ref{ch:linearity}) is almost as simple and mechanical as the adjustment to resources.
+Its crucial point is that ILL cannot express probabilistic information, so in our translation of resources into ILL propositions we are forced to drop that part of \isa{NonD\isactrlsub{P}} resources.
+While this renders the translation no longer injective, because resources only differentiated by their probabilistic information go to the same proposition, all of the properties mentioned in Chapter~\ref{ch:linearity} still hold.
+
+As noted in Section~\ref{sec:proc/valid}, if our framework was fully reliant on linear logic, then we could not include in our processes and resources information that the logic cannot express.
+The advantage of our loosened relation is that we can use linear logic to demonstrate linearity while remaining able to include further concepts in our process compositions.
+This makes our framework easy to extend, as seen in this chapter.
+
+\subsection{Summary}
+
+In the previous sections, we discussed how to extend resources with optional probabilistic information for non-deterministic resources, without yet making significant use of it.
+We observed that the mere addition of this information preserves the vast majority of the proven statements in our theory.
+The exception are its effects on what compositions are considered valid, particularly in the presence of injection actions whose outputs are made distinct by the probabilistic information.
+In the next sections we make use of the probabilistic information and adjust optional composition in its presence.
+
+In all of the above changes to our mechanisation, the automation available in Isabelle is invaluable.
+In most cases it assures us that our changes to the constructors do not break proofs without costly manual re-checking.
+Where proofs of true statements do break, our use of the structured Isar language and the integration of automated provers through Sledgehammer aids in their quick patching.
+And in statements that are no longer true, the identification of the precise point of proof failure helps us understand why the statement is no longer true.
+
+\section{Complications to Composition Validity}
+\label{sec:prob/complications}
+
+While adding probabilistic information allows us to express the relative likelihood of actions outcomes, it comes at a cost.
+This new information, by virtue of distinguishing some resources that would have previously been considered equal, complicates process composition validity (defined in Section~\ref{sec:proc/valid}).
+
+For an example of this issue, recall the approach for progressing both branches of a non-deterministic resource described in Section~\ref{sec:proc/type/res}.
+Given two processes, \isa{\isafv{P}:~\isafv{x}~\isasymrightarrow~\isafv{a}} and \isa{\isafv{Q}: \isafv{y}\ \isasymrightarrow\ \isafv{b}}, we follow each up with the relevant injection action into \isa{NonD\ \isafv{a\ b}} (that is, \isa{InjectL} and \isa{InjectR} respectively) and then compose the results using \isa{Opt}.
+The final composition was valid because both branches had the same output, resulting in:
+\begin{isabelle}
+\centering
+  \isapars{Opt\ \isapars{Seq\ \isafv{P}\ \isapars{InjectL\ \isafv{a\ b}}\ \isapars{Seq\ \isafv{Q}\ \isapars{InjectR\ \isafv{a\ b}}}}}:\ NonD\ \isafv{x\ y}\ \isasymrightarrow\ NonD\ \isafv{a\ b}
+\end{isabelle}
+
+However, with the addition of probabilistic information, those outputs are now different because they assign different probabilities: \isa{first{\isacharunderscore}pmf\ 1} and \isa{first{\isacharunderscore}pmf\ 0} respectively.
+While this now violates the validity condition, we would intuitively expect this composition to still be valid and for it to combine the two outputs in a way that weighs the relative probabilities of taking each branch, resulting in:
+\begin{isabelle}
+\centering
+  \isapars{Opt\ \isafv{d\ P\ Q}}:\ NonD\isactrlsub{P}\ \isafv{d\ x\ y}\ \isasymrightarrow\ NonD\isactrlsub{P}\ \isafv{d\ a\ b}
+\end{isabelle}
+
+It is thus clear that the validity condition on \isa{Opt} and the way its output is formed must change in the presence of probabilistic information.
+Our approach to this change is detailed in the following sections.
+
+\section{Simple Optional Composition}
+\label{sec:prob/simple-opt}
+
+Recall that, in its original form, optional composition applies two processes to the non-deterministic combination of their inputs with the aim of producing a common output and thus merging the branches.
+In the presence of probabilistic information this is now too restrictive.
+We find that the simplest way of changing optional composition is for it to no longer aim to merge the outputs and instead produce their non-deterministic combination, thus allowing the processes to have any outputs.
+
+More formally, recall the original definition of the optional composition validity (Definition~\ref{isa:valid}) and output (Definition~\ref{isa:input-output}):
+\begin{isabelle}
+\centering
+  valid\ \isapars{Opt\ \isafv{x\ y}}\ \isasymequiv\ valid\ \isafv{x}\ \isasymand\ valid\ \isafv{y}\ \isasymand\ output\ \isafv{x}\ \isacharequal\ output\ \isafv{y}
+\item
+  output\ \isapars{Opt\ \isafv{x\ y}}\ \isacharequal\ output\ \isafv{x}
+\end{isabelle}
+We change these two defining equations to the following:
+\begin{isabelle}
+\centering
+  valid\ \isapars{Opt\ \isafv{d\ x\ y}}\ \isasymequiv\ valid\ \isafv{x}\ \isasymand\ valid\ \isafv{y}
+\item
+  output\ \isapars{Opt\ \isafv{d\ x\ y}}\ \isacharequal\ NonD\isactrlsub{P}\ \isafv{d}\ \isapars{output\ \isafv{x}}\ \isapars{output\ \isafv{y}}
+\end{isabelle}
+
+Using this condition and output for \isa{Opt} allows us to once again optionally compose processes whose outputs were rendered different by the probabilistic information.
+But, because optional composition no longer merges the two processes' outputs, we lose the only way of eliminating non-determinism in resources.
+Even with equal outputs, say \isa{\isafv{r}}, we get the output resource \isa{NonD\isactrlsub{P}\ \isafv{d\ r\ r}}.
+As such, resource expressions can quickly grow unwieldy.
+
+However, we can control some of that non-deterministic resource complexity with resource equations.
+We explore two examples in the next sections:
+\begin{enumerate*}[label=(\roman*)]
+  \item merging the two branches when they are the same, just like optional composition did before our change, and
+  \item taking advantage of the probabilistic information to internalise the actions \isa{InjectL} and \isa{InjectR} in the resource algebra.
+\end{enumerate*}
+Both of these express a kind of ``hidden determinism'' in the resource, and use it to simplify the resource expression.
+
+Before we add those equations, let us briefly turn to the translation of process compositions into ILL deductions, which needs to be fixed after our change to validity and output of optional composition.
+Previously, the linearity of this composition action was demonstrated using the ${\oplus}_L$ rule of ILL.
+That is, denoting \isa{resource-to-ill~\isafv{r}} with \isa{\isarestran{\isafv{r}}}, for processes \isa{\isafv{P}: \isafv{x}\ \isasymrightarrow\ \isafv{a}} and \isa{\isafv{Q}: \isafv{y}\ \isasymrightarrow\ \isafv{b}} we used the following deduction:
+\begin{prooftree}
+  \AxiomC{\isa{to-deduct\ \isafv{P}}}
+  \noLine
+  \UnaryInfC{\vdots}
+  \noLine
+  \UnaryInfC{\isa{\isalist{\isarestran{\isafv{x}}}\ \isasymturnstile\ \isarestran{\isafv{a}}}}
+  \AxiomC{\isa{to-deduct\ \isafv{Q}}}
+  \noLine
+  \UnaryInfC{\vdots}
+  \noLine
+  \UnaryInfC{\isa{\isalist{\isarestran{\isafv{y}}}\ \isasymturnstile\ \isarestran{\isafv{b}}}}
+  \RightLabel{$\oplus_L$ (\isa{\isafv{a}\ \isacharequal\ \isafv{b}})}
+  \BinaryInfC{\isa{\isalist{\isarestran{\isafv{x}}\ \isasymoplus\ \isarestran{\isafv{y}}}\ \isasymturnstile\ \isarestran{\isafv{a}}}}
+\end{prooftree}
+
+Because we removed the assumption on which this deduction relies (\isa{\isafv{a}\ \isacharequal\ \isafv{b}}) and changed the composition output, we now also need to use the ${\oplus}_{R-1}$ and ${\oplus}_{R-2}$ rules to make the deduction well-formed again.
+For the same processes we now use the following deduction:
+\begin{prooftree}
+  \AxiomC{\isa{to-deduct\ \isafv{P}}}
+  \noLine
+  \UnaryInfC{\vdots}
+  \noLine
+  \UnaryInfC{\isa{\isalist{\isarestran{\isafv{x}}}\ \isasymturnstile\ \isarestran{\isafv{a}}}}
+  \RightLabel{${\oplus}_{R-1}$}
+  \UnaryInfC{\isa{\isalist{\isarestran{\isafv{x}}}\ \isasymturnstile\ \isarestran{\isafv{a}}\ \isasymoplus\ \isarestran{\isafv{b}}}}
+  \AxiomC{\isa{to-deduct\ \isafv{Q}}}
+  \noLine
+  \UnaryInfC{\vdots}
+  \noLine
+  \UnaryInfC{\isa{\isalist{\isarestran{\isafv{y}}}\ \isasymturnstile\ \isarestran{\isafv{b}}}}
+  \RightLabel{${\oplus}_{R-2}$}
+  \UnaryInfC{\isa{\isalist{\isarestran{\isafv{y}}}\ \isasymturnstile\ \isarestran{\isafv{a}}\ \isasymoplus\ \isarestran{\isafv{b}}}}
+  \RightLabel{$\oplus_L$}
+  \BinaryInfC{\isa{\isalist{\isarestran{\isafv{x}}\ \isasymoplus\ \isarestran{\isafv{y}}}\ \isasymturnstile\ \isarestran{\isafv{a}}\ \isasymoplus\ \isarestran{\isafv{b}}}}
+\end{prooftree}
+
+\subsection{When Probability Does Not Matter}
+\label{sec:prob/simple-opt/no-matter}
+
+Our first step towards controlling the complexity of non-deterministic resources is to add a resource equation that recovers what optional composition was doing originally.
+That is, if we have a non-deterministic combination of resources that are equal, then we equate it with that child resource --- no matter which branch it ends up being, the outcome is the same.
+In Isabelle/HOL notation:
+\begin{isabelle}
+\centering
+  NonD\isactrlsub{P}\ \isafv{d\ x\ x}\ \isacharequal\ \isafv{x}
+\end{isabelle}
+
+To add this equation into the resource algebra, we need to add the relevant rule to resource term equivalence (Definition~\ref{isa:res_term_equiv}) and update the normalisation procedure (see Section~\ref{sec:res/rewr}).
+The implications of this change will then propagate through the rest of the resource and process theory.
+Isabelle's automation is invaluable in making this process smooth.
+
+Note that this resource equation does not make use of the probabilistic information.
+We present it here, because in the presence of probabilistic information and the resulting issue this equation becomes vital to usability of our framework.
+However, changes analogous to those we describe here could be carried out in the non-probabilistic setting to achieve the same effects.
+
+\subsubsection{Resource Terms}
+\label{sec:prob/simple-opt/no-matter/term}
+
+The rule that we add to the resource term equivalence is almost identical to our target equation, just with \isa{\isacharequal} replaced with \isa{\isasymsim} and the two sides being resource \emph{terms}:
+\begin{isadef}[Additional equivalence when children are equal]{isa:res_term_equiv-no_matter}
+\centering
+  NonD\isactrlsub{P}\ \isafv{d\ x\ x}\ \isasymsim\ \isafv{x}
+\end{isadef}
+
+To update the normalisation procedure we first need to decide on the new normal form and then make the procedure pursue it.
+In this we aim towards the right-hand side of the new equivalence rule, because it is the simpler, shallower form.
+For the normal form represented by the predicate \isa{normalised} (Definition~\ref{isa:normalised}), we no longer consider any non-deterministic resource with equal children to be normalised:
+\begin{isadef}[Normal form that checks for equality of children]{isa:normalised-no_matter}
+\centering
+  {\isachardoublequoteopen}normalised\ {\isacharparenleft}NonD\isactrlsub{P}\ \isafv{d\ x\ y}{\isacharparenright}\ {\isasymequiv}\ normalised\ \isafv{x}\ {\isasymand}\ normalised\ \isafv{y}\ {\isasymand}\ \isafv{x}\ \isasymnoteq\ \isafv{y}{\isachardoublequoteclose}
+\end{isadef}
+
+To make the rewriting-based normalisation procedure pursue this new normal form, we make additions to both the rewriting relation specification and the rewriting step implementation.
+For the specifying relation (Definition~\ref{isa:res_term_rewrite}), we add a rule corresponding to the left-to-right direction of the new equation:
+\begin{isadef}[Additional term rewriting rule when children are equal]{isa:res_term_rewrite-no_matter}
+\centering
+  res{\isacharunderscore}term{\isacharunderscore}rewrite\ \isapars{NonD\isactrlsub{P}\ \isafv{d\ x\ x}}\ \isafv{x}
+\end{isadef}
+
+For the step implementation (Definition~\ref{isa:step}), we add a new case split on whether the normalised children are equal into the equation for \isa{NonD\isactrlsub{P}} terms:
+\begin{isadefraw}[Rewriting step that checks for equality of children]{isa:step-no_matter}
+  \begin{center}
+    \begin{minipage}{0.6\textwidth}
+      \begin{isabelle}
+        {\isachardoublequoteopen}step\ {\isacharparenleft}NonD\isactrlsub{P}\ \isafv{d}\ \isafv{x}\ \isafv{y}{\isacharparenright}\ {\isacharequal}\isanewline
+        \ \ {\isacharparenleft}\ \isaindent{else\ }\isanotation{if}\ {\isasymnot}\ normalised\ \isafv{x}\ \isanotation{then}\ NonD\isactrlsub{P}\ \isafv{d}\ {\isacharparenleft}step\ \isafv{x}{\isacharparenright}\ \isafv{y}\isanewline
+        \ \ \ \ \isanotation{else}\ \isanotation{if}\ {\isasymnot}\ normalised\ \isafv{y}\ \isanotation{then}\ NonD\isactrlsub{P}\ \isafv{d}\ \isafv{x}\ {\isacharparenleft}step\ \isafv{y}{\isacharparenright}\isanewline
+        \ \ \ \ \isanotation{else}\ \isanotation{if}\ \isafv{x}\ \isacharequal\ \isafv{y}\ \isanotation{then}\ \isafv{x}\isanewline
+        \ \ \ \ \isanotation{else}\ NonD\isactrlsub{P}\ \isafv{d}\ \isafv{x}\ \isafv{y}{\isacharparenright}{\isachardoublequoteclose}
+      \end{isabelle}
+    \end{minipage}
+  \end{center}
+\end{isadefraw}
+
+For the rewriting bound (Definition~\ref{isa:res_term_rewrite_bound}), which is used to prove that the normalisation procedure terminates, we add \isa{\isadigit{1}} to the original bound for non-deterministic resources to represent possibly merging the two children if they end up equal.
+
+In order for the full normalisation procedure \isa{normal{\isacharunderscore}rewr} to decide the resource term equivalence (see Section~\ref{sec:res/rewr/equivalence}), we require (among other simpler facts) that for every rule introducing the relation its two sides be joinable by a series of rewriting steps.
+We fulfil this obligation for the new rule by joining them according to the following diagram (where arrows represent rewriting steps and stars their reflexive and transitive closure):
+\begin{isabelle}
+\centering
+  NonD\isactrlsub{P}\ \isafv{d\ x\ x}\ \isasymrightarrow\isactrlsup{\isacharasterisk}\ NonD\isactrlsub{P}\ \isafv{d}\ \isapars{normal{\isacharunderscore}rewr\ \isafv{x}}\ \isapars{normal{\isacharunderscore}rewr\ \isafv{x}}\ \isasymrightarrow\ normal{\isacharunderscore}rewr\ \isafv{x}\ \isactrlsup{\isacharasterisk}\isasymleftarrow\ \isafv{x}
+\end{isabelle}
+
+As for the translation of resource terms to ILL propositions, a change to the resource term equivalence requires a change to the deduction demonstrating it in ILL (see Section~\ref{sec:linearity/equiv}).
+Just as the original definition of that deduction follows the original definition of the normalisation procedure, so do our changes to the deduction follow those we make to the normalisation procedure
+
+This concludes our changes to resource terms, which insert the new resource term equivalence and ensure the normalisation procedure decides that equivalence.
+We now turn to the rest of resource and process theory, where the added equivalence becomes an equation of resources and affects the rest of our framework.
+
+\subsubsection{Resources and Compositions}
+\label{sec:prob/simple-opt/no-matter/res-proc}
+
+Recall from Section~\ref{sec:res/quot} that resources are obtained as a quotient of resource terms by the equivalence relation \isa{\isasymsim}.
+In Section~\ref{sec:res/bnf} we described those resources inherit the Bounded Natural Functor structure from resource terms.
+Our proof of that fact (following Theorem~4 of F\"urer et al.~\cite{fuerer_et_al-2020}) relies on the resource term mapper \isa{map{\isacharunderscore}res{\isacharunderscore}term} commuting with the equivalence relation \isa{\isasymsim}.
+
+But this is no longer the case.
+Consider distinct resource atoms \isa{\isafv{A}} and \isa{\isafv{B}}.
+The resource term \isa{NonD\isactrlsub{P}\ \isafv{d}\ \isapars{Res\ \isafv{A}}\ \isapars{Res\ \isafv{B}}} is not equivalent to the term \isa{Res\ \isafv{A}}.
+But we can use \isa{map{\isacharunderscore}res{\isacharunderscore}term} to map both \isa{\isafv{A}} and \isa{\isafv{B}} to \isa{\isafv{A}}, resulting in \isa{NonD\isactrlsub{P}\ \isafv{d}\ \isapars{Res\ \isafv{A}}\ \isapars{Res\ \isafv{A}}} which is equivalent \isa{Res\ \isafv{A}} thanks to the newly added rule.
+As such, the resource term mapper does not commute with the equivalence relation.
+From a wider perspective, the issue lies in equivalence of resource terms now considering the \emph{content} of the terms, not jut their \emph{shape}.
+
+As a result, we no longer get a convenient automatic definition and set of theorems for the resource mapper and relator.
+But the resource mapper is vital for transforming processes between domains, allowing us to systematically translate the resources they use (see Section~\ref{sec:proc/transform/res-map}).
+We therefore lift the mapper definition from the term-level through the quotient, still calling it \isa{map{\isacharunderscore}resource}, and manually verify the properties it does retain: that mapping of identity is identity and that composition of mappers is a mapper of composition.
+
+Note that this more manual definition of the resource mapper is now not used in the automatically-generated mapper for process compositions.
+This means we need to manually define and verify an alternative process mapper to make use of it, which we call \isa{map{\isacharunderscore}process{\isacharprime}}.
+
+While these difficulties with the mappers are inconvenient, decreasing the level of automation in our mechanisation, they do not stand in the way of any important properties of resources and process compositions.\footnotemark
+
+\footnotetext{
+  An additional minor change is that the function \isa{parallel{\isacharunderscore}parts} (originally defined in Definition~\ref{isa:parallel_parts}) needs to check whether the two child terms in its \isa{NonD\isactrlsub{P}} equation are equivalent.
+  This makes it respect resource term equivalence and function properly when lifted to resources.
+  However, we make no further use of this function in the present chapter and, as such, gloss over the details.
+  }
+
+As for the translation of process compositions into ILL deductions, it only needs to be made more robust.
+Previously, because normalisation passed through the \isa{NonD} term constructor without changing it, we did not have to worry about it before and after the core deduction we described earlier in Section~\ref{sec:prob/simple-opt}.
+But, with the new equivalence rule, normalisation may change \isa{NonD\isactrlsub{P}} terms to simpler ones and we need to account for that around that core deduction.
+For instance, if both processes have the same input resource \isa{\isafv{x}}, then for the deduction translation to be well-formed we first need to turn \isa{resource{\isacharunderscore}to{\isacharunderscore}ill\ \isafv{x}} into \isa{resource{\isacharunderscore}to{\isacharunderscore}ill\ \isafv{x}\ \isasymoplus\ resource{\isacharunderscore}to{\isacharunderscore}ill\ \isafv{x}}.
+We do this using the deductions demonstrating resource term equivalence, which are originally defined in Section~\ref{sec:linearity/equiv}, by preceding and following the core deduction with deductions out of and into the relevant normal forms respectively.
+
+\subsubsection{Results}
+\label{sec:prob/simple-opt/no-matter/results}
+
+With this resource equation successfully added and process theory now updated, we regain the elimination feature of optional composition before our changes:
+\begin{isabelle}
+\centering
+  \isabrakk{\isafv{P}\isacharcolon\ \isafv{a}\ \isasymrightarrow\ \isafv{x}\isacharsemicolon\ \isafv{Q}\isacharcolon\ \isafv{b}\ \isasymrightarrow\ \isafv{x}}\ \isasymLongrightarrow\ \isapars{Opt\ \isafv{d\ P\ Q}}\isacharcolon\ NonD\isactrlsub{P}\ \isafv{d\ a\ b}\ \isasymrightarrow\ \isafv{x}
+\end{isabelle}
+
+Additionally, on top of recovering that behaviour, it now applies everywhere there is a non-deterministic resource.
+For instance, we can now express taking one of two actions on the same resource with any relative probability:
+\begin{isabelle}
+\centering
+  \isabrakk{\isafv{eatSoup}\isacharcolon\ Res\ Hungry\ \isasymrightarrow\ Res\ Bowl\isacharsemicolon\ \isafv{eatPasta}\isacharcolon\ Res\ Hungry\ \isasymrightarrow\ Res\ Plate}\ \isasymLongrightarrow\isanewline
+  \isapars{Opt\ \isafv{d\ eatSoup\ eatPasta}}\isacharcolon\ Res\ Hungry\ \isasymrightarrow\ NonD\isactrlsub{P}\ \isafv{d}\ \isapars{Res\ Bowl}\ \isapars{Res\ plate}
+\end{isabelle}
+
+Further, with this change it is now possible to illustrate how an expected value can be extracted from a non-deterministic process composition.
+Consider again a laser cutting machine with 30\% failure rate.
+Let using that machine to cut out a given shape be a primitive action that occupies the machine and consumes a metal plate, and may produce either the cut out shape and free the machine or block the machine.
+Then let fixing the machine be a primitive action that turns the blocked machine back into an available one, along with producing metal scrap for disposal.
+Furthermore, let the cost of operating the machine be \pounds20 and the cost of fixing it be \pounds30.
+We can formalise these two actions as follows:
+\begin{isadef}[Operating a faulty machine]{isa:operate}
+  \input{isa/definition-operate}
+\end{isadef}
+\pagebreak
+\begin{isadef}[Fixing a blocked machine]{isa:fix}
+  \input{isa/definition-fix}
+\end{isadef}
+
+Then, operating the machine and fixing any failure that occurs can be represented by the following composition (visualised in Figure~\ref{fig:operate_and_fix}):
+\begin{isadef}[Operating a faulty machine, possibly unblocking it]{isa:operate_and_fix}
+  \input{isa/definition-operate_and_fix}
+\end{isadef}
+resulting in the laser cutting machine being preserved while the metal plate is turned either into the cut out shape or scrap:
+\begin{isabelle}
+\centering
+  \isafv{operate{\isacharunderscore}and{\isacharunderscore}fix}:\ Res\ Cutter\ \isasymodot\ Res\ Plate\ \isasymrightarrow\isanewline
+  Res\ Cutter\ \isasymodot\ NonD\isactrlsub{P}\ \isapars{Some\ \isapars{first{\isacharunderscore}pmf\ \isadigit{0}.\isadigit{7}}}\ \isapars{Res\ CutShape}\ \isapars{Res\ Scrap}
+\end{isabelle}
+
+\begin{figure}[htbp]
+  \includesvg[width=\textwidth]{img/operate_and_fix.svg}
+  \caption{Process diagram for operating a faulty machine, with possibly fixing it}
+  \label{fig:operate_and_fix}
+\end{figure}
+
+\cbstart
+We can then define a function \isa{cost{\isacharunderscore}pmf}, given in Definition~\ref{isa:cost_pmf}, to calculate the distribution of cost from a process composition.
+It does so by associating individual actions with cost distributions, and composition actions with ways of combining PMFs.
+More specifically, for primitive actions we use a deterministic cost extracted from their metadata and for resource actions we use a deterministic zero cost (i.e.\ we consider those free).
+For sequential and parallel composition we form the joint distribution from the child PMFs and add each pair of values, adding up the costs of the two child processes.
+For optional composition we combine the child PMFs by weighing them using the overall PMF assigned to that composition action, or equally if the distribution in unspecified.
+\cbend
+
+\begin{isadef}[Cost PMF calculation]{isa:cost_pmf}
+  \input{isa/primrec-cost_pmf}
+\end{isadef}
+
+Note that it is not currently clear to us how to assign a cost to higher-order features, namely the \isa{Represent} and \isa{Apply} cases.
+In the \isa{Apply} case, it is unclear how much executing an arbitrary executable resource should cost.
+In the \isa{Represent} case, it is not clear whether representing a composition should be free or not.
+We choose to omit these two cases, meaning our \isa{cost{\isacharunderscore}pmf} is only applicable to compositions with no higher-order features.
+This is sufficient for our discussion in this section.
+
+Then, by applying \isa{cost{\isacharunderscore}pmf} to our composition from Definition~\ref{isa:operate_and_fix}, we get that the expected cost of operating the laser cutter in this way is \pounds29:
+\begin{isalemma}{isa:operate_and_fix_cost}
+  \isacomm{lemma}\ operate{\isacharunderscore}and{\isacharunderscore}fix{\isacharunderscore}cost{\isacharcolon}\isanewline
+  \ \ measure{\isacharunderscore}pmf{\isachardot}expectation\ \isapars{cost{\isacharunderscore}pmf\ operate{\isacharunderscore}and{\isacharunderscore}fix{\isacharunderscore}cost}\ real{\isacharunderscore}of{\isacharunderscore}rat\ \isacharequal\ 29
+\end{isalemma}
+
+\subsection{Determined Non-Determinism}
+\label{sec:prob/simple-opt/inject-eqs}
+
+Our second step towards controlling the complexity of non-deterministic resources makes use of the new probabilistic information.
+In some cases, such as the outputs of resource actions \isa{InjectL} and \isa{InjectR}, the probability distribution tells us that, out of what is outwardly two outcomes, only one is actually possible.
+This is the case for \isa{NonD\isactrlsub{P}~\isapars{Some~\isafv{d}}~\isafv{x~y}} where \isa{\isafv{d}} assigns either \isa{First} or \isa{Second} probability of \isa{\isadigit{1}}.
+We formalise this by adding the following two conditional equations to the resource algebra (where \isa{pmf\ \isafv{d}\ \isafv{x}} is the probability that \isa{\isafv{d}} assigns to \isa{\isafv{x}}):
+\begin{isabelle}
+\centering
+  pmf\ \isafv{d}\ \widthtoR{First}{Second}\ \isacharequal\ \isadigit{1}\ \isasymLongrightarrow\ NonD\isactrlsub{P}\ \isapars{Some\ \isafv{d}}\ \isafv{x\ y}\ \isacharequal\ \isafv{x}
+\item
+  pmf\ \isafv{d}\ Second\ \isacharequal\ \isadigit{1}\ \isasymLongrightarrow\ NonD\isactrlsub{P}\ \isapars{Some\ \isafv{d}}\ \isafv{x\ y}\ \isacharequal\ \isafv{y}
+\end{isabelle}
+
+\subsubsection{Resource Terms}
+\label{sec:prob/simple-opt/inject-eqs/term}
+
+The overall approach is the same as in Section~\ref{sec:prob/simple-opt/no-matter}, so we briefly list the specific changes expressing those equations:
+\begin{itemize}
+  \item We add the corresponding resource term equivalence rules:
+    \begin{isadef}[Additional equivalences when a child is impossible]{isa:res_term_equiv-inject_eqs}
+    \centering
+      pmf\ \isafv{d}\ \widthtoR{First}{Second}\ \isacharequal\ \isadigit{1}\ \isasymLongrightarrow\ NonD\isactrlsub{P}\ \isapars{Some\ \isafv{d}}\ \isafv{x\ y}\ \isasymsim\ \isafv{x}
+    \item
+      pmf\ \isafv{d}\ Second\ \isacharequal\ \isadigit{1}\ \isasymLongrightarrow\ NonD\isactrlsub{P}\ \isapars{Some\ \isafv{d}}\ \isafv{x\ y}\ \isasymsim\ \isafv{y}
+    \end{isadef}
+  \item We refine the normal form specification, requiring neither \isa{First} nor \isa{Second} to have probability \isa{\isadigit{1}} or the distribution to be unspecified:
+    \begin{isadef}[Normal form that checks for impossible children]{isa:res_term_equiv-inject_eqs}
+    \centering
+      {\isachardoublequoteopen}normalised\ {\isacharparenleft}NonD\isactrlsub{P}\ \isafv{d\ x\ y}{\isacharparenright}\ {\isasymequiv}\ normalised\ \isafv{x}\ {\isasymand}\ normalised\ \isafv{y}\ {\isasymand}\ \isafv{x}\ \isasymnoteq\ \isafv{y}\ \isasymand\isanewline
+      \isapars{\isanotation{case}\ \isafv{d}\ \isanotation{of}\ Some\ \isabv{p}\ \isasymRightarrow\ pmf\ \isabv{p}\ First\ \isasymnoteq\ \isadigit{1}\ \isasymand\ pmf\ \isabv{p}\ Second\ \isasymnoteq\ \isadigit{1}\ \isacharbar\ None\ \isasymRightarrow\ True}{\isachardoublequoteclose}
+    \end{isadef}
+  \item We add to the rewrite specification rules corresponding to the left-to-right direction of the equations:
+    \begin{isadef}[Term rewriting rules when either child is impossible]{isa:res_term_rewrite-inject_eqs}
+      \centering
+      pmf\ \isafv{d}\ \widthtoR{First}{Second}\ \isacharequal\ \isadigit{1}\ \isasymLongrightarrow\ res{\isacharunderscore}term{\isacharunderscore}rewrite\ \isapars{NonD\isactrlsub{P}\ \isapars{Some\ \isafv{d}}\ \isafv{x\ y}}\ \isafv{x}
+    \item
+      pmf\ \isafv{d}\ Second\ \isacharequal\ \isadigit{1}\ \isasymLongrightarrow\ res{\isacharunderscore}term{\isacharunderscore}rewrite\ \isapars{NonD\isactrlsub{P}\ \isapars{Some\ \isafv{d}}\ \isafv{x\ y}}\ \isafv{y}
+    \end{isadef}
+  \item We expand the rewriting step implementation with two new cases:
+    \begin{isadef}[Rewriting step that checks for impossible children]{isa:step-inject_eqs}
+      {\isachardoublequoteopen}step\ {\isacharparenleft}NonD\isactrlsub{P}\ \isafv{d}\ \isafv{x}\ \isafv{y}{\isacharparenright}\ {\isacharequal}\isanewline
+      \ \ {\isacharparenleft}\ \isaindent{else\ }\isanotation{if}\ \isapars{\isanotation{case}\ \isafv{d}\ \isanotation{of}\ Some\ \isabv{p}\ \isasymRightarrow\ pmf\ \isabv{p}\ First\ \isacharequal\ \isadigit{1}\ \isacharbar\ None\ \isasymRightarrow\ False}\ \isanotation{then}\ \isafv{x}\isanewline
+      \ \ \ \ \isanotation{else}\ \isanotation{if}\ \isapars{\isanotation{case}\ \isafv{d}\ \isanotation{of}\ Some\ \isabv{p}\ \isasymRightarrow\ pmf\ \isabv{p}\ Second\ \isacharequal\ \isadigit{1}\ \isacharbar\ None\ \isasymRightarrow\ False}\ \isanotation{then}\ \isafv{y}\isanewline
+      \ \ \ \ \isanotation{else}\ \isanotation{if}\ {\isasymnot}\ normalised\ \isafv{x}\ \isanotation{then}\ NonD\isactrlsub{P}\ \isafv{d}\ {\isacharparenleft}step\ \isafv{x}{\isacharparenright}\ \isafv{y}\isanewline
+      \ \ \ \ \isanotation{else}\ \isanotation{if}\ {\isasymnot}\ normalised\ \isafv{y}\ \isanotation{then}\ NonD\isactrlsub{P}\ \isafv{d}\ \isafv{x}\ {\isacharparenleft}step\ \isafv{y}{\isacharparenright}\isanewline
+      \ \ \ \ \isanotation{else}\ \isanotation{if}\ \isafv{x}\ \isacharequal\ \isafv{y}\ \isanotation{then}\ \isafv{x}\isanewline
+      \ \ \ \ \isanotation{else}\ NonD\isactrlsub{P}\ \isafv{d}\ \isafv{x}\ \isafv{y}{\isacharparenright}{\isachardoublequoteclose}
+    \end{isadef}
+\end{itemize}
+
+The proof that the full normalisation procedure \isa{normal{\isacharunderscore}rewr} decides the resource term equivalence once again requires us to show that the two sides of the new equations are joinable.
+In this case, this is made trivial by our implementation of the rewriting step: the first step in normalisation of the left-hand sides results immediately in the right-hand side.
+We only need to prove that \isa{pmf\ \isafv{d}\ Second\ \isacharequal\ \isadigit{1}} implies \isa{pmf\ \isafv{d}\ First\ \isasymnoteq\ \isadigit{1}}, which is a simple consequence of \isafv{d} representing a probability distribution.
+
+What in this case requires more notable changes compared to the previous equation is the translation of resource into ILL propositions.
+Recall, as we noted when adding the probabilistic information in Section~\ref{sec:prob/add-prob-info}, that ILL cannot express the probabilistic information and as such we drop it when translating resources into its propositions.
+Recall also that in our linearity demonstration through ILL we use a deduction mimicking the resource term normalisation procedure to connect translations of equivalent resources with ILL proofs (see Section~\ref{sec:linearity/equiv}).
+
+As a result of the newest two equivalences, the probabilistic information plays a role in the normalisation procedure but cannot be followed by an ILL deduction.
+For instance, with \isa{pmf\ \isafv{d}\ First\ \isacharequal\ \isadigit{1}}, the term \isa{NonD\isactrlsub{P}\ \isapars{Some\ \isafv{d}}\ \isafv{x\ y}} is equivalent to \isa{\isafv{x}} but the following is not a valid sequent of ILL:
+\begin{changebar}
+\begin{isabelle}
+  \centering
+  \isalist{res{\isacharunderscore}term{\isacharunderscore}to{\isacharunderscore}ill\ \isafv{x}\ \isasymoplus\ res{\isacharunderscore}term{\isacharunderscore}to{\isacharunderscore}ill\ \isafv{y}}\ \isamath{\nvdash}\ res{\isacharunderscore}term{\isacharunderscore}to{\isacharunderscore}ill\ \isafv{x}
+\end{isabelle}
+\end{changebar}
+
+We choose to resolve this as part of \isa{res{\isacharunderscore}term{\isacharunderscore}to{\isacharunderscore}ill} itself, translating \isa{NonD\isactrlsub{P}~\isafv{d~x~y}} into \isa{res{\isacharunderscore}term{\isacharunderscore}to{\isacharunderscore}ill\ \isafv{x}} or \isa{res{\isacharunderscore}term{\isacharunderscore}to{\isacharunderscore}ill\ \isafv{y}} if \isa{\isafv{d}} is a PMF fully biased to one of the two choices (otherwise proceeding as before).
+The deductions following those steps of the normalisation (i.e.\ the first two branches of the expanded \isa{NonD\isactrlsub{P}} case of \isa{step} shown above) then become identity deductions and all the relevant properties are preserved.
+
+This concludes our changes to resource atoms, resulting in the desired equation at the resource level with no new issues in that part of our framework.
+We next turn to the process theory, where the new equations render the \isa{InjectL} and \isa{InjectR} actions redundant.
+
+\subsubsection{Compositions}
+\label{sec:prob/simple-opt/inject-eqs/proc}
+
+The new equations essentially internalise the \isa{InjectL} and \isa{InjectR} actions in the resource algebra itself.
+Because their inputs are now equal to their outputs, they can be represented by the identity process and we can prove statements such as the following:
+\pagebreak
+\begin{isalemma}[]{isa:output_NonDP_first}
+  \input{isa/lemma-output_NonDP_first}
+\end{isalemma}
+
+As such, we remove the two actions from the type of process compositions and all relevant definitions.
+
+Similarly to the translation of resources into ILL, we also need to expand the translation of process compositions (specifically, the equations for \isa{Opt}, \isa{OptDistrIn} and \isa{OptDistrOut}) to treat the new special cases.
+In the case of \isa{Opt}, if given a distribution biased fully to one of the two choices, we use just the deduction of that child process instead of always combining both.
+In the case of \isa{OptDistrIn} and \isa{OptDistrOut}, we use an identity deduction for such situations because there is nothing to distribute into or out of.
+
+With these updates, while verifying the properties of the translation of process compositions into deductions of ILL requires more steps in the affected cases, most of the properties are preserved.
+That is, the resulting deduction has as conclusion the input-output sequent and is well-formed (see Section~\ref{sec:linearity/proc}).
+But, because \isa{Opt} may discard one of its branches in the translation, we no longer have that \emph{all} primitives occurring in the process correspond to premises of the deduction.
+This is now only true for compositions where \isa{Opt} is never fully determined, with a relaxed subset relation holding in general.
+
+As a result of the new equations, the resource algebra will simplify any expression where the probabilistic information allows us to rule out one of the two outcomes.
+Beyond the immediate effect of making explicit \isa{InjectL} and \isa{InjectR} actions redundant, this simplification can also allow other resource equations to apply and simplify the resource even further.
+For instance, consider the following chain of equalities which is newly possible:
+\begin{isabelle}
+\centering
+  NonD\isactrlsub{P}\ \isafv{d}\ \widthtoR{\isapars{NonD\isactrlsub{P}\ \isapars{Some\ \isapars{return{\isacharunderscore}pmf\ First}}\ \isafv{x\ y}}}{\isapars{NonD\isactrlsub{P}\ \isapars{Some\ \isapars{return{\isacharunderscore}pmf\ Second}}\ \isafv{y\ x}}}\isanewline
+  \isaindent{NonD\isactrlsub{P}\ \isafv{d}\ }{\isapars{NonD\isactrlsub{P}\ \isapars{Some\ \isapars{return{\isacharunderscore}pmf\ Second}}\ \isafv{y\ x}}}\isanewline
+  \isacharequal{\quad}NonD\isactrlsub{P}\ \isafv{d\ x\ x}\isanewline
+  \isacharequal{\quad}\isafv{x}
+\end{isabelle}
+
+\section{Limitations}
+\label{sec:prob/limit}
+
+With the changes made so far, we can express probabilistic processes like the simple faulty machine example in Section~\ref{sec:prob/simple-opt/no-matter/results}.
+We can also use the probabilistic information in the resource algebra to remove the need for explicit injection actions.
+However, there are situations that our extended framework does not capture well.
+We give some examples in Section~\ref{sec:prob/limit/more-simps} and Section~\ref{sec:prob/limit/dependence}.
+
+As a result, we find that our approach in this chapter does not produce a fully effective framework for reasoning about probabilistic resources.
+While we are able to integrate probabilistic information into resources and make use of it in processes, its presence induces resource expressions of impractical complexity.
+That complexity interferes with the ability of our framework to be a helpful tool in practice.
+
+While we find some success in curbing the complexity with the addition of resource equations, and we expect further steps could be made with more resource equations and resource actions, there are deeper issues that they cannot address, such as parallel resources requiring independence of their children.
+We suspect that, instead of relieving individual sources of the complexity, a more fruitful future research direction would be investigating approaches that more deeply integrate the probabilistic information into processes and resources.
+See Section~\ref{sec:prob/conc} for our discussion of future work.
+
+\subsection{Need for More Simplifications}
+\label{sec:prob/limit/more-simps}
+
+For instance, consider the faulty machine example with a simple change: there is a cheap action with a chance (say 20\%) of unblocking the machine and getting a successful product.
+We can then attempt to unblock first and only move to the (expensive) repair if that fails.
+This would allow us to explore different expected costs of the process with varying action costs and failure probabilities --- for example, in some situations it might be cheaper to skip the unblock attempt altogether.
+However, that unblocking action would in our present framework result in an overly complex resource.
+
+We can define the unblocking action and the overall process as follows (visualised in Figure~\ref{fig:operate_unblock_fix}):
+\begin{isadef}[Attempting to unblock the machine]{isa:unblock}
+  \input{isa/definition-unblock}
+\end{isadef}
+\pagebreak
+\begin{isadef}[Operating, attempting to unblock and fixing the machine]{isa:operate_unblock_fix}
+  \input{isa/definition-operate_unblock_fix}
+\end{isadef}
+
+\begin{figure}[htbp]
+  \includesvg[width=\textwidth]{img/operate_unblock_fix.svg}
+  \caption{Process diagram for operating a faulty machine, with possibly unblocking and fixing it}
+  \label{fig:operate_unblock_fix}
+\end{figure}
+
+From this composition we get the output:
+\begin{center}
+  \begin{minipage}{0.6\textwidth}
+    \begin{isabelle}
+      NonD\isactrlsub{P}\ \isapars{Some\ \isapars{first{\isacharunderscore}pmf\ \isadigit{0}.\isadigit{7}}}\isanewline
+      \isaindent{NonD\isactrlsub{P}\ }\isapars{Res\ Cutter\ \isasymodot\ Res\ CutShape}\isanewline
+      \isaindent{NonD\isactrlsub{P}\ }\isapars{NonD\isactrlsub{P}\ \isapars{Some\ \isapars{first{\isacharunderscore}pmf\ \isadigit{0}.\isadigit{2}}}\isanewline
+      \isaindent{NonD\isactrlsub{P}\ {\isacharparenleft}NonD\isactrlsub{P}\ }\isapars{Res\ Cutter\ \isasymodot\ Res\ CutShape}\isanewline
+      \isaindent{NonD\isactrlsub{P}\ {\isacharparenleft}NonD\isactrlsub{P}\ }\isapars{Res\ Cutter\ \isasymodot\ Res\ Scrap}}
+    \end{isabelle}
+  \end{minipage}
+\end{center}
+
+Note that this output contains the resource \isa{Res\ Cutter\ \isasymodot\ Res\ CutShape} twice.
+If they were direct children of one \isa{NonD\isactrlsub{P}} term then our resource equations would be able to simplify it.
+But, because of the separation in nested \isa{NonD\isactrlsub{P}} terms, this is currently not possible.
+
+This situation is an instance of a more general pattern where the way nested \isa{NonD\isactrlsub{P}} terms are associated stands in the way of simplifying the overall term.
+The two forms of this pattern are:
+\begin{isabelle}
+\centering
+  NonD\isactrlsub{P}\ \isapars{Some\ \isafv{p}}\ \isafv{x}\ \isapars{NonD\isactrlsub{P}\ \isapars{Some\ \isafv{q}}\ \isafv{x}\ \isafv{y}}
+\item
+  NonD\isactrlsub{P}\ \isapars{Some\ \isafv{p}}\ \isapars{NonD\isactrlsub{P}\ \isapars{Some\ \isafv{q}}\ \isafv{x}\ \isafv{y}}\ \isafv{y}
+\end{isabelle}
+
+One possible remedy to such patterns would be the addition of two resource actions to swap the way nested \isa{NonD\isactrlsub{P}} resources are associated, appropriately recalculating the associated probabilities.
+However, we believe that the relatively ad-hoc nature of such fixes does not address the full issue.
+
+\subsection{Dependence in Parallel Resources}
+\label{sec:prob/limit/dependence}
+
+Consider the following three parallel resources:
+\begin{isabelle}
+\centering
+  Res\ \isafv{A}\ \isasymodot\ Res\ \isafv{B}\ \isasymodot\ Res\ \isafv{C}
+\item
+  Res\ \isafv{A}\ \isasymodot\ Res\ \isafv{B}\ \isasymodot\ Res\ \isafv{D}
+\item
+  Res\ \isafv{X}\ \isasymodot\ Res\ \isafv{Y}\ \isasymodot\ Res\ \isafv{C}
+\end{isabelle}
+
+We can non-deterministically combine them, assigning probability \isa{\isafv{p}} to the first, \isa{\isapars{\isadigit{1}~\isacharminus~\isafv{p}}\isafv{q}} to the second and \isa{\isapars{\isadigit{1}\ \isacharminus\ \isafv{p}}\isapars{\isadigit{1}\ \isacharminus\ \isafv{q}}} to the third.
+This is expressed by the following resource:
+\begin{center}
+  \begin{minipage}{0.6\textwidth}
+    \begin{isabelle}
+      NonD\isactrlsub{P}\ \isapars{Some\ \isapars{first{\isacharunderscore}pmf\ \isafv{p}}}\isanewline
+      \isaindent{NonD\isactrlsub{P}\ }\isapars{Res\ \isafv{A}\ \isasymodot\ Res\ \isafv{B}\ \isasymodot\ Res\ \isafv{C}}\isanewline
+      \isaindent{NonD\isactrlsub{P}\ }\isapars{NonD\isactrlsub{P}\ \isapars{Some\ \isapars{first{\isacharunderscore}pmf\ \isafv{q}}}\isanewline
+      \isaindent{NonD\isactrlsub{P}\ {\isacharparenleft}NonD\isactrlsub{P}\ }\isapars{Res\ \isafv{A}\ \isasymodot\ Res\ \isafv{B}\ \isasymodot\ Res\ \isafv{D}}\isanewline
+      \isaindent{NonD\isactrlsub{P}\ {\isacharparenleft}NonD\isactrlsub{P}\ }\isapars{Res\ \isafv{X}\ \isasymodot\ Res\ \isafv{Y}\ \isasymodot\ Res\ \isafv{C}}}
+    \end{isabelle}
+  \end{minipage}
+\end{center}
+
+Taking a different view of this situation, we can see that the first atom is either \isa{\isafv{A}} or \isa{\isafv{X}}, second is either \isa{\isafv{B}} or \isa{\isafv{Y}} and third is either \isa{\isafv{C}} or \isa{\isafv{D}}.
+As such, we might try to express it as the following resource:
+\begin{isabelle}
+\centering
+  NonD\isactrlsub{P}\ \isapars{Some\ \isapars{first{\isacharunderscore}pmf\ \isafv{p\isactrlsub{A}}}} \isapars{Res\ \isafv{A}}\ \isapars{Res\ \isafv{X}}\ \isasymodot\isanewline
+  NonD\isactrlsub{P}\ \isapars{Some\ \isapars{first{\isacharunderscore}pmf\ \isafv{p\isactrlsub{B}}}} \isapars{Res\ \isafv{B}}\ \isapars{Res\ \isafv{Y}}\ \isasymodot\isanewline
+  NonD\isactrlsub{P}\ \isapars{Some\ \isapars{first{\isacharunderscore}pmf\ \isafv{p\isactrlsub{C}}}} \isapars{Res\ \isafv{C}}\ \isapars{Res\ \isafv{D}}\isaindent{\ \isasymodot}
+\end{isabelle}
+But there is no way to assign the probabilities \isa{\isafv{p\isactrlsub{A}}}, \isa{\isafv{p\isactrlsub{B}}} and \isa{\isafv{p\isactrlsub{C}}} in a way that accurately captures the situation.
+This is because of dependency between the atoms: if the first atom is \isa{\isafv{A}} then we know the second must be \isa{\isafv{B}}.
+We have no way of expressing this dependency and thus can only accurately represent the situation with the earlier resource.
+
+More generally, parallel combination of resources assumes that any non-determinism in each of its children is independent of the other children, because it has no way of expressing any dependency that might be present.
+As such, in any situation that involves dependency in the probabilities, only the form with non-deterministic combination above parallel combination is accurate.
+
+This in turn can lead to convoluted process compositions.
+If we, for instance, want to react to the presence of \isa{\isafv{C}} or \isa{\isafv{D}} we cannot do so with a simple optional composition but must use multiple optional compositions, parallel composition and identity actions to carefully account for the other atoms and the involved probabilistic information.
+
+\section{Conclusion}
+\label{sec:prob/conc}
+
+In this chapter we explored how our base framework of resources and process compositions can be expanded to include probabilistic information in its non-deterministic elements.
+We found that, while adding the probabilistic information itself to resources is unproblematic, the way in which it differentiates previously equal resources has significant implications for which process compositions are valid.
+This was chiefly a result of optional composition of processes eliminating non-determinism in its output.
+
+After dropping that elimination of non-determinism and, as a result, relaxing the constraints on validity of optional composition, we find that, while the difficulties with composition validity are solved, this leads to increasingly complex and redundant resource expressions.
+The main source of this is the lack of \emph{any} elimination of non-determinism and the resulting inability to reduce the size of non-deterministic resources even if informally they represent a deterministic situation.
+
+We add three equations to our resource algebra to help address this one-way expansion, aiming to take advantage of ``hidden determinism'' in the resources.
+The first regains the elimination of non-determinism, this time within the resource algebra itself rather than a composition operation, by simplifying any non-deterministic resource whose both branches are equal.
+The other two take advantage of the new probabilistic information to simplify cases where the distribution is biased fully in favour of one branch.
+These have a positive effect on resource complexity, giving it ways to decrease.
+
+Throughout mechanising the content of this chapter we found the automation available in Isabelle invaluable.
+It made our exploration of this wide-reaching change to our framework tractable, giving us the confidence that no errors were introduced by our many local changes.
+
+We now highlight some threads of future work based on the work in this chapter.
+
+\paragraph*{Deeper solution.}
+As we note in Section~\ref{sec:prob/limit}, more resource equations could be added in the future following the same blueprint as our work in this chapter.
+Adding new resource actions is also possible where the target connection is not suitable for inclusion in the resource algebra, for instance due to not having a clear normal form.
+Each of these has the potential to improve how efficiently certain situations can be phrased with resources.
+
+However, we choose not to further pursue the addition of even more resource equations and resource actions at present.
+While they help the situation, the inefficient resource expressions hint at a deeper problem with adding this kind of probabilistic information to our framework.
+We expect that this will require a more systematic solution to be satisfyingly resolved, rather than a series of local patches.
+
+One interesting possibility to investigate would be using distributions of deterministic resources as their inputs and outputs of processes.
+This follows to the extreme the idea that, to express dependent resources, we should place the probabilistic information ``above'' those resources in the term tree, by moving that information up and out of the resource.
+
+\paragraph*{Extended linear logic.}
+When discussing the changes relevant to our demonstration of linearity through linear logic, we noted that it cannot express the probabilistic information.
+As such, we drop it as part of our translation and proceed with linear logic only demonstrating the linearity aspect of valid process composition.
+
+However, as previously noted, Horne~\cite{horne-2019} introduces the idea of sub-additives into linear logic, which can express probabilistic choice.
+As such, in the future we could extend our mechanisation of ILL with these sub-additives and use them to demonstrate probabilistic aspects of our compositions.
+Note that Horne's work is based on classical linear logic, so adaptations would have to be made to suit our intuitionistic setting.
+
+\ifstandalone
+\bibliographystyle{plainurl}
+\bibliography{references}
+\fi
+
+\end{document}

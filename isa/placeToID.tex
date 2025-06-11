@@ -1,0 +1,5 @@
+\isacomm{definition}\isamarkupfalse%
+\ placeToID\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isatv{p}\ list\ {\isasymRightarrow}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharparenright}\ place\ {\isasymRightarrow}\ String{\isachardot}literal{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{placeToID}\ \isabv{prefix\ p}\ {\isacharequal}\ {\isacharparenleft}\ \isanotation{case}\ \isabv{p}\ \isanotation{of}\isanewline
+\ \ \ \ \ \ GroundPort\ {\isacharunderscore}\ {\isasymRightarrow}\ groundPlaceToID\ \isabv{prefix\ p}\isanewline
+\ \ \ \ {\isacharbar}\ OpenPort\ \isabv{port}\ {\isasymRightarrow}\ openPlaceToID\ \isabv{port}{\isacharparenright}{\isachardoublequoteclose}

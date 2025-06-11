@@ -1,0 +1,20 @@
+\isacomm{primrec}\isamarkupfalse%
+\ pgDefined\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}\isatv{a}{\isacharcomma}\ \isatv{b}{\isacharcomma}\ \isatv{l}{\isacharcomma}\ \isatv{m}{\isacharparenright}\ process\ {\isasymRightarrow}\ bool{\isachardoublequoteclose}\ \isaOcomm{where}\isanewline
+\ \ \ \ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Primitive\ \isabv{ins\ outs\ l\ m}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Identity\ \isabv{a}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Swap\ \isabv{a\ b}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Seq\ \isabv{p\ q}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}pgDefined\ \isabv{p}\ {\isasymand}\ pgDefined\ \isabv{q}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Par\ \isabv{p\ q}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}pgDefined\ \isabv{p}\ {\isasymand}\ pgDefined\ \isabv{q}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Opt\ \isabv{p\ q}{\isacharparenright}\ {\isacharequal}\ False{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}InjectL\ \isabv{a\ b}{\isacharparenright}\ {\isacharequal}\ False{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}InjectR\ \isabv{a\ b}{\isacharparenright}\ {\isacharequal}\ False{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}OptDistrIn\ \isabv{a\ b\ c}{\isacharparenright}\ {\isacharequal}\ False{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}OptDistrOut\ \isabv{a\ b\ c}{\isacharparenright}\ {\isacharequal}\ False{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Duplicate\ \isabv{a}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Erase\ \isabv{a}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Represent\ \isabv{p}{\isacharparenright}\ {\isacharequal}\ False{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Apply\ \isabv{a\ b}{\isacharparenright}\ {\isacharequal}\ False{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Repeat\ \isabv{a\ b}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Close\ \isabv{a\ b}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Once\ \isabv{a\ b}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{pgDefined}\ {\isacharparenleft}Forget\ \isabv{a}{\isacharparenright}\ {\isacharequal}\ True{\isachardoublequoteclose}

@@ -1,0 +1,3 @@
+[submodule "isastyle"]
+	path = isastyle
+	url = https://github.com/pilif0/isastyle.git

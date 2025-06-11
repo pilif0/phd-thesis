@@ -1,0 +1,462 @@
+\documentclass[class=smolathesis,crop=false]{standalone}
+
+\begin{document}
+
+\chapter{Linearity of Process Compositions}
+\label{ch:linearity}
+
+In this chapter we describe our argument for the linearity of resources in process compositions, connecting the compositions to deductions in intuitionistic linear logic (see Section~\ref{sec:intro/ill}).
+
+The argument is, in short, that every composition corresponds to a deduction in ILL with the following properties:
+\begin{description}[style=nextline]
+  \item[Well-formedness] For every valid composition the corresponding deduction is well-formed: it follows the rules of ILL\@.
+  \item[Input-Output Correspondence] The conclusion of the deduction is a sequent $I \vdash O$ where $I$ and $O$ are propositions corresponding to the composition's input and output respectively.
+  \item[Primitive Correspondence] Primitive actions of the composition correspond exactly to the premises of the corresponding deduction.
+  \item[Structural Correspondence] The structure of the composition matches that of the corresponding deduction.
+\end{description}
+
+To express these properties, we must embed ILL in Isabelle/HOL\@.
+We first mechanise a shallow embedding, allowing us to formally talk about what sequents are valid in the logic.
+But this is not enough to fully demonstrate the properties, so we also mechanise a deep embedding which allows us to formally talk about the deductions themselves and their structure.
+We prove that the deep embedding is sound and complete with respect to the shallow embedding.
+We refer the reader to the work of Dawson and Gor\'e~\cite{dawson_gore-2010}, for instance, for a further discussion of shallow and deep embeddings in Isabelle/HOL\@.
+
+When connecting resources to ILL propositions we encounter a difficulty in the many concrete terms that may represent one resource.
+To resolve this, we use its normal form and mirror the normalisation procedure described in Section~\ref{sec:res/rewr} with ILL deductions to show that any equivalent resource terms correspond to logically equivalent propositions.
+
+Note that the connection we make is from process compositions to linear logic deductions, but not necessarily the other way.
+There exist well-formed ILL deductions which do not reflect any of our process compositions, for instance because we do not make any connection to the ILL \isa{\isacharampersand} operator.
+Similarly, the resources and process compositions may be extended to carry information that cannot be expressed in ILL (see for example Chapter~\ref{ch:prob}).
+
+\section{Related Work}
+\label{sec:linearity/related}
+
+Our use of ILL for this argument is informed by previous work on the mechanical construction of plans.
+Dixon et al.~\cite{dixon_et_al-2009} describe how proof search in ILL corresponds to planning, with search algorithms corresponding to planning strategies.
+They implement this relation in Isabelle/HOL, producing plans as terms witnessing the truth of an existentially quantified conjecture about the preconditions, postconditions and other constraints on the plan.
+K\"ungas and Matskin~\cite{kungas_matskin-2004} for their part formalise cooperative planning of multiple agents --- where those agents exchange capabilities to reach goals none could reach on their own --- in terms of partial deduction in ILL\@.
+This work supports ILL as a suitable formalism for expressing processes composed from individual actions.
+
+There already exists a shallow embedding of ILL in Isabelle due to Kalvala and de Paiva~\cite{kalvala_depaiva-1995}.
+However, this is as part of the object logic Isabelle/Sequents, which is distinct from Isabelle/HOL\@.
+While this development is not compatible with our Isabelle/HOL one, we adapt some of their recommendations into our mechanisation of ILL.
+For instance, we adjust antecedents in the inference rules of ILL to remove implicit assumptions.
+As far as we are aware, theirs is the only published mechanisation of ILL in Isabelle.
+
+Outside of Isabelle there are the multiple mechanisations of linear logic in Rocq:
+\begin{itemize}
+  \item Power and Webster~\cite{power_webster-1999} developed a shallow embedding of ILL\@.
+  \item Laurent created YALLA\footnote{\url{https://github.com/olaure01/yalla}}, a deep embedding of multiple fragments of propositional linear logic.
+  \item Xavier et al.~\cite{xavier_et_al-2018} mechanised propositional and first-order linear logic with focusing.
+\end{itemize}
+While these Rocq developments are noteworthy, they have not influenced the work described in this chapter.
+
+\cbstart
+Linear logic is also used outside the theorem proving world, especially in logic programming and type systems.
+Within logic programming there are for instance the languages Lolli by Hodas and Miller~\cite{hodas_miller-1994} and its extension, Forum, by Miller~\cite{miller-1994}.
+Since linear logic refines the control over copying and deleting propositions, logic programming languages based on it inherits this increased control.
+This means that rules express not only which expressions are needed to derive their goal, but also how many of them.
+As in our use, this is particularly useful when they represent resources that are being consumed.
+
+Similarly, type systems based on linear logic offer this increased control to programs.
+With linear types the compiler checks that a (linear) value is used exactly once.
+This can again be used to improve handling of resources, such as memory locations, file handles or even quantum states.
+Bernardy et al.~\cite{bernardy_et_al-2018} describe how linear types can be integrated into existing languages, demonstrating this for Haskell.
+Radanne et al.~\cite{radanne_et_al-2020} extend ML with linear and affine (one or zero uses) types.
+
+Going beyond single use, quantitative type theory~\cite{atkey-2018} includes multiplicity in the type information drawn from some given semiring.
+This can be used to express more complex use patterns beyond the unrestricted use of ordinary types and exactly one use of linear types.
+
+Finally, recall the session types we mention in Section~\ref{sec:intro/pap}.
+These too are based on linear logic and can be integrated into programming languages to check that communication complies with specified protocols.
+For instance, session types have been integrated into the web programming language Links~\cite{lindley_garrett-2017}, Haskell~\cite{lindley_garrett-2016,orchard_yoshida-2016,imai_et_al-2011,pucella_tov-2008}, Scala~\cite{scalas_yoshida-2016}, Rust~\cite{jespersen_et_al-2015} and OCaml~\cite{melgratti_padovani-2017}.
+\cbend
+
+\section{Shallow Embedding of ILL Deductions}
+\label{sec:linearity/shallow}
+
+A shallow embedding of ILL deductions is simpler to define than the deep one and it allows us to reuse much of the automation available in Isabelle.
+However, it is limited to formalising what sequents are valid \emph{within} the logic rather than directly talking about the structure of its deductions.
+
+There is already a shallow embedding of ILL by Kalvala and de Paiva~\cite{kalvala_depaiva-1995} distributed with Isabelle, but this is part of the Isabelle/Sequents system and is not compatible with our HOL development.
+Nevertheless, their approach provides inspiration for some aspects of our mechanisation.
+
+First we mechanise the propositions of ILL as the datatype \isa{\isatv{a}\ ill-prop}, mirroring the specification (\ref{eq:ill-prop}) from Section~\ref{sec:intro/ill}, along with relevant notation.
+The type variable \isa{\isatv{a}} represents the type from which we draw the propositional atoms.
+\begin{isadef}[ILL propositions]{isa:ill_prop}
+  \input{isa/ill_prop}
+\end{isadef}
+
+Then we represent the valid sequents of ILL as an inductive relation between a list of propositions (\emph{antecedents}) and a single proposition (\emph{consequent}).
+We denote it infix by \isa{\isasymturnstile} and the full definition is shown in Definition~\ref{isa:sequent}.
+
+Every rule in this definition represents one of the inference rules of ILL shown in Figure~\ref{fig:ill-rules}.
+However, we adjust their precise statement following the work of Kalvala and de Paiva~\cite{kalvala_depaiva-1995} to remove implicit assumptions which make them less useful for pattern matching.
+For instance we adjust the $\otimes_L$ rule by adding $\Delta$ so that we no longer assume that $A$ and $B$ are the last antecedents:
+\begin{prooftree}
+    \AxiomC{$\Gamma, A, B \vdash C$}
+    \RightLabel{$\otimes_L$}
+    \UnaryInfC{$\Gamma, A \otimes B \vdash C$}
+    \DisplayProof
+    \quad
+    becomes
+    \quad
+    \AxiomC{$\Gamma, A, B, \Delta \vdash C$}
+    \RightLabel{$\otimes_L$}
+    \UnaryInfC{$\Gamma, A \otimes B, \Delta \vdash C$}
+\end{prooftree}
+
+Note that, compared to our statement in Section~\ref{sec:intro/ill}, ILL is often stated with multisets for antecedents instead of lists as in our formalisation.
+In such contexts the order of antecedents does not matter and the structural inference rule Exchange is made implicit.
+
+\begin{isadef}[Shallow embedding of valid ILL sequents]{isa:sequent}
+  \input{isa/sequent}
+\end{isadef}
+
+With our shallow embedding of ILL (using explicit Exchange, see \isa{exchange} in Definition~\ref{isa:sequent}) we can prove that this move is admissible in the logic.
+We do so by proving that any two sequents whose antecedents form equal multisets are equally valid, stated more generally in Isabelle as follows:
+\begin{isalemma}[Multiset exchange]{isa:exchange_mset}
+  \input{isa/lemma-exchange_mset}
+\end{isalemma}
+
+This fact relies on the theories of multisets and of combinatorics already formalised in Isabelle/HOL\@.
+We first note that any two lists forming the same multiset are related by a permutation, which is a sequence of element transpositions.
+By induction on this sequence of transpositions we show that we can derive each sequent from the other.
+
+\section{Resources as Linear Propositions}
+\label{sec:linearity/res}
+
+Before relating process compositions to ILL deductions we first need to relate the resources within the former to ILL propositions.
+Then we can translate the input and output of processes into ILL\@.
+
+Because resources are defined as a quotient, we first define the translation for resource terms:
+\begin{isadef}[ILL translation of resource terms]{isa:res_term_to_ill}
+  \input{isa/res_term_to_ill}
+\end{isadef}
+
+Note how all but the \isa{Parallel} case map a resource term constructor directly to a constructor of ILL propositions.
+The \isa{Parallel} case instead uses the helper function \isa{compact} to combine the list of translations of the children using the binary \isa{\isasymotimes} operator of ILL\@.
+This function is defined as follows:
+\begin{isadef}[ILL proposition compacting]{isa:compact}
+  \input{isa/compact}
+\end{isadef}
+
+Then we extend this to resources by translating the normal form representative term obtained via \isa{of-resource} (see Section~\ref{sec:res/rewr/representative}):
+\begin{isadef}[ILL translation of resources]{isa:resource_to_ill}
+  \input{isa/resource_to_ill}
+\end{isadef}
+
+The crucial property of this translation is that for equivalent resource terms the translation of one can be derived within ILL from the translation of the other.
+The derivation in the opposite direction then also follows by symmetry of resource term equivalence.
+In other words, the logic agrees with the relation we defined.
+
+\pagebreak
+\begin{isalemma}[Equivalent terms yield equivalent propositions]{isa:res_term_ill_equiv}
+  \input{isa/lemma-res_term_ill_equiv}
+\end{isalemma}
+
+In the translation of process compositions to deductions we may construct translations of non-normal terms, so this property is vital to the resulting deductions being well-formed.
+Consider a situation that may arise from parallel composition of a process with two inputs, say \isa{\isafv{A}} and \isa{\isafv{B}}, with a process with one input, say \isa{\isafv{C}}:
+\begin{itemize}
+  \item The combined input is \isa{Parallel\ \isalist{Res\ \isafv{A},\ Res\ \isafv{B},\ Res\ \isafv{C}}} which translates to \isa{Prop~\isafv{A}\ \isasymotimes\ \isapars{Prop~\isafv{B}\ \isasymotimes\ Prop~\isafv{C}}}.
+  \item But the first input is \isa{Parallel\ \isalist{Res\ \isafv{A},\ Res\ \isafv{B}}}, which translates to \isa{Prop\ \isafv{A}\ \isasymotimes\ Prop~\isafv{B}}, and the second input is \isa{Res\ \isafv{C}}, which translates to \isa{Prop\ \isafv{C}}.
+  \item The product of those translations is \isa{\isapars{Prop\ \isafv{A}\ \isasymotimes\ Prop\ \isafv{B}}\ \isasymotimes\ Prop\ \isafv{C}} which is not the same proposition.
+\end{itemize}
+
+We prove the property by induction on the resource term equivalence relation.
+In each case we use Isabelle's automated methods to find the deduction pattern needed to transform one translation into the other.
+These methods make use of facts about ILL as well as facts about the proposition compacting operation, such as the following:
+\begin{isalemma}[Compacting appended lists is equivalent to the \isa{\isasymotimes} operator]{isa:times_equivalent_append}
+  \input{isa/lemma-times_equivalent_append}
+\end{isalemma}
+
+\section{Shallow Embedding is Not Enough}
+\label{sec:linearity/not-enough}
+
+With the shallow embedding of ILL we can start formalising our argument for linearity of process compositions.
+In this section we describe how this embedding allows us to demonstrate the \emph{Well-formedness} and \emph{Input-Output Correspondence} properties and how it is insufficient for the \emph{Primitive Correspondence} and \emph{Structural Correspondence} properties.
+This insufficiency motivates our use of a deep embedding in the following sections.
+
+For every process composition \isa{\isafv{p}}, we have the following ILL sequent formed from translating its input and output (call it the \emph{input-output sequent}):
+\begin{isabelle}
+\centering
+  {\isacharbrackleft}resource{\isacharunderscore}to{\isacharunderscore}ill\ {\isacharparenleft}input\ \isafv{p}{\isacharparenright}{\isacharbrackright}\ {\isasymturnstile}\ resource{\isacharunderscore}to{\isacharunderscore}ill\ {\isacharparenleft}output\ \isafv{p}{\isacharparenright}
+\end{isabelle}
+We can show that, for every valid process composition, its input-output sequent is valid in ILL given the validity of input-output sequents of primitive actions occurring in the composition:
+\begin{isalemma}[Shallow linearity theorem]{isa:shallow_linearity}
+  \input{isa/shallow_linearity_lemma}
+\end{isalemma}
+We prove this statement by structural induction on the process.
+In each case we make use of Isabelle's automated methods to find an ILL sequent derivation from the translation of the input to the translation of the output.
+\cbar{However, as the following discussion details, this proof is insufficient to ensure all of the properties we want.
+We address this in Section~\ref{sec:linearity/proc} by using a deep embedding of deductions to construct concrete instances of this general proof for any given process.}
+
+The \emph{Well-formedness} property is demonstrated by the proof being checked by Isabelle, while \emph{Input-Output Correspondence} is demonstrated by the conclusion being the input-output sequent of the composition.
+
+\emph{Primitive Correspondence} is not sufficiently demonstrated by this theorem.
+Its assumption only says that input-output sequents of the primitive actions are sufficient for the proof.
+This does not necessarily mean that they are necessary nor that they are used as many times as the primitive actions occur in the composition.
+Thus we cannot conclude that the primitive actions correspond exactly to the premises of this deduction.
+
+\emph{Structural Correspondence} is also not demonstrated by the theorem.
+The structure of its proof does not necessarily follow the structure of the composition.
+We know that there exists \emph{some} proof of the input-output sequent, but that proof may not have any further relation to the composition itself and so this is not a satisfying argument for its linearity.
+
+Consider for example process compositions whose input is equal to their output.
+We can prove the input-output sequent for any such composition to be valid in ILL directly by the Identity inference rule:
+\begin{prooftree}
+  \AxiomC{}
+  \RightLabel{Identity}
+  \UnaryInfC{$A \vdash A$}
+\end{prooftree}
+
+In this way, the sequential composition of primitive actions \isa{\isafv{P}:\ \isafv{A}\ \isasymrightarrow\ \isafv{B}} and then \isa{\isafv{Q}:~\isafv{B}~\isasymrightarrow~\isafv{A}} can have its input-output sequent shown to be valid in ILL without using any premise at all.
+
+Moreover, consider the sequential composition of identities on resources \isa{\isafv{A}}, then on \isa{\isafv{B}} and then again on \isa{\isafv{A}} (where \isa{\isafv{A}} and \isa{\isafv{B}} are distinct).
+Its input-output sequent can again be shown to be valid in ILL, despite this composition being invalid because it creates and discards the resource \isa{\isafv{B}}.
+
+In the following sections we develop a deep embedding of ILL deductions which allows us to demonstrate the \emph{Primitive Correspondence} and \emph{Structural Correspondence} properties.
+With the deep embedding we can say that ILL accepts not just the input and output of a process composition but every step within it.
+
+\section{Deep Embedding of ILL Deductions}
+\label{sec:linearity/deep}
+
+A deep embedding of ILL deductions represents them as objects we can directly construct.
+This gives up much of the automation Isabelle offers during proof, but it allows us to build deductions whose structure we know matches the process composition.
+
+For this, we mechanise deductions as the datatype \isa{\isacharparenleft \isatv{a},\ \isatv{l} \isacharparenright\ ill-deduct}, whose elements are trees with nodes exactly mirroring the defining rules of the sequent relation in Definition~\ref{isa:sequent}.
+We also include a node for explicitly representing premises (the meta-level assumption of a particular sequent) to let us express contingent deductions.
+
+The type of deductions is parameterised by two type variables: \isa{\isatv{a}} and \isa{\isatv{l}}.
+The type \isa{\isatv{a}} represents the type from which we draw the propositional variables, just as it does in the type \isa{\isatv{a}\ ill-prop} of propositions.
+The type \isa{\isatv{l}} represents the type of labels we attach to the premise nodes.
+We use these labels to distinguish premises that may assume the same sequent but have different intended meaning.
+\cbar{For instance, once we get a drink from a vending machine we can drink it or we can pour it out on the ground.
+Both these actions take the drink as input and result in an empty can, so their representation as premises will assert the same sequents, but they have very different meaning.}
+
+In total this datatype has $22$ constructors, each with up to eight parameters.
+The deduction tree's semantics are defined via two functions: \isa{ill-conclusion} expresses the deduction's conclusion sequent while the predicate \isa{ill-deduct-wf} checks whether the deduction is well-formed.
+Full definitions are shown in Appendix~\ref{app:ill-deduct}, but as an example we consider the Cut rule which is stated in the shallow embedding as follows:
+\begin{isabelle}
+\centering
+  {\isachardoublequoteopen}{\isasymlbrakk}\isafv{G}\ {\isasymturnstile}\ \isafv{b}{\isacharsemicolon}\ \isafv{D}\ {\isacharat}\ {\isacharbrackleft}\isafv{b}{\isacharbrackright}\ {\isacharat}\ \isafv{E}\ {\isasymturnstile}\ \isafv{c}{\isasymrbrakk}\ {\isasymLongrightarrow}\ \isafv{D}\ {\isacharat}\ \isafv{G}\ {\isacharat}\ \isafv{E}\ {\isasymturnstile}\ \isafv{c}{\isachardoublequoteclose}
+\end{isabelle}
+
+Its deep embedding, the term \isa{Cut\ \isafv{G\ b\ D\ E\ c\ P\ Q}}, represents the deduction tree shown in Figure~\ref{fig:cut_tree}.
+Note that \isa{\isafv{P}} and \isa{\isafv{Q}} correspond to deep embeddings of the two assumptions in the shallow rule: \isa{\isafv{G}\ {\isasymturnstile}\ \isafv{b}} and \isa{\isafv{D}\ {\isacharat}\ {\isacharbrackleft}\isafv{b}{\isacharbrackright}\ {\isacharat}\ \isafv{E}\ {\isasymturnstile}\ \isafv{c}} respectively.
+
+\begin{figure}[htbp]
+  \begin{prooftree}
+    \AxiomC{\isa{\isafv{P}}}
+    \noLine
+    \UnaryInfC{\vdots}
+    \noLine
+    \UnaryInfC{\isa{\isafv{G}\ {\isasymturnstile}\ \isafv{b}}}
+    \AxiomC{\isa{\isafv{Q}}}
+    \noLine
+    \UnaryInfC{\vdots}
+    \noLine
+    \UnaryInfC{\isa{\isafv{D}\ {\isacharat}\ {\isacharbrackleft}\isafv{b}{\isacharbrackright}\ {\isacharat}\ \isafv{E}\ {\isasymturnstile}\ \isafv{c}}}
+    \RightLabel{Cut}
+    \BinaryInfC{\isa{\isafv{D}\ {\isacharat}\ \isafv{G}\ {\isacharat}\ \isafv{E}\ {\isasymturnstile}\ \isafv{c}}}
+  \end{prooftree}
+  \caption{Deduction tree represented by the term \isa{Cut\ \isafv{G\ b\ D\ E\ c\ P\ Q}}}
+  \label{fig:cut_tree}
+\end{figure}
+
+The semantic functions take the following values for this rule\footnotemark:
+\footnotetext{
+  Formally, the \isa{ill-conclusion} value is pair of proposition list and single proposition with custom notation.
+  This is to emphasise the connection with the shallowly embedded relation for valid sequents.
+  The predicate \isa{ill-sequent-valid} ties these values back to the relation.
+  See Appendix~\ref{app:ill-deduct} for the definitions.
+}
+\begin{isabelle}
+  {\isachardoublequoteopen}ill{\isacharunderscore}conclusion\ {\isacharparenleft}Cut\ \isafv{G\ b\ D\ E\ c\ P\ Q}{\isacharparenright}\ {\isacharequal}\ \isafv{D}\ {\isacharat}\ \isafv{G}\ {\isacharat}\ \isafv{E}\ \isasymturnstile\ \isafv{c}{\isachardoublequoteclose}\isanewline
+  {\isachardoublequoteopen}ill{\isacharunderscore}deduct{\isacharunderscore}wf\ {\isacharparenleft}Cut\ \isafv{G\ b\ D\ E\ c\ P\ Q}{\isacharparenright}\ {\isacharequal}\isanewline
+  \ \ {\isacharparenleft}ill{\isacharunderscore}deduct{\isacharunderscore}wf\ \isafv{\widthtoR{P}{Q}}\ {\isasymand}\ ill{\isacharunderscore}conclusion\ \isafv{\widthtoR{P}{Q}}\ {\isacharequal}\ \isafv{G}\ \isasymturnstile\ \isafv{b}\ {\isasymand}\isanewline
+  \ \ \isaindent{\isacharparenleft}ill{\isacharunderscore}deduct{\isacharunderscore}wf\ \isafv{Q}\ {\isasymand}\ ill{\isacharunderscore}conclusion\ \isafv{Q}\ {\isacharequal}\ \isafv{D}\ {\isacharat}\ {\isacharbrackleft}\isafv{b}{\isacharbrackright}\ {\isacharat}\ \isafv{E}\ \isasymturnstile\ \isafv{c}{\isacharparenright}{\isachardoublequoteclose}
+\end{isabelle}
+
+Additionally, a function called \isa{ill-deduct-premises} recursively gathers the list of all the premise leaves in a deduction (represented by antecedents-consequent-label triples).
+Continuing the above example, the premises of a cut node are those of its two child deductions:
+\begin{isabelle}
+  ill-deduct-premises\ \isapars{Cut\ \isafv{G\ b\ D\ E\ c\ P\ Q}}\ \isacharequal\isanewline
+  \ \ \isapars{ill-deduct-premises\ \isafv{P}\ \isacharat\ ill-deduct-premises\ \isafv{Q}}
+\end{isabelle}
+
+We verify this deep embedding by proving it is sound and complete with respect to the shallow one.
+Soundness requires that the conclusions of well-formed deductions are valid sequents given the validity of the premises, stated in Isabelle as:
+\begin{isalemma}[Soundness of deeply embedded deductions]{isa:ill_deduct_sound}
+  \input{isa/lemma-ill_deduct_sound}
+\end{isalemma}
+
+\noindent
+Completeness requires that for every valid sequent there exist a well-formed deduction with it as conclusion and with no premises:
+\pagebreak
+\begin{isalemma}[Completeness of deeply embedded deductions]{isa:ill_deduct_complete}
+  \input{isa/lemma-ill_deduct_complete}
+\end{isalemma}
+
+Because the deduction tree nodes mirror the sequent relation, we can prove these statements rather simply by induction either on the deduction structure or on the sequent relation.
+Note that for completeness we require the deduction to have no premises because otherwise it would be trivial: we could just assume the sequent.
+
+\section{Deeply Embedded Equivalence of Resource Translations}
+\label{sec:linearity/equiv}
+
+Recall that Lemma~\ref{isa:res_term_ill_equiv} shows that translations of equivalent resource terms can be derived from one another:
+\begin{isabelle}
+\centering
+  \isafv{a}\ \isasymsim\ \isafv{b}\ \isasymLongrightarrow\ \isalist{res-term-to-ill\ \isafv{a}}\ \isasymturnstile\ res-term-to-ill\ \isafv{b}
+\end{isabelle}
+
+We use this fact to fill gaps between linear logic translations of different but equivalent resource terms, which will be vital when we construct deductions from process compositions in the next section.
+To make use of this fact in the deep embedding, we first need to describe how a witness deduction is constructed for every case.
+This mirrors the earlier problem of deciding the resource term equivalence, so our solution is similar to the normalisation procedure described in Section~\ref{sec:res/rewr}.
+
+We build a deduction from one resource term to its normal form and another deduction into the other term from its normal form (note the opposite direction).
+These two deductions can then be connected because the two terms have equal normal forms.
+Thus the core of our solution are two functions which construct, for any term \isa{\isafv{a}}, deductions with the respective conclusions:
+\begin{isabelle}
+\centering
+  \isalist{res-term-to-ill\ \isafv{a}}\ \isasymturnstile\ res-term-to-ill\ \isacharparenleft normal-rewr\ \isafv{a}\isacharparenright\isanewline%
+  \isalist{res-term-to-ill\ \isacharparenleft normal-rewr\ \isafv{a}\isacharparenright}\ \isasymturnstile\ res-term-to-ill\ \isafv{a}
+\end{isabelle}
+
+In the definitions of these functions we again mirror the normalisation procedure.
+However, instead of a rewriting step that transforms the resource term, we build a deduction (in the desired direction) proving the transformation is allowed in ILL\@.
+These are then chained with the Cut rule until the resource term is normalised.
+
+We prove that these functions in all cases produce well-formed deductions with the above conclusions.
+Furthermore, we prove that they have no premises and are thus theorems of ILL\@.
+
+We name the two functions \isa{ill-deduct-res-term-from-normal-rewr} and \isa{ill-deduct-res-term-to-normal-rewr}: ILL deductions that connect a resource term from or to its normal form.
+They are used in the next section when constructing deductions from process compositions to fill gaps between linear logic translations of different but equivalent resource terms.
+
+\section{Process Compositions as Linear Deductions}
+\label{sec:linearity/proc}
+
+With the deep embedding of ILL deductions we can \cbar{construct a proof of Lemma~\ref{isa:shallow_linearity} for any specific process composition, showing that its input-output sequent is} valid in ILL\@.
+\cbar{This way we can ensure that every such proof} satisfies the \emph{Primitive Correspondence} and \emph{Structural Correspondence} properties which we identified at the start of this chapter, namely that: premises of the deduction correspond exactly to primitive actions of the composition and the deduction matches the composition in structure.
+
+We do this by recursively constructing an ILL deduction for every process composition, mechanised as the following function
+\begin{isabelle}
+\centering
+  to-deduct\ \ty\ \isapars{\isatv{a},\ \isatv{l},\ \isatv{m}}\ process\ \isasymRightarrow\ \isapars{\isatv{a},\ \isatv{l}\ \isasymtimes\ \isatv{m}}\ ill-deduct
+\end{isabelle}
+By associating every constructor of process compositions with a pattern of ILL inferences, this function ensures that the resulting deduction reflects every step of the composition.
+
+We then prove that the resulting deductions demonstrate the \emph{Well-formedness}, \emph{Input-Output Correspondence} and \isa{Primitive Correspondence} properties.
+That is, we show that for any valid process composition the deduction is well-formed:
+\begin{isalemma}[Valid compositions yield well-formed deductions]{isa:valid_to_deduct_wf}
+  \input{isa/lemma-valid_to_deduct_wf}
+\end{isalemma}
+\noindent
+and that the conclusion is always the input-output sequent:
+\begin{isalemma}[Conclusion is the input-output sequent]{isa:to_deduct_conclusion}
+  \input{isa/lemma-to_deduct_conclusion}
+\end{isalemma}
+\noindent
+and that the premises correspond to the primitive actions that occur in the composition (including in number and order):
+\begin{isalemma}[Premises correspond to primitive actions]{isa:primitives_give_premises}
+  \input{isa/lemma-primitives_give_premises}
+\end{isalemma}
+
+By the soundness of the deep embedding (Lemma~\ref{isa:ill_deduct_sound}) each thus constructed deduction is then a proof of Lemma~\ref{isa:shallow_linearity} for a specific process composition, with added guarantees about the proof's structure.
+
+We next outline precisely how \isa{to{\isacharunderscore}deduct} constructs the deductions.
+In some cases the translation is direct, for instance \isa{Primitive} and \isa{Identity} are translated into premises and identity rules respectively:
+\begin{isabelle}
+\centering
+  \isafv{to{\isacharunderscore}deduct}\ {\isacharparenleft}Primitive\ \isabv{a\ b\ l\ m}{\isacharparenright}\ {\isacharequal}\ Premise\ {\isacharbrackleft}resource{\isacharunderscore}to{\isacharunderscore}ill\ \isabv{a}{\isacharbrackright}\ {\isacharparenleft}resource{\isacharunderscore}to{\isacharunderscore}ill\ \isabv{b}{\isacharparenright}\ \isapars{\isabv{l},\ \isabv{m}}\isanewline
+  \isafv{to{\isacharunderscore}deduct}\ {\isacharparenleft}process{\isachardot}Identity\ \isabv{a}{\isacharparenright}\ {\isacharequal}\ ill{\isacharunderscore}deduct{\isachardot}Identity\ {\isacharparenleft}resource{\isacharunderscore}to{\isacharunderscore}ill\ \isabv{a}{\isacharparenright}
+\end{isabelle}
+
+In other cases the deduction being constructed may be more complex, especially where different forms of one resource are involved.
+For instance with parallel composition we need to:
+\begin{enumerate}
+  \item Separate the proposition translation of a parallel resource into translations of the two inputs,
+  \item Use the children's deductions to connect translations of their inputs with translations of their outputs.
+  \item Merge the translations of the two outputs back into one proposition for the combined resource.
+\end{enumerate}
+In Isabelle/HOL we define this case as shown in Figure~\ref{isa:to-deduct/Par} and visualised as a proof tree in Figure~\ref{proof:Par}.
+The Isabelle/HOL definition uses helper functions \isa{ill-deduct-simple-cut} for a frequent instantiation of the Cut rule and \isa{ill-deduct-tensor} to juxtapose two deductions using the $\otimes_R$ and $\otimes_L$ rules, and the connections between a resource term and its normal form.
+
+\begin{figure}[htbp]
+  \begin{subcaptionblock}{\textwidth}
+    \begin{isabellebody}
+      \isafv{to{\isacharunderscore}deduct}\ {\isacharparenleft}Par\ \isabv{p\ q}{\isacharparenright}\ {\isacharequal}\isanewline
+      \ \ ill{\isacharunderscore}deduct{\isacharunderscore}simple{\isacharunderscore}cut\isanewline
+      \ \ \ \ {\isacharparenleft}ill{\isacharunderscore}deduct{\isacharunderscore}res{\isacharunderscore}term{\isacharunderscore}from{\isacharunderscore}normal{\isacharunderscore}rewr\isanewline
+      \ \ \ \ \ \ {\isacharparenleft}res{\isacharunderscore}term{\isachardot}Parallel\ {\isacharbrackleft}of{\isacharunderscore}resource\ {\isacharparenleft}input\ \isabv{p}{\isacharparenright}{\isacharcomma}\ of{\isacharunderscore}resource\ {\isacharparenleft}input\ \isabv{q}{\isacharparenright}{\isacharbrackright}{\isacharparenright}{\isacharparenright}\isanewline
+      \ \ \ \ {\isacharparenleft}ill{\isacharunderscore}deduct{\isacharunderscore}simple{\isacharunderscore}cut\isanewline
+      \ \ \ \ \ \ {\isacharparenleft}ill{\isacharunderscore}deduct{\isacharunderscore}tensor\ {\isacharparenleft}\isafv{to{\isacharunderscore}deduct}\ \isabv{p}{\isacharparenright}\ {\isacharparenleft}\isafv{to{\isacharunderscore}deduct}\ \isabv{q}{\isacharparenright}{\isacharparenright}\isanewline
+      \ \ \ \ \ \ {\isacharparenleft}ill{\isacharunderscore}deduct{\isacharunderscore}res{\isacharunderscore}term{\isacharunderscore}to{\isacharunderscore}normal{\isacharunderscore}rewr\isanewline
+      \ \ \ \ \ \ \ \ {\isacharparenleft}res{\isacharunderscore}term{\isachardot}Parallel\ {\isacharbrackleft}of{\isacharunderscore}resource\ {\isacharparenleft}output\ \isabv{p}{\isacharparenright}{\isacharcomma}\ of{\isacharunderscore}resource\ {\isacharparenleft}output\ \isabv{q}{\isacharparenright}{\isacharbrackright}{\isacharparenright}{\isacharparenright}{\isacharparenright}
+    \end{isabellebody}
+    \caption{Embedded deduction for parallel composition}
+    \label{isa:to-deduct/Par}
+  \end{subcaptionblock}
+  \begin{subcaptionblock}{\textwidth}
+    \begin{prooftree}
+      \def\defaultHypSeparation{\hskip 0in}
+      \AxiomC{From normal form}
+      \noLine
+      \UnaryInfC{\vdots}
+      \noLine
+      \UnaryInfC{\isa{\isalist{\isarestran{\isafv{a}\ \isasymodot\ \isafv{x}}}\ \isasymturnstile\ \isarestran{\isafv{a}}\ \isasymotimes\ \isarestran{\isafv{x}}}}
+      \AxiomC{\isa{to-deduct\ \isafv{p}}}
+      \noLine
+      \UnaryInfC{\vdots}
+      \noLine
+      \UnaryInfC{\isa{\isalist{\isarestran{\isafv{a}}}\ \isasymturnstile\ \isarestran{\isafv{b}}}}
+      \AxiomC{\isa{to-deduct\ \isafv{q}}}
+      \noLine
+      \UnaryInfC{\vdots}
+      \noLine
+      \UnaryInfC{\isa{\isalist{\isarestran{\isafv{x}}}\ \isasymturnstile\ \isarestran{\isafv{y}}}}
+      \RightLabel{$\otimes_R$}
+      \BinaryInfC{\isa{\isalist{\isarestran{\isafv{a}},\ \isarestran{\isafv{x}}}\ \isasymturnstile\ \isarestran{\isafv{b}}\ \isasymotimes\ \isarestran{\isafv{y}}}}
+      \RightLabel{$\otimes_L$}
+      \UnaryInfC{\isa{\isalist{\isarestran{\isafv{a}}\ \isasymotimes\ \isarestran{\isafv{x}}}\ \isasymturnstile\ \isarestran{\isafv{b}}\ \isasymotimes\ \isarestran{\isafv{y}}}}
+      \AxiomC{To normal form}
+      \noLine
+      \UnaryInfC{\vdots}
+      \noLine
+      \UnaryInfC{\isa{\isalist{\isarestran{\isafv{b}}\ \isasymotimes\ \isarestran{\isafv{y}}}\ \isasymturnstile\ \isarestran{\isafv{b}\ \isasymodot\ \isafv{y}}}}
+      \RightLabel{$Cut$}
+      \BinaryInfC{\isa{\isalist{\isarestran{\isafv{a}}\ \isasymotimes\ \isarestran{\isafv{x}}}\ \isasymturnstile\ \isarestran{\isafv{b}\ \isasymodot\ \isafv{y}}}}
+      \RightLabel{$Cut$}
+      \BinaryInfC{\isa{\isalist{\isarestran{\isafv{a}\ \isasymodot\ \isafv{x}}}\ \isasymturnstile\ \isarestran{\isafv{b}\ \isasymodot\ \isafv{y}}}}
+    \end{prooftree}
+    \caption{Deduction for parallel composition of processes \isa{\isafv{p}{\isacharcolon}\ \isafv{a}\ \isasymrightarrow\ \isafv{b}} and \isa{\isafv{q}{\isacharcolon}\ \isafv{x}\ \isasymrightarrow\ \isafv{y}}.
+      For the sake of space we use \isa{\isarestran{\isafv{r}}} to denote \isa{resource-to-ill\ \isafv{r}}.}
+    \label{proof:Par}
+  \end{subcaptionblock}
+  \caption{Witness of linearity for parallel composition}
+  \label{fig:par-deduct}
+\end{figure}
+
+Thus we have fully mechanised our goal with this translation.
+We show that all valid process compositions are linear on the grounds that they obey rules of linear logic by mechanically producing the specific ILL deduction witnessing this fact.
+Further, because the way we construct this deduction involves no proof search, we we include it in the code we export from Isabelle/HOL, allowing us to construct the witness even outside of the proof assistant.
+
+\section{Conclusion}
+\label{sec:linearity/conc}
+
+In this chapter we provided support for our definition of process composition validity by demonstrating that valid compositions map to well-formed deductions of linear logic.
+Our use of linear logic here ties into formalisations of process correctness often found in the proofs-as-processes literature.
+As part of the verification, we show that primitive actions of the composition correspond to premises of the deduction, expressing the view that primitive actions are assumptions about the domain being modelled.
+To mechanise this connection and its properties in Isabelle/HOL, we produce a deep embedding of intuitionistic linear logic.
+
+Our demonstration in this chapter establishes correctness of valid compositions by linking to the rules of linear logic.
+In the next chapter we approach the correctness more directly, from the perspective of the resource connections between individual actions.
+We use a graphical approach to represent actions as nodes and resource connections as edges, and prove that the kinds of connections present are highly constrained by the resources they carry.
+For instance, linear resources must have a clear origin and a single destination.
+
+\ifstandalone
+\bibliographystyle{plainurl}
+\bibliography{references}
+\fi
+
+\end{document}

@@ -1,0 +1,8 @@
+We present a formal framework for process composition based on actions that are specified by their input and output resources.
+The correctness of these compositions is verified by translating them into deductions in intuitionistic linear logic.
+As part of the verification we derive simple conditions on the compositions which ensure well-formedness of the corresponding deduction when satisfied.
+By connecting the compositions to port graphs, we also verify an alternate characterisation of their correctness in terms of resource dependence between individual actions.
+We close our theoretical development on an exploration of a probabilistic refinement of non-determinism in our framework.
+
+We mechanise the whole framework, including a deep embedding of ILL and a theory of port graphs, in the proof assistant Isabelle/HOL\@.
+Beyond the increased confidence in our proofs, this allows us to automatically generate executable code for our verified definitions.

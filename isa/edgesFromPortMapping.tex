@@ -1,0 +1,13 @@
+\isacomm{primrec}\ edgesFromPortMapping\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\ {\isacharparenleft}\isatv{s}\ {\isacharcolon}{\isacharcolon}\ side{\isacharunderscore}in{\isacharunderscore}out{\isacharcomma}\ \isatv{a}{\isacharparenright}\ port\ list\isanewline
+\isaindent{\isacomm{primrec}\ edgesFromPortMapping\ }{\isasymRightarrow}\ {\isacharparenleft}{\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharparenright}\ port{\isacharcomma}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharparenright}\ place\ list{\isacharparenright}\ mapping\isanewline
+\isaindent{\isacomm{primrec}\ edgesFromPortMapping\ }{\isasymRightarrow}\ {\isacharparenleft}{\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharparenright}\ port{\isacharcomma}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharparenright}\ place\ list{\isacharparenright}\ mapping\isanewline
+\isaindent{\isacomm{primrec}\ edgesFromPortMapping\ }{\isasymRightarrow}\ {\isacharparenleft}\isatv{s}{\isacharcomma}\ \isatv{a}{\isacharcomma}\ \isatv{p}{\isacharparenright}\ edge\ list{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\isanewline
+\ \ \ \ {\isachardoublequoteopen}\isafv{edgesFromPortMapping}\ {\isacharbrackleft}{\isacharbrackright}\ \isabv{x\ y}\ {\isacharequal}\ {\isacharbrackleft}{\isacharbrackright}{\isachardoublequoteclose}\isanewline
+\ \ {\isacharbar}\ {\isachardoublequoteopen}\isafv{edgesFromPortMapping}\ {\isacharparenleft}\isabv{p}{\isacharhash}\isabv{ps}{\isacharparenright}\ \isabv{x\ y}\ {\isacharequal}\isanewline
+\ \ \ \ {\isacharparenleft}\ \isanotation{case}\ Mapping{\isachardot}lookup\ \isabv{x}\ {\isacharparenleft}portSetSide\ Out\ \isabv{p}{\isacharparenright}\ \isanotation{of}\isanewline
+\ \ \ \ \ \ \ \ None\ {\isasymRightarrow}\ {\isacharbrackleft}{\isacharbrackright}\isanewline
+\ \ \ \ \ \ {\isacharbar}\ Some\ \isabv{xs}\ {\isasymRightarrow}\ {\isacharparenleft}\isanotation{case}\ Mapping{\isachardot}lookup\ \isabv{y}\ {\isacharparenleft}portSetSide\ In\ \isabv{p}{\isacharparenright}\ \isanotation{of}\isanewline
+\ \ \ \ \ \ \ \ \ \ None\ {\isasymRightarrow}\ {\isacharbrackleft}{\isacharbrackright}\isanewline
+\ \ \ \ \ \ \ \ {\isacharbar}\ Some\ \isabv{ys}\ {\isasymRightarrow}\ allEdges\ \isabv{xs\ ys}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharat}\ \isafv{edgesFromPortMapping}\ \isabv{ps\ x\ y}{\isachardoublequoteclose}

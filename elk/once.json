@@ -1,0 +1,39 @@
+{
+ "id":"Root",
+ "layoutOptions":{
+  "algorithm":"layered"
+ },
+ "children":[
+  {
+   "id":"OverallWEST0",
+   "resource":"Repeatable (Res I, Res O)",
+   "properties":{
+    "port.side":"WEST",
+    "port.index":0
+   },
+   "width":10,
+   "height":10
+  },
+  {
+   "id":"OverallEAST0",
+   "resource":"Executable (Res I, Res O)",
+   "properties":{
+    "port.side":"EAST",
+    "port.index":0
+   },
+   "width":10,
+   "height":10
+  }
+ ],
+ "edges":[
+  {
+   "id":"OverallWEST0-OverallEAST0",
+   "sources":[
+    "OverallWEST0"
+   ],
+   "targets":[
+    "OverallEAST0"
+   ]
+  }
+ ]
+}

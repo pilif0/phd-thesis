@@ -1,0 +1,10 @@
+\isacomm{definition}\ collectionSplit{\isacharunderscore}func\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\isapars{\isatv{s}\ refined{\isachardot}lres,\ abstract{\isachardot}cres}\ resource\isanewline
+\isaindent{\isacomm{definition}\ collectionSplit{\isacharunderscore}func\ }{\isasymRightarrow}\ \isapars{\isatv{s}\ refined{\isachardot}lres,\ abstract{\isachardot}cres}\ resource\isanewline
+\isaindent{\isacomm{definition}\ collectionSplit{\isacharunderscore}func\ }{\isasymRightarrow}\ String{\isachardot}literal\ {\isasymRightarrow}\ unit\isanewline
+\isaindent{\isacomm{definition}\ collectionSplit{\isacharunderscore}func\ }{\isasymRightarrow}\ \isapars{\isatv{s}\ refined{\isachardot}lres,\ abstract{\isachardot}cres,\ String.literal,\ unit}\ process{\isachardoublequoteclose}\isanewline
+\ \ \isaOcomm{where}\ {\isachardoublequoteopen}\isafv{collectionSplit{\isacharunderscore}func}\ \isabv{in\ out\ l\ m}\ {\isacharequal}\isanewline
+\ \ Seq\ \isapars{Seq\ \isapars{Par\ \isapars{duplicateToN\ {\isacharparenleft}length\ \isafv{students}{\isacharparenright}\ Instructions}\isanewline
+\isaindent{\ \ Seq\ {\isacharparenleft}Seq\ {\isacharparenleft}Par\ }\isapars{Identity\ {\isacharparenleft}Parallel\ {\isacharparenleft}map\ {\isacharparenleft}Res\ {\isasymcirc}\ refined{\isachardot}Student{\isacharparenright}\ \isafv{students}{\isacharparenright}{\isacharparenright}}}\isanewline
+\isaindent{\ \ Seq\ {\isacharparenleft}Seq\ }\isapars{swapInterleave\ {\isacharparenleft}replicate\ {\isacharparenleft}length\ \isafv{students}{\isacharparenright}\ {\isacharparenleft}Copyable\ Instructions{\isacharparenright}{\isacharparenright}\isanewline
+\isaindent{\ \ Seq\ {\isacharparenleft}Seq\ {\isacharparenleft}swapInterleave\ }{\isacharparenleft}map\ {\isacharparenleft}Res\ {\isasymcirc}\ refined{\isachardot}Student{\isacharparenright}\ \isafv{students}{\isacharparenright}}}\isanewline
+\isaindent{\ \ Seq\ }\isapars{par{\isacharunderscore}process{\isacharunderscore}list\ {\isacharparenleft}map\ collectStudent\ \isafv{students}{\isacharparenright}}{\isachardoublequoteclose}
